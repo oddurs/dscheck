@@ -1,0 +1,79 @@
+import {
+  type CheckContext,
+  type RuleId,
+  type Violation,
+  checkDeclaration,
+  formatViolation,
+  indexFor,
+} from '@offsystem/core';
+import stylelint, { type PostcssResult, type Rule } from 'stylelint';
+import type { Declaration, Root } from 'postcss';
+
+const NAMESPACE = 'offsystem';
+const RULES: RuleId[] = ['no-raw-color', 'no-raw-length', 'no-unknown-token'];
+
+/**
+ * Three stylelint rules over one shared walk: each rule filters the shared
+ * checker's findings to its own id, so severities stay independently
+ * configurable while the token index is resolved once per file.
+ */
+function createRule(ruleId: RuleId): Rule {
+  const ruleName = `${NAMESPACE}/${ruleId}`;
+  const messages = stylelint.utils.ruleMessages(ruleName, {
+    rejected: (violation: Violation) => formatViolation(violation),
+  });
+
+  const rule: Rule = ((enabled: unknown) => {
+    return (root: Root, result: PostcssResult) => {
+      if (!enabled) return;
+      const file = root.source?.input.file;
+      if (!file) return;
+      const index = indexFor(file);
+      if (!index) return; // no design system found — nothing to enforce
+
+      const localVars = new Set<string>();
+      root.walkDecls(/^--/, (decl) => localVars.add(decl.prop));
+      const ctx: CheckContext = { index, localVars };
+
+      root.walkDecls((decl: Declaration) => {
+        for (const violation of checkDeclaration(decl.prop, decl.value, ctx)) {
+          if (violation.rule !== ruleId) continue;
+          stylelint.utils.report({
+            message: messages.rejected(violation),
+            node: decl,
+            index: declarationValueIndex(decl) + violation.index,
+            endIndex: declarationValueIndex(decl) + violation.index + violation.value.length,
+            result,
+            ruleName,
+          });
+        }
+      });
+    };
+  }) as Rule;
+
+  rule.ruleName = ruleName;
+  rule.messages = messages;
+  rule.meta = { url: `https://github.com/oddurs/offsystem#${ruleId}` };
+  return rule;
+}
+
+function declarationValueIndex(decl: Declaration): number {
+  const between = decl.raws.between ?? ': ';
+  return decl.prop.length + between.length;
+}
+
+const rules = RULES.map((id) => stylelint.createPlugin(`${NAMESPACE}/${id}`, createRule(id)));
+
+export default rules;
+
+/** Everything on, error severity — the strict starting point. */
+export const configs = {
+  recommended: {
+    plugins: ['@offsystem/stylelint-plugin'],
+    rules: {
+      'offsystem/no-raw-color': true,
+      'offsystem/no-unknown-token': true,
+      'offsystem/no-raw-length': [true, { severity: 'warning' }],
+    },
+  },
+};
