@@ -1,5 +1,5 @@
 import { resolve } from 'node:path';
-import { type CheckContext, formatViolation, indexFor, type RuleId } from '@offsystem/core';
+import { type CheckContext, formatViolation, indexFor, type RuleId } from '@dscheck/core';
 import type { Rule } from 'eslint';
 import { checkClassString, checkStyleEntry } from './jsx.js';
 
@@ -25,7 +25,7 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
       type: 'problem',
       docs: {
         description: `Enforce design-system tokens (${ruleId})`,
-        url: `https://github.com/oddurs/offsystem#${ruleId}`,
+        url: `https://github.com/oddurs/dscheck#${ruleId}`,
       },
       fixable: 'code',
       schema: [],
@@ -188,22 +188,22 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
 }
 
 const plugin = {
-  meta: { name: '@offsystem/eslint-plugin', version: '0.0.0' },
+  meta: { name: '@dscheck/eslint-plugin', version: '0.0.0' },
   rules: Object.fromEntries(RULES.map((id) => [id, createRule(id)])),
 };
 
 export default plugin;
 
-/** Flat-config preset: `import offsystem from '@offsystem/eslint-plugin'` → `offsystem.configs.recommended`. */
+/** Flat-config preset: `import dscheck from '@dscheck/eslint-plugin'` → `dscheck.configs.recommended`. */
 export const configs = {
   recommended: {
-    plugins: { offsystem: plugin },
+    plugins: { dscheck: plugin },
     rules: {
-      'offsystem/no-raw-color': 'error',
-      'offsystem/no-unknown-token': 'error',
-      'offsystem/no-raw-length': 'warn',
-      'offsystem/no-raw-font': 'warn',
-      'offsystem/no-raw-shadow': 'warn',
+      'dscheck/no-raw-color': 'error',
+      'dscheck/no-unknown-token': 'error',
+      'dscheck/no-raw-length': 'warn',
+      'dscheck/no-raw-font': 'warn',
+      'dscheck/no-raw-shadow': 'warn',
     },
   },
 };

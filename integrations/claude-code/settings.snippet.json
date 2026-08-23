@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh integrations/claude-code/offsystem-hook.sh"
+            "command": "sh integrations/claude-code/dscheck-hook.sh"
           }
         ]
       }

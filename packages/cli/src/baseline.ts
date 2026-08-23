@@ -9,7 +9,7 @@ import type { Finding } from './run.js';
  */
 export type Baseline = Record<string, Record<string, { count: number }>>;
 
-export const BASELINE_FILE = '.offsystem-baseline.json';
+export const BASELINE_FILE = '.dscheck-baseline.json';
 
 export function writeBaseline(findings: Finding[], root: string): Baseline {
   const baseline: Baseline = {};

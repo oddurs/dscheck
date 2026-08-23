@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { checkDeclaration, formatViolation } from './check.js';
 import { loadCssTokens } from './css-source.js';
 
-const dir = mkdtempSync(join(tmpdir(), 'offsystem-check-'));
+const dir = mkdtempSync(join(tmpdir(), 'dscheck-check-'));
 const tokensFile = join(dir, 'tokens.css');
 writeFileSync(
   tokensFile,
@@ -108,7 +108,7 @@ describe('math functions', () => {
 });
 
 describe('no-raw-font / no-raw-shadow', () => {
-  const dir2 = mkdtempSync(join(tmpdir(), 'offsystem-r56-'));
+  const dir2 = mkdtempSync(join(tmpdir(), 'dscheck-r56-'));
   const f = join(dir2, 'tokens.css');
   writeFileSync(
     f,

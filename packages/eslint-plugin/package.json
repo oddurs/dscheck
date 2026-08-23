@@ -1,5 +1,5 @@
 {
-  "name": "@offsystem/eslint-plugin",
+  "name": "@dscheck/eslint-plugin",
   "version": "0.0.0",
   "description": "ESLint rules that enforce your design system's token set in JSX and Tailwind classes",
   "license": "MIT",
@@ -14,7 +14,7 @@
     "build": "tsdown src/index.ts --dts"
   },
   "dependencies": {
-    "@offsystem/core": "workspace:*"
+    "@dscheck/core": "workspace:*"
   },
   "peerDependencies": {
     "eslint": ">=9"

@@ -29,19 +29,19 @@ async function lintCss(files: string[]): Promise<Finding[]> {
   const result = await stylelint.lint({
     files: files.map((f) => f.replaceAll('\\', '/')), // stylelint globs; windows backslashes would escape
     config: {
-      plugins: [require.resolve('@offsystem/stylelint-plugin')],
+      plugins: [require.resolve('@dscheck/stylelint-plugin')],
       rules: {
-        'offsystem/no-raw-color': true,
-        'offsystem/no-unknown-token': true,
-        'offsystem/no-raw-length': [true, { severity: 'warning' }],
-        'offsystem/no-raw-font': [true, { severity: 'warning' }],
-        'offsystem/no-raw-shadow': [true, { severity: 'warning' }],
+        'dscheck/no-raw-color': true,
+        'dscheck/no-unknown-token': true,
+        'dscheck/no-raw-length': [true, { severity: 'warning' }],
+        'dscheck/no-raw-font': [true, { severity: 'warning' }],
+        'dscheck/no-raw-shadow': [true, { severity: 'warning' }],
       },
     },
   });
   return result.results.flatMap((r) =>
     r.warnings
-      .filter((w) => w.rule?.startsWith('offsystem/'))
+      .filter((w) => w.rule?.startsWith('dscheck/'))
       .map((w) => toFinding(r.source ?? '', w.line, w.column, w.rule ?? '', w.severity, w.text)),
   );
 }
@@ -49,7 +49,7 @@ async function lintCss(files: string[]): Promise<Finding[]> {
 async function lintJsx(files: string[]): Promise<Finding[]> {
   const { Linter } = await import('eslint');
   const { readFileSync } = await import('node:fs');
-  const { default: plugin } = await import('@offsystem/eslint-plugin');
+  const { default: plugin } = await import('@dscheck/eslint-plugin');
   const { default: tsParser } = await import('@typescript-eslint/parser');
   const linter = new Linter({ cwd: '/' });
   const findings: Finding[] = [];
@@ -58,23 +58,23 @@ async function lintJsx(files: string[]): Promise<Finding[]> {
       readFileSync(file, 'utf8'),
       {
         files: ['**/*.{jsx,tsx}'],
-        plugins: { offsystem: plugin as never },
+        plugins: { dscheck: plugin as never },
         languageOptions: {
           parser: tsParser as never,
           parserOptions: { ecmaFeatures: { jsx: true } },
         },
         rules: {
-          'offsystem/no-raw-color': 'error',
-          'offsystem/no-unknown-token': 'error',
-          'offsystem/no-raw-length': 'warn',
-          'offsystem/no-raw-font': 'warn',
-          'offsystem/no-raw-shadow': 'warn',
+          'dscheck/no-raw-color': 'error',
+          'dscheck/no-unknown-token': 'error',
+          'dscheck/no-raw-length': 'warn',
+          'dscheck/no-raw-font': 'warn',
+          'dscheck/no-raw-shadow': 'warn',
         },
       },
       file,
     );
     for (const m of messages) {
-      if (!m.ruleId?.startsWith('offsystem/')) continue;
+      if (!m.ruleId?.startsWith('dscheck/')) continue;
       findings.push(
         toFinding(
           file,
@@ -109,7 +109,7 @@ function toFinding(
     col,
     rule,
     severity: severity === 'error' ? 'error' : 'warning',
-    message: text.replace(/\s*\(offsystem\/[\w-]+\)\s*$/, ''),
+    message: text.replace(/\s*\(dscheck\/[\w-]+\)\s*$/, ''),
     ...(suggestion ? { suggestion } : {}),
   };
 }

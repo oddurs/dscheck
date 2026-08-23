@@ -1,10 +1,10 @@
-# offsystem — Roadmap
+# dscheck — Roadmap
 
 *Status: draft v1, 2026-08-23. Solo developer + agents; estimates assume part-time focus. Each phase has exit criteria — a phase isn't done until they pass.*
 
-## Phase 0 — Claim & scaffold — **DONE 2026-08-23** (npm claim blocked: needs `npm login`; GH org deferred, private repo `oddurs/offsystem`)
+## Phase 0 — Claim & scaffold — **DONE 2026-08-23** (npm claim blocked: needs `npm login`; GH org deferred, private repo `oddurs/dscheck`)
 
-- Confirm name; claim `offsystem` + `@offsystem` scope on npm (placeholder publish), GitHub org (`offsystem` user is taken-but-empty → use `offsystem-dev` or file a name claim; decide then), domain `offsystem.dev` if free.
+- Confirm name; claim `dscheck` + `@dscheck` scope on npm (placeholder publish), GitHub org (`dscheck` user is taken-but-empty → use `dscheck-dev` or file a name claim; decide then), domain `dscheck.dev` if free.
 - Scaffold monorepo (09 §layout): pnpm workspaces, tsdown, vitest, biome, changesets, CI skeleton.
 - **Spike the resolver risk first:** load a real Tailwind v4 theme via `@tailwindcss/node` and print the value index from one of my repos. If Tailwind's internal API is unusable, the static-CSS-parse fallback becomes primary — find out now.
 - ✅ Exit: `pnpm test` green in CI; spike prints a correct value index from a real repo.
@@ -13,10 +13,10 @@
 
 Scope = the demo, nothing else (FR1 minus roles, R1–R3, MVP surfaces, agent format, hook).
 
-1. `@offsystem/core`: resolver (@theme via TW engine + static fallback, DTCG, :root) → value index; matchers (ΔEOK via culori, scale steps, Levenshtein). → verify: unit tests on fixture token sets incl. alias cycles, mode flattening.
-2. `@offsystem/stylelint-plugin`: R1–R3 on CSS/SCSS declarations. → verify: fixture snapshots + run on dogfood repo.
-3. `@offsystem/eslint-plugin`: R1–R3 on JSX `style={{}}`; Tailwind classname strings for R1/R2 literals only (arbitrary-class waits for P2). → verify: same.
-4. `offsystem` CLI: `check` (drives the hosts), `--format pretty|json|agent`. → verify: NDJSON schema test.
+1. `@dscheck/core`: resolver (@theme via TW engine + static fallback, DTCG, :root) → value index; matchers (ΔEOK via culori, scale steps, Levenshtein). → verify: unit tests on fixture token sets incl. alias cycles, mode flattening.
+2. `@dscheck/stylelint-plugin`: R1–R3 on CSS/SCSS declarations. → verify: fixture snapshots + run on dogfood repo.
+3. `@dscheck/eslint-plugin`: R1–R3 on JSX `style={{}}`; Tailwind classname strings for R1/R2 literals only (arbitrary-class waits for P2). → verify: same.
+4. `dscheck` CLI: `check` (drives the hosts), `--format pretty|json|agent`. → verify: NDJSON schema test.
 5. Claude Code `PostToolUse` hook + docs snippet. → verify: **M1 demo run** — record the with/without numbers.
 - ✅ Exit: M1 achieved (0 vs N≥10) on a real repo; M2 rehearsed on a second repo; FP eyeball-pass on both.
 
@@ -24,8 +24,8 @@ Scope = the demo, nothing else (FR1 minus roles, R1–R3, MVP surfaces, agent fo
 
 1. Rules R4 (`no-arbitrary-class` wrapping Tailwind's canonical machinery), R5, R6; autofix per FR5.
 2. SARIF with stable fingerprints (+ standalone stylelint-SARIF formatter package — free adoption wedge); rdjson.
-3. Baseline: host-suppressions interop verified end-to-end; `offsystem baseline` + `offsystem report` (trend).
-4. `offsystem/action` GitHub Action: run → SARIF upload → optional sticky PR comment ("off-system: 41 → 38").
+3. Baseline: host-suppressions interop verified end-to-end; `dscheck baseline` + `dscheck report` (trend).
+4. `dscheck/action` GitHub Action: run → SARIF upload → optional sticky PR comment ("off-system: 41 → 38").
 5. Corpus CI (09 §infra) live; N2 FP budget measured, defaults tuned against it.
 6. Docs site (Starlight, static) + README + the M1 demo as a 90-second recording.
 7. **Launch:** Show HN + design-systems Slack/newsletter circuit + Tailwind community. Positioning per 06 §5.
@@ -36,14 +36,14 @@ Scope = the demo, nothing else (FR1 minus roles, R1–R3, MVP surfaces, agent fo
 - `token-role` rule (R7) + roles schema — the input the whole family reuses.
 - One CSS-in-JS flavor (chosen by what dogfood/users actually hit); Vue/Svelte via customSyntax.
 - Monorepo multi-source configs; TS/JS token-object source.
-- `offsystem mcp`; Cursor hooks recipe; VS Code "explain this finding" via eslint suggestions polish.
+- `dscheck mcp`; Cursor hooks recipe; VS Code "explain this finding" via eslint suggestions polish.
 - Tokens Studio dialect import; deprecation maps (`old-token → new-token` autofix — what org plugins have and we don't).
 - Triage: respond to every issue < 48h; FP reports become corpus cases.
 - ✅ Exit: M4 traction targets; ≥ 1 external contributor merged.
 
 ## Phase 4 — The family (month 6+, gated on Phase 3 traction)
 
-Same resolver, new commands (00-angles): `offsystem contrast` (role-aware matrix, WCAG2+APCA, baseline-diffable) → `offsystem diff` (semantic token diff/changelog/codemod) → `offsystem audit` (Playwright rendered check). Order by user pull, not by plan. Do **not** start these early — the moat is a deep resolver + trusted defaults, not breadth.
+Same resolver, new commands (00-angles): `dscheck contrast` (role-aware matrix, WCAG2+APCA, baseline-diffable) → `dscheck diff` (semantic token diff/changelog/codemod) → `dscheck audit` (Playwright rendered check). Order by user pull, not by plan. Do **not** start these early — the moat is a deep resolver + trusted defaults, not breadth.
 
 ## Pre-mortem (top 5, from 06 §4)
 

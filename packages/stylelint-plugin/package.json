@@ -1,5 +1,5 @@
 {
-  "name": "@offsystem/stylelint-plugin",
+  "name": "@dscheck/stylelint-plugin",
   "version": "0.0.0",
   "description": "Stylelint rules that enforce your design system's token set",
   "license": "MIT",
@@ -14,7 +14,7 @@
     "build": "tsdown src/index.ts --dts"
   },
   "dependencies": {
-    "@offsystem/core": "workspace:*"
+    "@dscheck/core": "workspace:*"
   },
   "peerDependencies": {
     "stylelint": ">=16"

@@ -31,13 +31,13 @@ export function toSarif(
       {
         tool: {
           driver: {
-            name: 'offsystem',
-            informationUri: 'https://github.com/oddurs/offsystem',
+            name: 'dscheck',
+            informationUri: 'https://github.com/oddurs/dscheck',
             version: options.toolVersion ?? '0.0.0',
             rules: rules.map((id) => ({
               id,
               shortDescription: { text: id },
-              helpUri: `https://github.com/oddurs/offsystem#${id.replace(/^offsystem\//, '')}`,
+              helpUri: `https://github.com/oddurs/dscheck#${id.replace(/^dscheck\//, '')}`,
             })),
           },
         },
@@ -59,7 +59,7 @@ export function toSarif(
               },
             ],
             partialFingerprints: {
-              offsystemFingerprint: createHash('sha256')
+              dscheckFingerprint: createHash('sha256')
                 .update(`${key}#${ordinal}`)
                 .digest('hex')
                 .slice(0, 32),

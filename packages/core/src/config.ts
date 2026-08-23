@@ -5,7 +5,7 @@ import { globSync } from 'tinyglobby';
 import { loadCssTokens } from './css-source.js';
 import type { ValueIndex } from './types.js';
 
-export interface OffsystemConfig {
+export interface DscheckConfig {
   /** Token source globs, relative to the config file (or discovery root). */
   tokens: string[];
   /** Files exempt from linting (content pages, generated code), relative globs. */
@@ -14,10 +14,10 @@ export interface OffsystemConfig {
   root: string;
 }
 
-const CONFIG_NAME = 'offsystem.config.json';
+const CONFIG_NAME = 'dscheck.config.json';
 
-/** Find offsystem.config.json walking up from `from`; falls back to zero-config discovery. */
-export function findConfig(from: string): OffsystemConfig | undefined {
+/** Find dscheck.config.json walking up from `from`; falls back to zero-config discovery. */
+export function findConfig(from: string): DscheckConfig | undefined {
   let dir = resolve(from);
   if (existsSync(dir) && !statSync(dir).isDirectory()) dir = dirname(dir);
   for (; ; dir = dirname(dir)) {
@@ -37,7 +37,7 @@ export function findConfig(from: string): OffsystemConfig | undefined {
 }
 
 /** Zero-config: any css file in the usual places that declares @theme or :root tokens. */
-function discover(root: string): OffsystemConfig | undefined {
+function discover(root: string): DscheckConfig | undefined {
   const candidates = globSync(['*.css', '{app,src,styles,css}/**/*.css'], {
     cwd: root,
     deep: 4,
@@ -57,7 +57,7 @@ interface CacheEntry {
 const cache = new Map<string, CacheEntry>();
 
 /** Resolve the allowed set for a config, cached by token-file mtimes. */
-export function loadIndex(config: OffsystemConfig): ValueIndex {
+export function loadIndex(config: DscheckConfig): ValueIndex {
   const files = globSync(config.tokens, {
     cwd: config.root,
     ignore: ['**/node_modules/**'],
@@ -73,7 +73,7 @@ export function loadIndex(config: OffsystemConfig): ValueIndex {
 }
 
 /** True when the config exempts this file from linting. */
-export function isIgnored(filePath: string, config: OffsystemConfig): boolean {
+export function isIgnored(filePath: string, config: DscheckConfig): boolean {
   if (config.ignore.length === 0) return false;
   const rel = relative(config.root, resolve(filePath)).replaceAll('\\', '/');
   return picomatch.isMatch(rel, config.ignore);

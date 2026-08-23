@@ -11,10 +11,10 @@ const cli = join(process.cwd(), 'packages/cli/dist/cli.js');
 let failed = false;
 
 for (const repo of corpus.repos) {
-  const dir = mkdtempSync(join(tmpdir(), 'offsystem-corpus-'));
+  const dir = mkdtempSync(join(tmpdir(), 'dscheck-corpus-'));
   execSync(`git clone --quiet --filter=blob:none ${repo.url} ${dir}`, { stdio: 'inherit' });
   execSync(`git -C ${dir} checkout --quiet ${repo.sha}`);
-  writeFileSync(join(dir, 'offsystem.config.json'), JSON.stringify(repo.config));
+  writeFileSync(join(dir, 'dscheck.config.json'), JSON.stringify(repo.config));
   const out = execSync(
     `node ${cli} check ${repo.paths.map((p) => join(dir, p)).join(' ')} --format json || true`,
     { cwd: dir, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, shell: '/bin/bash' },

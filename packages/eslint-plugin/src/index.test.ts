@@ -5,9 +5,9 @@ import { Linter } from 'eslint';
 import { describe, expect, it } from 'vitest';
 import plugin from '../dist/index.js';
 
-const dir = mkdtempSync(join(tmpdir(), 'offsystem-el-'));
+const dir = mkdtempSync(join(tmpdir(), 'dscheck-el-'));
 writeFileSync(join(dir, 'package.json'), '{}');
-writeFileSync(join(dir, 'offsystem.config.json'), JSON.stringify({ tokens: ['tokens.css'] }));
+writeFileSync(join(dir, 'dscheck.config.json'), JSON.stringify({ tokens: ['tokens.css'] }));
 writeFileSync(
   join(dir, 'tokens.css'),
   '@theme { --color-primary: #1d4ed8; --spacing-3: 12px; --radius-md: 6px; }',
@@ -19,34 +19,34 @@ function lint(code: string) {
     code,
     {
       files: ['**/*.tsx'],
-      plugins: { offsystem: plugin as never },
+      plugins: { dscheck: plugin as never },
       languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
       rules: {
-        'offsystem/no-raw-color': 'error',
-        'offsystem/no-raw-length': 'error',
-        'offsystem/no-unknown-token': 'error',
+        'dscheck/no-raw-color': 'error',
+        'dscheck/no-raw-length': 'error',
+        'dscheck/no-unknown-token': 'error',
       },
     },
     'component.tsx',
   );
 }
 
-describe('@offsystem/eslint-plugin', () => {
+describe('@dscheck/eslint-plugin', () => {
   it('flags raw colors and numeric px lengths in style objects', () => {
     const messages = lint('const a = <div style={{ color: "#1d4ed8", padding: 14 }} />;');
     expect(messages.map((m) => m.ruleId).sort()).toEqual([
-      'offsystem/no-raw-color',
-      'offsystem/no-raw-length',
+      'dscheck/no-raw-color',
+      'dscheck/no-raw-length',
     ]);
     expect(messages[0]?.message).toContain('var(--color-primary)');
-    expect(messages.find((m) => m.ruleId === 'offsystem/no-raw-length')?.message).toContain(
+    expect(messages.find((m) => m.ruleId === 'dscheck/no-raw-length')?.message).toContain(
       'var(--spacing-3)',
     );
   });
 
   it('flags fabricated tokens in style values', () => {
     const messages = lint('const a = <div style={{ color: "var(--color-primry)" }} />;');
-    expect(messages[0]?.ruleId).toBe('offsystem/no-unknown-token');
+    expect(messages[0]?.ruleId).toBe('dscheck/no-unknown-token');
     expect(messages[0]?.message).toContain('did you mean --color-primary?');
   });
 
@@ -55,9 +55,9 @@ describe('@offsystem/eslint-plugin', () => {
       'const a = <div className="p-[13px] bg-[#1d4ed8] focus:rounded-[7px]" />;',
     );
     expect(messages.map((m) => m.ruleId).sort()).toEqual([
-      'offsystem/no-raw-color',
-      'offsystem/no-raw-length',
-      'offsystem/no-raw-length',
+      'dscheck/no-raw-color',
+      'dscheck/no-raw-length',
+      'dscheck/no-raw-length',
     ]);
   });
 
@@ -77,8 +77,8 @@ describe('referenced style objects', () => {
       const styles = { card: { background: '#1d4ed8', padding: '14px' }, safe: { color: 'var(--color-primary)' } };
       const a = <div style={styles.card} />;`);
     expect(messages.map((m) => m.ruleId).sort()).toEqual([
-      'offsystem/no-raw-color',
-      'offsystem/no-raw-length',
+      'dscheck/no-raw-color',
+      'dscheck/no-raw-length',
     ]);
   });
 
@@ -97,7 +97,7 @@ describe('constant indirection', () => {
       const palette = { cedar: '#1d4ed8' };
       const a = <div style={{ color: palette.cedar, borderColor: BRAND }} />;`);
     expect(messages).toHaveLength(2);
-    expect(messages.every((m) => m.ruleId === 'offsystem/no-raw-color')).toBe(true);
+    expect(messages.every((m) => m.ruleId === 'dscheck/no-raw-color')).toBe(true);
   });
 });
 

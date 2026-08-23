@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { loadCssTokens } from './css-source.js';
 
 function fixture(css: string): string {
-  const dir = mkdtempSync(join(tmpdir(), 'offsystem-'));
+  const dir = mkdtempSync(join(tmpdir(), 'dscheck-'));
   const file = join(dir, 'tokens.css');
   writeFileSync(file, css);
   return file;

@@ -1,6 +1,6 @@
-# offsystem — Product requirements
+# dscheck — Product requirements
 
-*Status: draft v1, 2026-08-23. Working name `offsystem` (per [06 §6](06-competitors-lint.md)); rename is free until first npm publish. Companion: [05-concept-lint.md](05-concept-lint.md) (concept), [08-roadmap.md](08-roadmap.md), [09-stack-infra.md](09-stack-infra.md).*
+*Status: draft v1, 2026-08-23. Name `dscheck` (renamed from working name "offsystem", user decision 2026-08-23) (per [06 §6](06-competitors-lint.md)); rename is free until first npm publish. Companion: [05-concept-lint.md](05-concept-lint.md) (concept), [08-roadmap.md](08-roadmap.md), [09-stack-infra.md](09-stack-infra.md).*
 
 ## Product definition
 
@@ -19,7 +19,7 @@ The linter that knows *your* design system. Reads the token source you already h
 - **FR1.2** Multiple sources merge into one value index, keyed by category (color, length/space, radius, font-size, font-family, weight, line-height, shadow, z-index, duration/easing). Category inferred from DTCG `$type`, Tailwind namespace (`--color-*`, `--spacing-*`…), or CSS property context.
 - **FR1.3** Deterministic and offline: no network at resolve or lint time, ever.
 - **FR1.4** Cached by content hash of the token sources; resolve ≤ 200 ms warm, ≤ 2 s cold on a real project.
-- **FR1.5** Roles (opt-in, P3): `$extensions.offsystem.roles` in DTCG / sidecar `roles.json` mapping token patterns → roles (`bg`, `fg`, `border`, …).
+- **FR1.5** Roles (opt-in, P3): `$extensions.dscheck.roles` in DTCG / sidecar `roles.json` mapping token patterns → roles (`bg`, `fg`, `border`, …).
 
 ### FR2 — Rules
 | id | rule | phase | default severity |
@@ -50,13 +50,13 @@ Autofix **only** exact/threshold matches (via host fixers). Everything else is a
 Host-native (eslint/stylelint formatters work as-is); plus CLI formats: `pretty`, `json`, `agent` (NDJSON, one finding per line, suggestion first), `sarif` (2.1.0 with stable `partialFingerprints` → GitHub "new findings only on PRs" for free), `rdjson` (reviewdog). Ship the missing **stylelint SARIF formatter** as a standalone by-product (06 whitespace #6).
 
 ### FR7 — Baseline / debt ratchet
-In-host: rely on the hosts' converged suppressions files (ESLint ≥ 9.24, stylelint ≥ 16.25 — same per-file/per-rule count format). CLI adds what hosts lack: `offsystem baseline` (cross-surface count snapshot), `offsystem report` (debt + suppressions + arbitrary-value trend over git history — the number nobody else produces).
+In-host: rely on the hosts' converged suppressions files (ESLint ≥ 9.24, stylelint ≥ 16.25 — same per-file/per-rule count format). CLI adds what hosts lack: `dscheck baseline` (cross-surface count snapshot), `dscheck report` (debt + suppressions + arbitrary-value trend over git history — the number nobody else produces).
 
 ### FR8 — Config & zero-config
-`offsystem.config.json` (single file, read by all adapters): `tokens`, `include`, `tolerance`, `roles`, per-rule severity/allow. Zero-config: detect `app.css` with `@theme`, `tokens.json`/`*.tokens.json`, or `:root` blocks and just work. Monorepo: config discovery walks up; nearest wins (per-package brands).
+`dscheck.config.json` (single file, read by all adapters): `tokens`, `include`, `tolerance`, `roles`, per-rule severity/allow. Zero-config: detect `app.css` with `@theme`, `tokens.json`/`*.tokens.json`, or `:root` blocks and just work. Monorepo: config discovery walks up; nearest wins (per-package brands).
 
 ### FR9 — Agent integration
-`--format agent`; shipped Claude Code `PostToolUse` hook snippet (lint the written file, feed findings back); Cursor hook recipe; `offsystem mcp` (P3) exposing `lint_file`, `query_tokens`, `nearest_token`.
+`--format agent`; shipped Claude Code `PostToolUse` hook snippet (lint the written file, feed findings back); Cursor hook recipe; `dscheck mcp` (P3) exposing `lint_file`, `query_tokens`, `nearest_token`.
 
 ## Non-functional requirements
 
@@ -76,4 +76,4 @@ Figma anything (Enterprise-gated, lossy — 00 angles); token *generation* or do
 - **M1 (the demo):** same repo + same agent task, hook on vs off → off-system values in the resulting diff: **0 vs N**, N ≥ 10. This is the launch asset.
 - **M2 (adoption friction):** a stranger's Tailwind v4 repo goes from `npm i` to first real finding in < 5 minutes, no docs beyond the README.
 - **M3 (quality):** corpus FP rate < 5%; zero "this linter is noisy" issues in the first month that aren't config errors.
-- **M4 (traction, post-launch):** 500 GitHub stars or 5k weekly downloads within 3 months of launch; ≥ 3 external repos with offsystem in CI.
+- **M4 (traction, post-launch):** 500 GitHub stars or 5k weekly downloads within 3 months of launch; ≥ 3 external repos with dscheck in CI.

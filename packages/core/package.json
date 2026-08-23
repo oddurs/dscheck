@@ -1,5 +1,5 @@
 {
-  "name": "@offsystem/core",
+  "name": "@dscheck/core",
   "version": "0.0.0",
   "description": "Design-system allowed-set resolver and off-system value matching",
   "license": "MIT",

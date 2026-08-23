@@ -20,16 +20,16 @@ importers:
 
   packages/cli:
     dependencies:
-      '@offsystem/core':
+      '@dscheck/core':
         specifier: workspace:*
         version: link:../core
-      '@offsystem/eslint-plugin':
+      '@dscheck/eslint-plugin':
         specifier: workspace:*
         version: link:../eslint-plugin
-      '@offsystem/sarif':
+      '@dscheck/sarif':
         specifier: workspace:*
         version: link:../sarif
-      '@offsystem/stylelint-plugin':
+      '@dscheck/stylelint-plugin':
         specifier: workspace:*
         version: link:../stylelint-plugin
       '@typescript-eslint/parser':
@@ -82,7 +82,7 @@ importers:
 
   packages/eslint-plugin:
     dependencies:
-      '@offsystem/core':
+      '@dscheck/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -104,7 +104,7 @@ importers:
 
   packages/stylelint-plugin:
     dependencies:
-      '@offsystem/core':
+      '@dscheck/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:

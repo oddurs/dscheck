@@ -2,8 +2,8 @@ import type { Formatter } from 'stylelint';
 import { type SarifInput, toSarif } from './index.js';
 
 /**
- * A standalone SARIF formatter for stylelint — any rules, not just offsystem.
- * Usage: stylelint <files> --custom-formatter @offsystem/sarif/stylelint-formatter
+ * A standalone SARIF formatter for stylelint — any rules, not just dscheck.
+ * Usage: stylelint <files> --custom-formatter @dscheck/sarif/stylelint-formatter
  */
 const formatter: Formatter = (results) => {
   const findings: SarifInput[] = results.flatMap((result) =>

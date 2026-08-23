@@ -6,7 +6,7 @@ describe('toSarif', () => {
     file: `${process.cwd()}/src/a.css`,
     line: 3,
     col: 5,
-    rule: 'offsystem/no-raw-color',
+    rule: 'dscheck/no-raw-color',
     severity: 'error' as const,
     message: 'Raw color #333 — use var(--color-ink)',
   };
@@ -17,8 +17,8 @@ describe('toSarif', () => {
     const results = sarif.runs[0]?.results ?? [];
     expect(results[0]?.locations[0]?.physicalLocation.artifactLocation.uri).toBe('src/a.css');
     // same content, different occurrence → different fingerprint (line-move stable, dupe distinct)
-    expect(results[0]?.partialFingerprints.offsystemFingerprint).not.toBe(
-      results[1]?.partialFingerprints.offsystemFingerprint,
+    expect(results[0]?.partialFingerprints.dscheckFingerprint).not.toBe(
+      results[1]?.partialFingerprints.dscheckFingerprint,
     );
   });
 });

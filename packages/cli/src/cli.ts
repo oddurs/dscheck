@@ -6,21 +6,21 @@ import pc from 'picocolors';
 import { globSync } from 'tinyglobby';
 import { type Finding, lintFiles } from './run.js';
 
-const HELP = `offsystem — the linter that knows your design system
+const HELP = `dscheck — the linter that knows your design system
 
 Usage
-  offsystem check [paths...]     Lint files (default: cwd) against the token set
-  offsystem baseline [paths...]  Record current findings as accepted debt
-  offsystem report [paths...]    Debt overview: counts by rule and worst files, vs baseline
-  offsystem tokens               Print the resolved allowed set
+  dscheck check [paths...]     Lint files (default: cwd) against the token set
+  dscheck baseline [paths...]  Record current findings as accepted debt
+  dscheck report [paths...]    Debt overview: counts by rule and worst files, vs baseline
+  dscheck tokens               Print the resolved allowed set
 
 Options
   --format <pretty|json|agent|sarif>  Output format (default: pretty)
-  --no-baseline                       Ignore .offsystem-baseline.json
+  --no-baseline                       Ignore .dscheck-baseline.json
   -h, --help                          Show help
 
 Findings are also ordinary eslint/stylelint results — in CI, prefer mounting
-@offsystem/eslint-plugin and @offsystem/stylelint-plugin in your existing setup.`;
+@dscheck/eslint-plugin and @dscheck/stylelint-plugin in your existing setup.`;
 
 const { values, positionals } = parseArgs({
   allowPositionals: true,
@@ -39,9 +39,9 @@ if (values.help || command === 'help') {
 }
 
 if (command === 'tokens') {
-  const { indexFor } = await import('@offsystem/core');
+  const { indexFor } = await import('@dscheck/core');
   const index = indexFor(resolve('.'));
-  if (!index) fail('No design system found (no offsystem.config.json or @theme/:root css).');
+  if (!index) fail('No design system found (no dscheck.config.json or @theme/:root css).');
   for (const token of [...index.tokens.values()].sort((a, b) => a.name.localeCompare(b.name))) {
     console.log(`${token.name}\t${token.category}\t${token.value}`);
   }
@@ -105,7 +105,7 @@ if (baseline) {
       pc.dim(
         `baseline: ${absorbed} known finding${absorbed === 1 ? '' : 's'} absorbed` +
           (stale > 0
-            ? `, ${stale} entr${stale === 1 ? 'y' : 'ies'} paid down (re-run \`offsystem baseline\` to prune)`
+            ? `, ${stale} entr${stale === 1 ? 'y' : 'ies'} paid down (re-run \`dscheck baseline\` to prune)`
             : ''),
       ),
     );
@@ -141,7 +141,7 @@ function isDir(path: string): boolean {
 
 async function render(all: Finding[], format: string): Promise<void> {
   if (format === 'sarif') {
-    const { toSarif } = await import('@offsystem/sarif'); // deferred: keeps the hook path light
+    const { toSarif } = await import('@dscheck/sarif'); // deferred: keeps the hook path light
     console.log(JSON.stringify(toSarif(all), null, 2));
     return;
   }

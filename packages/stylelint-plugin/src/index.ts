@@ -5,11 +5,11 @@ import {
   indexFor,
   type RuleId,
   type Violation,
-} from '@offsystem/core';
+} from '@dscheck/core';
 import type { Declaration, Root } from 'postcss';
 import stylelint, { type PostcssResult, type Rule } from 'stylelint';
 
-const NAMESPACE = 'offsystem';
+const NAMESPACE = 'dscheck';
 const RULES: RuleId[] = [
   'no-raw-color',
   'no-raw-length',
@@ -71,7 +71,7 @@ function createRule(ruleId: RuleId): Rule {
 
   rule.ruleName = ruleName;
   rule.messages = messages;
-  rule.meta = { url: `https://github.com/oddurs/offsystem#${ruleId}`, fixable: true };
+  rule.meta = { url: `https://github.com/oddurs/dscheck#${ruleId}`, fixable: true };
   return rule;
 }
 
@@ -87,13 +87,13 @@ export default rules;
 /** Everything on, error severity — the strict starting point. */
 export const configs = {
   recommended: {
-    plugins: ['@offsystem/stylelint-plugin'],
+    plugins: ['@dscheck/stylelint-plugin'],
     rules: {
-      'offsystem/no-raw-color': true,
-      'offsystem/no-unknown-token': true,
-      'offsystem/no-raw-length': [true, { severity: 'warning' }],
-      'offsystem/no-raw-font': [true, { severity: 'warning' }],
-      'offsystem/no-raw-shadow': [true, { severity: 'warning' }],
+      'dscheck/no-raw-color': true,
+      'dscheck/no-unknown-token': true,
+      'dscheck/no-raw-length': [true, { severity: 'warning' }],
+      'dscheck/no-raw-font': [true, { severity: 'warning' }],
+      'dscheck/no-raw-shadow': [true, { severity: 'warning' }],
     },
   },
 };

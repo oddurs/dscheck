@@ -1,4 +1,4 @@
-/** Token categories offsystem understands. Drives which rule inspects which value. */
+/** Token categories dscheck understands. Drives which rule inspects which value. */
 export type Category =
   | 'color'
   | 'length'

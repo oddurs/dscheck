@@ -1,5 +1,5 @@
 {
-  "name": "offsystem-monorepo",
+  "name": "dscheck-monorepo",
   "private": true,
   "type": "module",
   "engines": {
