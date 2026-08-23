@@ -1,0 +1,10 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":semanticCommitsDisabled"],
+  "rangeStrategy": "bump",
+  "packageRules": [
+    { "matchDepTypes": ["devDependencies"], "groupName": "dev dependencies", "schedule": ["before 6am on monday"] },
+    { "matchPackageNames": ["tailwindcss", "@tailwindcss/node"], "groupName": "tailwind", "description": "Theme data source — regenerate tailwind-theme.ts on major/minor" }
+  ],
+  "postUpdateOptions": ["pnpmDedupe"]
+}
