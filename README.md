@@ -51,6 +51,16 @@ dscheck report               # debt by rule + worst files, vs baseline
 
 Agent guardrail (Claude Code): see `integrations/claude-code/` — a PostToolUse hook that lints every file the agent writes and feeds the fixes back.
 
+## Documentation
+
+Full docs live in [`docs-site/`](docs-site/src/content/docs/) (Starlight; deploys to Pages at go-public):
+[agent guardrail](docs-site/src/content/docs/guides/agent-guardrail.md) ·
+[eslint](docs-site/src/content/docs/guides/eslint.md) ·
+[stylelint](docs-site/src/content/docs/guides/stylelint.md) ·
+[CI & baselines](docs-site/src/content/docs/guides/ci.md) ·
+[config](docs-site/src/content/docs/reference/config.md) ·
+[architecture](docs-site/src/content/docs/reference/architecture.md)
+
 ## Status
 
-Pre-release. Docs: [docs/](docs/) — research, concept, competitor analysis, requirements, roadmap.
+Pre-release. Planning corpus: [docs/](docs/) — research, concept, competitor analysis, requirements, roadmap, sprints.

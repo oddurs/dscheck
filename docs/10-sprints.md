@@ -23,7 +23,7 @@ Open-source excellence for a linter is **trust**, earned four ways: it installs 
 
 **Exit:** 0.1.0 live with provenance; a stranger's repo gets its first finding in under 5 minutes using only the README.
 
-## Sprint 2 — Documentation excellence (no gate — can start now)
+## Sprint 2 — Documentation excellence — **DONE 2026-08-23** (site 19 pages; 2.4 recording pending vhs install; deploy at go-public)
 
 **Goal: every question a user hits in the first hour is answered one click away.**
 
@@ -53,7 +53,7 @@ Open-source excellence for a linter is **trust**, earned four ways: it installs 
 
 **Exit:** public, 100% community checklist, first-hour contributor path proven.
 
-## Sprint 4 — Trust: tests, corpus, supply chain (no gate — can start now)
+## Sprint 4 — Trust: tests, corpus, supply chain — **DONE 2026-08-23** (coverage 98%/85% gate, fuzz 5.5k runs caught real culori crash, corpus ×3 repos + 15ms/file budget, renovate + pinned SHAs + scorecard; scorecard publish flips at go-public)
 
 **Goal: the defaults never cry wolf, and the supply chain is visibly clean.**
 

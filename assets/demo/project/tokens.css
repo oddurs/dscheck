@@ -1,0 +1,11 @@
+@theme {
+  --color-primary: oklch(0.55 0.2 260);
+  --color-surface: oklch(0.97 0.002 260);
+  --color-ink: oklch(0.2 0.02 260);
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --radius-md: 6px;
+  --text-sm: 0.875rem;
+  --shadow-md: 0 4px 6px rgb(0 0 0 / 0.1);
+}
