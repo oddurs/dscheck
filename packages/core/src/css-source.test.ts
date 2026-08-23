@@ -1,0 +1,97 @@
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
+import { loadCssTokens } from './css-source.js';
+
+function fixture(css: string): string {
+  const dir = mkdtempSync(join(tmpdir(), 'offsystem-'));
+  const file = join(dir, 'tokens.css');
+  writeFileSync(file, css);
+  return file;
+}
+
+describe('loadCssTokens', () => {
+  it('collects @theme and :root custom properties', () => {
+    const file = fixture(`
+      @theme { --color-primary: #1d4ed8; --spacing-3: 0.75rem; }
+      :root { --brand-hue: 240; }
+    `);
+    const index = loadCssTokens([file]);
+    expect(index.tokens.get('--color-primary')?.category).toBe('color');
+    expect(index.tokens.get('--spacing-3')?.category).toBe('length');
+    expect(index.tokens.size).toBe(3);
+  });
+
+  it('resolves @theme inline var() aliases against :root values', () => {
+    const file = fixture(`
+      @theme inline { --color-primary: var(--primary); }
+      :root { --primary: oklch(0.55 0.2 260); }
+    `);
+    const index = loadCssTokens([file]);
+    const token = index.tokens.get('--color-primary');
+    expect(token?.value).toBe('oklch(0.55 0.2 260)');
+    expect(token?.aliasOf).toBe('--primary');
+    expect(token?.category).toBe('color');
+    expect(token?.unresolved).toBeUndefined();
+  });
+
+  it('follows multi-step chains and uses fallbacks for unknown vars', () => {
+    const file = fixture(`
+      :root {
+        --a: var(--b);
+        --b: var(--c);
+        --c: 4px;
+        --with-fallback: var(--missing, 8px);
+        --dangling: var(--missing);
+      }
+    `);
+    const index = loadCssTokens([file]);
+    expect(index.tokens.get('--a')?.value).toBe('4px');
+    expect(index.tokens.get('--with-fallback')?.value).toBe('8px');
+    expect(index.tokens.get('--dangling')?.unresolved).toBe(true);
+  });
+
+  it('survives alias cycles', () => {
+    const file = fixture(':root { --x: var(--y); --y: var(--x); }');
+    const index = loadCssTokens([file]);
+    expect(index.tokens.get('--x')?.unresolved).toBe(true);
+  });
+
+  it('classifies Tailwind namespaces including line-height suffixes', () => {
+    const file = fixture(`
+      @theme {
+        --text-sm: 0.875rem;
+        --text-sm--line-height: 1.25rem;
+        --font-weight-bold: 700;
+        --font-display: 'Inter', sans-serif;
+        --radius-md: 6px;
+        --shadow-md: 0 4px 6px rgb(0 0 0 / 0.1);
+        --ease-out: cubic-bezier(0, 0, 0.2, 1);
+      }
+    `);
+    const index = loadCssTokens([file]);
+    const category = (name: string) => index.tokens.get(name)?.category;
+    expect(category('--text-sm')).toBe('font-size');
+    expect(category('--text-sm--line-height')).toBe('line-height');
+    expect(category('--font-weight-bold')).toBe('font-weight');
+    expect(category('--font-display')).toBe('font-family');
+    expect(category('--radius-md')).toBe('radius');
+    expect(category('--shadow-md')).toBe('shadow');
+    expect(category('--ease-out')).toBe('easing');
+  });
+
+  it('ignores component-scoped custom properties', () => {
+    const file = fixture('.button { --button-gap: 4px; } :root { --real: 1px; }');
+    const index = loadCssTokens([file]);
+    expect(index.tokens.has('--button-gap')).toBe(false);
+    expect(index.tokens.has('--real')).toBe(true);
+  });
+});
+
+describe('bare namespace names', () => {
+  it('classifies --shadow without a suffix as shadow', () => {
+    const file = fixture(':root { --shadow: 0 1px 2px rgb(0 0 0 / 0.2); }');
+    expect(loadCssTokens([file]).tokens.get('--shadow')?.category).toBe('shadow');
+  });
+});

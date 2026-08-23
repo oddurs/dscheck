@@ -1,0 +1,23 @@
+{
+  "name": "@offsystem/core",
+  "version": "0.0.0",
+  "description": "Design-system allowed-set resolver and off-system value matching",
+  "license": "MIT",
+  "type": "module",
+  "exports": { ".": "./dist/index.js" },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsdown src/index.ts --dts",
+    "dev": "tsdown src/index.ts --dts --watch"
+  },
+  "dependencies": {
+    "culori": "^4.0.0",
+    "postcss": "^8.5.0",
+    "postcss-value-parser": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/culori": "^4.0.0",
+    "tsdown": "^0.15.0"
+  },
+  "engines": { "node": ">=20.19" }
+}
