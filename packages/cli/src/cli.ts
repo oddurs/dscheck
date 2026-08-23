@@ -4,7 +4,8 @@ import { resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import pc from 'picocolors';
 import { globSync } from 'tinyglobby';
-import { type Finding, lintFiles } from './run.js';
+import { lintFilesParallel } from './pool.js';
+import type { Finding } from './run.js';
 
 const HELP = `dscheck — the linter that knows your design system
 
@@ -52,7 +53,7 @@ if (!['check', 'baseline', 'report'].includes(command))
   fail(`Unknown command: ${command}\n\n${HELP}`);
 
 const files = expand(paths.length > 0 ? paths : ['.']);
-const findings = await lintFiles(files);
+const findings = await lintFilesParallel(files);
 const root = process.cwd();
 
 if (command === 'baseline') {

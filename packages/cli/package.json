@@ -14,7 +14,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsdown src/cli.ts --dts"
+    "build": "tsdown src/cli.ts src/worker.ts --dts"
   },
   "dependencies": {
     "@dscheck/core": "workspace:*",

@@ -16,6 +16,9 @@ export interface DscheckConfig {
 
 const CONFIG_NAME = 'dscheck.config.json';
 
+/** Per-directory config resolution cache — hot path for editors and large runs. */
+const configCache = new Map<string, OffsystemConfig | undefined>();
+
 /** Find dscheck.config.json walking up from `from`; falls back to zero-config discovery. */
 export function findConfig(from: string): DscheckConfig | undefined {
   let dir = resolve(from);
