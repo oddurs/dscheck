@@ -1,7 +1,15 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.5.10/schema.json",
   "files": {
-    "includes": ["**", "!**/dist", "!**/docs", "!**/coverage"]
+    "includes": [
+      "**",
+      "!**/dist",
+      "!**/docs",
+      "!**/coverage",
+      "!**/assets",
+      "!**/.astro",
+      "!docs-site/dist"
+    ]
   },
   "formatter": {
     "indentStyle": "space",
