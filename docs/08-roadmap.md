@@ -2,14 +2,14 @@
 
 *Status: draft v1, 2026-08-23. Solo developer + agents; estimates assume part-time focus. Each phase has exit criteria — a phase isn't done until they pass.*
 
-## Phase 0 — Claim & scaffold (days, do immediately)
+## Phase 0 — Claim & scaffold — **DONE 2026-08-23** (npm claim blocked: needs `npm login`; GH org deferred, private repo `oddurs/offsystem`)
 
 - Confirm name; claim `offsystem` + `@offsystem` scope on npm (placeholder publish), GitHub org (`offsystem` user is taken-but-empty → use `offsystem-dev` or file a name claim; decide then), domain `offsystem.dev` if free.
 - Scaffold monorepo (09 §layout): pnpm workspaces, tsdown, vitest, biome, changesets, CI skeleton.
 - **Spike the resolver risk first:** load a real Tailwind v4 theme via `@tailwindcss/node` and print the value index from one of my repos. If Tailwind's internal API is unusable, the static-CSS-parse fallback becomes primary — find out now.
 - ✅ Exit: `pnpm test` green in CI; spike prints a correct value index from a real repo.
 
-## Phase 1 — MVP: the agent guardrail (weeks 1–3)
+## Phase 1 — MVP: the agent guardrail — **DONE 2026-08-23** (M1: 19 findings vs 0 with guardrail; M2: zero-config on 2nd repo; clamp/calc FP fix)
 
 Scope = the demo, nothing else (FR1 minus roles, R1–R3, MVP surfaces, agent format, hook).
 
