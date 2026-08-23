@@ -78,7 +78,10 @@ function createRule(ruleId: RuleId): Rule {
 
   rule.ruleName = ruleName;
   rule.messages = messages;
-  rule.meta = { url: `https://github.com/oddurs/dscheck#${ruleId}`, fixable: true };
+  rule.meta = {
+    url: `https://github.com/oddurs/dscheck/blob/main/docs-site/src/content/docs/rules/${ruleId}.md`,
+    fixable: true,
+  };
   return rule;
 }
 

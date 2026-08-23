@@ -32,7 +32,7 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
       type: 'problem',
       docs: {
         description: `Enforce design-system tokens (${ruleId})`,
-        url: `https://github.com/oddurs/dscheck#${ruleId}`,
+        url: `https://github.com/oddurs/dscheck/blob/main/docs-site/src/content/docs/rules/${ruleId}.md`,
       },
       fixable: 'code',
       schema: [],

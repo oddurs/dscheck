@@ -20,7 +20,12 @@ for (const repo of corpus.repos) {
   const started = Date.now();
   const out = execSync(
     `node ${cli} check ${repo.paths.map((p) => join(dir, p)).join(' ')} --format json || true`,
-    { cwd: join(dir, repo.configDir), encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, shell: '/bin/bash' },
+    {
+      cwd: join(dir, repo.configDir),
+      encoding: 'utf8',
+      maxBuffer: 64 * 1024 * 1024,
+      shell: '/bin/bash',
+    },
   );
   const elapsed = Date.now() - started;
 
@@ -28,8 +33,10 @@ for (const repo of corpus.repos) {
   const errors = findings.filter((f) => f.severity === 'error').length;
   const warnings = findings.length - errors;
   const files = Number(
-    execSync(`git -C ${dir} ls-files -- ${repo.paths.map((p) => `'${p}/*.tsx' '${p}/*.jsx' '${p}/*.css' '${p}/*.scss'`).join(' ')} | wc -l`,
-      { encoding: 'utf8', shell: '/bin/bash' }),
+    execSync(
+      `git -C ${dir} ls-files -- ${repo.paths.map((p) => `'${p}/*.tsx' '${p}/*.jsx' '${p}/*.css' '${p}/*.scss'`).join(' ')} | wc -l`,
+      { encoding: 'utf8', shell: '/bin/bash' },
+    ),
   );
   const msPerFile = files > 0 ? elapsed / files : 0;
 
