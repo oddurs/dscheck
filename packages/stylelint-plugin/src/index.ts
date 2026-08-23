@@ -1,6 +1,8 @@
 import {
+  allowedNameMatcher,
   type CheckContext,
   checkDeclaration,
+  findConfig,
   formatViolation,
   indexFor,
   type RuleId,
@@ -39,7 +41,12 @@ function createRule(ruleId: RuleId): Rule {
 
       const localVars = new Set<string>();
       root.walkDecls(/^--/, (decl) => localVars.add(decl.prop));
-      const ctx: CheckContext = { index, localVars };
+      const config = findConfig(file);
+      const ctx: CheckContext = {
+        index,
+        localVars,
+        ...(config ? { isAllowedName: allowedNameMatcher(config) } : {}),
+      };
 
       root.walkDecls((decl: Declaration) => {
         for (const violation of checkDeclaration(decl.prop, decl.value, ctx)) {

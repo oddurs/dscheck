@@ -1,5 +1,12 @@
 import { resolve } from 'node:path';
-import { type CheckContext, formatViolation, indexFor, type RuleId } from '@dscheck/core';
+import {
+  allowedNameMatcher,
+  type CheckContext,
+  findConfig,
+  formatViolation,
+  indexFor,
+  type RuleId,
+} from '@dscheck/core';
 import type { Rule } from 'eslint';
 import { checkClassString, checkStyleEntry } from './jsx.js';
 
@@ -35,7 +42,11 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
       const filename = resolve(context.cwd, context.filename);
       const index = indexFor(filename);
       if (!index) return {};
-      const ctx: CheckContext = { index };
+      const config = findConfig(filename);
+      const ctx: CheckContext = {
+        index,
+        ...(config ? { isAllowedName: allowedNameMatcher(config) } : {}),
+      };
 
       /** Object variables that might be style maps or palettes, by name. */
       const objectVars = new Map<string, Node>();

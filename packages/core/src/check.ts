@@ -32,6 +32,8 @@ export interface CheckContext {
   index: ValueIndex;
   /** Custom properties defined in the file being linted (component-local vars are fine). */
   localVars?: ReadonlySet<string>;
+  /** Predicate for config-allowed names (runtime-injected vars). */
+  isAllowedName?: (name: string) => boolean;
   tolerance?: Tolerance;
 }
 
@@ -166,7 +168,8 @@ export function checkDeclaration(property: string, value: string, ctx: CheckCont
         name &&
         !name.startsWith('--tw-') &&
         !ctx.index.tokens.has(name) &&
-        !ctx.localVars?.has(name)
+        !ctx.localVars?.has(name) &&
+        !ctx.isAllowedName?.(name)
       ) {
         violations.push({
           rule: 'no-unknown-token',
@@ -244,7 +247,8 @@ function walkVarsOnly(
       name &&
       !name.startsWith('--tw-') &&
       !ctx.index.tokens.has(name) &&
-      !ctx.localVars?.has(name)
+      !ctx.localVars?.has(name) &&
+      !ctx.isAllowedName?.(name)
     ) {
       violations.push({
         rule: 'no-unknown-token',

@@ -73,3 +73,21 @@ describe('isIgnored / indexFor', () => {
     expect(second.tokens.has('--color-b')).toBe(true);
   });
 });
+
+describe('allow globs', () => {
+  it('exempts runtime-injected names from unknown-token', async () => {
+    const { checkDeclaration } = await import('./check.js');
+    const { allowedNameMatcher, findConfig, loadIndex } = await import('./config.js');
+    const dir = project({
+      'package.json': '{}',
+      'dscheck.config.json': '{"tokens":["t.css"],"allow":["--shiki-*","--font-geist-sans"]}',
+      't.css': '@theme { --color-a: #fff; }',
+    });
+    const config = findConfig(dir);
+    if (!config) throw new Error('no config');
+    const ctx = { index: loadIndex(config), isAllowedName: allowedNameMatcher(config) };
+    expect(checkDeclaration('color', 'var(--shiki-light)', ctx)).toHaveLength(0);
+    expect(checkDeclaration('font-family', 'var(--font-geist-sans)', ctx)).toHaveLength(0);
+    expect(checkDeclaration('color', 'var(--nope)', ctx)).toHaveLength(1);
+  });
+});

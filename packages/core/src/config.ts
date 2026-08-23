@@ -10,6 +10,8 @@ export interface DscheckConfig {
   tokens: string[];
   /** Files exempt from linting (content pages, generated code), relative globs. */
   ignore: string[];
+  /** Custom-property name globs never reported as unknown (runtime-injected vars: --shiki-*, next/font). */
+  allow: string[];
   /** Directory the config was found in. */
   root: string;
 }
@@ -29,8 +31,14 @@ export function findConfig(from: string): DscheckConfig | undefined {
       const parsed = JSON.parse(readFileSync(candidate, 'utf8')) as {
         tokens?: string[];
         ignore?: string[];
+        allow?: string[];
       };
-      return { tokens: parsed.tokens ?? [], ignore: parsed.ignore ?? [], root: dir };
+      return {
+        tokens: parsed.tokens ?? [],
+        ignore: parsed.ignore ?? [],
+        allow: parsed.allow ?? [],
+        root: dir,
+      };
     }
     if (existsSync(join(dir, 'package.json')) || existsSync(join(dir, '.git'))) {
       return discover(dir);
@@ -50,7 +58,7 @@ function discover(root: string): DscheckConfig | undefined {
     const css = readFileSync(join(root, file), 'utf8');
     return /@theme[\s{]/.test(css) || /:root\s*{[^}]*--/.test(css);
   });
-  return tokens.length > 0 ? { tokens, ignore: [], root } : undefined;
+  return tokens.length > 0 ? { tokens, ignore: [], allow: [], root } : undefined;
 }
 
 interface CacheEntry {
@@ -73,6 +81,13 @@ export function loadIndex(config: DscheckConfig): ValueIndex {
   const index = loadCssTokens(files);
   cache.set(config.root, { key, index });
   return index;
+}
+
+/** Predicate over config.allow globs, memoized per config. */
+export function allowedNameMatcher(config: OffsystemConfig): (name: string) => boolean {
+  if (config.allow.length === 0) return () => false;
+  const matcher = picomatch(config.allow);
+  return (name) => matcher(name);
 }
 
 /** True when the config exempts this file from linting. */
