@@ -13,7 +13,7 @@ async function lint(css: string) {
   const file = join(dir, 'component.css');
   writeFileSync(file, css);
   const result = await stylelint.lint({
-    files: file,
+    files: file.replaceAll('\\', '/'),
     config: {
       plugins: [join(import.meta.dirname, '..', 'dist', 'index.js')],
       rules: {

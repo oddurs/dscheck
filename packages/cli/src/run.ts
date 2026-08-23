@@ -27,7 +27,7 @@ export async function lintFiles(files: string[]): Promise<Finding[]> {
 async function lintCss(files: string[]): Promise<Finding[]> {
   const { default: stylelint } = await import('stylelint');
   const result = await stylelint.lint({
-    files,
+    files: files.map((f) => f.replaceAll('\\', '/')), // stylelint globs; windows backslashes would escape
     config: {
       plugins: [require.resolve('@offsystem/stylelint-plugin')],
       rules: {
