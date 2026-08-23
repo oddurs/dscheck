@@ -17,5 +17,9 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
       - run: pnpm test
+      - run: pnpm exec vitest run --coverage
+        if: matrix.os == 'ubuntu-latest' && matrix.node == 22
       - run: pnpm lint
+        if: matrix.os == 'ubuntu-latest' && matrix.node == 22
+      - run: pnpm audit --prod --audit-level high
         if: matrix.os == 'ubuntu-latest' && matrix.node == 22

@@ -1,4 +1,14 @@
-import { differenceEuclidean, parse as parseColor } from 'culori';
+import { differenceEuclidean, parse } from 'culori';
+
+/** culori's parse throws on some malformed inputs (e.g. `rgb( 14PX`); contain it. */
+export function safeParseColor(value: string): ReturnType<typeof parse> {
+  try {
+    return parse(value);
+  } catch {
+    return undefined;
+  }
+}
+
 import type { Category, Token, ValueIndex } from './types.js';
 
 export interface Match {
@@ -35,11 +45,11 @@ export function nearestColor(
   tolerance: Tolerance = defaultTolerance,
   limit = 3,
 ): Match[] {
-  const target = parseColor(value);
+  const target = safeParseColor(value);
   if (!target) return [];
   const matches: Match[] = [];
   for (const token of index.byCategory('color')) {
-    const candidate = parseColor(token.value);
+    const candidate = safeParseColor(token.value);
     if (!candidate) continue;
     const distance = deltaEOK(target, candidate);
     const kind =

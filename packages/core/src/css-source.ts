@@ -1,7 +1,8 @@
 import { readFileSync } from 'node:fs';
-import { parse as parseColor } from 'culori';
+
 import postcss, { type Declaration } from 'postcss';
 import valueParser from 'postcss-value-parser';
+import { safeParseColor } from './match.js';
 import { tailwindDefaultTheme } from './tailwind-theme.js';
 import { type Category, createIndex, type Token, type ValueIndex } from './types.js';
 
@@ -142,7 +143,7 @@ function classify(name: string, value: string): Category {
 }
 
 function classifyByValue(value: string): Category {
-  if (parseColor(value) !== undefined) return 'color';
+  if (safeParseColor(value) !== undefined) return 'color';
   if (/^-?[\d.]+(px|rem|em|%|vh|vw|ch|svh|dvh)$/.test(value)) return 'length';
   if (/^[\d.]+m?s$/.test(value)) return 'duration';
   if (/^cubic-bezier\(|^linear\(|^(ease|ease-in|ease-out|ease-in-out)$/.test(value))

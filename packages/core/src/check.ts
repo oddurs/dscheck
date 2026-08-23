@@ -1,4 +1,3 @@
-import { parse as parseColor } from 'culori';
 import valueParser from 'postcss-value-parser';
 import {
   defaultTolerance,
@@ -6,6 +5,7 @@ import {
   nearestColor,
   nearestLength,
   nearestName,
+  safeParseColor,
   type Tolerance,
 } from './match.js';
 import type { Category, ValueIndex } from './types.js';
@@ -193,7 +193,7 @@ export function checkDeclaration(property: string, value: string, ctx: CheckCont
         pushColor(word, node.sourceIndex);
         return;
       }
-      if (COLOR_PROPERTIES.has(prop) && parseColor(word)) {
+      if (COLOR_PROPERTIES.has(prop) && safeParseColor(word)) {
         pushColor(word, node.sourceIndex);
         return;
       }
