@@ -70,3 +70,33 @@ describe('@offsystem/eslint-plugin', () => {
     expect(messages).toHaveLength(0);
   });
 });
+
+describe('referenced style objects', () => {
+  it('checks const style maps referenced from style attributes', () => {
+    const messages = lint(`
+      const styles = { card: { background: '#1d4ed8', padding: '14px' }, safe: { color: 'var(--color-primary)' } };
+      const a = <div style={styles.card} />;`);
+    expect(messages.map((m) => m.ruleId).sort()).toEqual([
+      'offsystem/no-raw-color',
+      'offsystem/no-raw-length',
+    ]);
+  });
+
+  it('ignores object variables never used as styles', () => {
+    const messages = lint(`
+      const chartConfig = { series: { color: '#1d4ed8' } };
+      const a = <div style={{ padding: 'var(--spacing-3)' }} data-config={chartConfig} />;`);
+    expect(messages).toHaveLength(0);
+  });
+});
+
+describe('constant indirection', () => {
+  it('resolves palette members and const literals used in styles', () => {
+    const messages = lint(`
+      const BRAND = '#1d4ed8';
+      const palette = { cedar: '#1d4ed8' };
+      const a = <div style={{ color: palette.cedar, borderColor: BRAND }} />;`);
+    expect(messages).toHaveLength(2);
+    expect(messages.every((m) => m.ruleId === 'offsystem/no-raw-color')).toBe(true);
+  });
+});
