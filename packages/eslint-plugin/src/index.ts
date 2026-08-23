@@ -1,5 +1,5 @@
 import { resolve } from 'node:path';
-import { type CheckContext, type RuleId, formatViolation, indexFor } from '@offsystem/core';
+import { type CheckContext, formatViolation, indexFor, type RuleId } from '@offsystem/core';
 import type { Rule } from 'eslint';
 import { checkClassString, checkStyleEntry } from './jsx.js';
 
@@ -79,12 +79,14 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
         }
         if (node.type === 'Identifier') return literalVars.get(node.name as string);
         if (node.type === 'MemberExpression' && node.computed !== true) {
-          const objName = ((node.object as Node).type === 'Identifier'
-            ? ((node.object as Node).name as string)
-            : undefined);
-          const propName = ((node.property as Node).type === 'Identifier'
-            ? ((node.property as Node).name as string)
-            : undefined);
+          const objName =
+            (node.object as Node).type === 'Identifier'
+              ? ((node.object as Node).name as string)
+              : undefined;
+          const propName =
+            (node.property as Node).type === 'Identifier'
+              ? ((node.property as Node).name as string)
+              : undefined;
           const obj = objName ? objectVars.get(objName) : undefined;
           if (!obj || !propName) return undefined;
           for (const property of (obj.properties as Node[]) ?? []) {

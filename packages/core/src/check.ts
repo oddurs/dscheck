@@ -46,6 +46,8 @@ const ALWAYS_ALLOWED = new Set([
   '1px',
 ]);
 
+const MATH_FUNCTIONS = new Set(['calc', 'clamp', 'min', 'max']);
+
 const COLOR_FUNCTIONS = new Set([
   'rgb',
   'rgba',
@@ -126,6 +128,12 @@ export function checkDeclaration(property: string, value: string, ctx: CheckCont
   const parsed = valueParser(value);
 
   parsed.walk((node) => {
+    // Fluid/math expressions are deliberate: their components are not raw-value drift.
+    if (node.type === 'function' && MATH_FUNCTIONS.has(node.value.toLowerCase())) {
+      walkVarsOnly(node, violations, ctx);
+      return false;
+    }
+
     // R1 — unknown token references
     if (node.type === 'function' && node.value === 'var') {
       const name = node.nodes[0]?.value;
@@ -191,6 +199,28 @@ export function checkDeclaration(property: string, value: string, ctx: CheckCont
   }
 
   return violations;
+}
+
+/** Inside math functions, still validate token references — just not the literals. */
+function walkVarsOnly(
+  fn: valueParser.FunctionNode,
+  violations: Violation[],
+  ctx: CheckContext,
+): void {
+  valueParser.walk(fn.nodes, (node) => {
+    if (node.type !== 'function' || node.value !== 'var') return;
+    const name = node.nodes[0]?.value;
+    if (name && !ctx.index.tokens.has(name) && !ctx.localVars?.has(name)) {
+      violations.push({
+        rule: 'no-unknown-token',
+        value: name,
+        property: '',
+        matches: nearestName(name, ctx.index).filter((m) => m.distance <= 3),
+        index: node.sourceIndex,
+        message: `Unknown token ${name}`,
+      });
+    }
+  });
 }
 
 /** Human/agent-facing one-liner with the best suggestion attached. */

@@ -97,3 +97,12 @@ describe('alpha awareness', () => {
     expect(v?.matches[0]?.kind).not.toBe('exact');
   });
 });
+
+describe('math functions', () => {
+  it('leaves clamp/calc literals alone but still validates vars inside', () => {
+    expect(checkDeclaration('font-size', 'clamp(1rem, 2vw, 1.5rem)', ctx)).toHaveLength(0);
+    expect(checkDeclaration('padding', 'calc(14px * 2)', ctx)).toHaveLength(0);
+    const [v] = checkDeclaration('padding', 'calc(var(--spacing-3x) * 2)', ctx);
+    expect(v?.rule).toBe('no-unknown-token');
+  });
+});
