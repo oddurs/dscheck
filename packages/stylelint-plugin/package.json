@@ -4,8 +4,12 @@
   "description": "Stylelint rules that enforce your design system's token set",
   "license": "MIT",
   "type": "module",
-  "exports": { ".": "./dist/index.js" },
-  "files": ["dist"],
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsdown src/index.ts --dts"
   },
@@ -19,5 +23,7 @@
     "stylelint": "^16.25.0",
     "tsdown": "^0.15.0"
   },
-  "engines": { "node": ">=20.19" }
+  "engines": {
+    "node": ">=20.19"
+  }
 }

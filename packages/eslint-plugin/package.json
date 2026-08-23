@@ -4,8 +4,12 @@
   "description": "ESLint rules that enforce your design system's token set in JSX and Tailwind classes",
   "license": "MIT",
   "type": "module",
-  "exports": { ".": "./dist/index.js" },
-  "files": ["dist"],
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsdown src/index.ts --dts"
   },
@@ -19,5 +23,7 @@
     "eslint": "^9.39.0",
     "tsdown": "^0.15.0"
   },
-  "engines": { "node": ">=20.19" }
+  "engines": {
+    "node": ">=20.19"
+  }
 }

@@ -1,4 +1,4 @@
-import { type CheckContext, type Violation, checkDeclaration } from '@offsystem/core';
+import { type CheckContext, checkDeclaration, type Violation } from '@offsystem/core';
 
 /** camelCase style-object key → CSS property. */
 export function toCssProperty(key: string): string {
@@ -7,8 +7,17 @@ export function toCssProperty(key: string): string {
 
 /** Style-object props where React treats a bare number as px. */
 const UNITLESS = new Set([
-  'line-height', 'font-weight', 'opacity', 'z-index', 'flex', 'flex-grow', 'flex-shrink',
-  'order', 'zoom', 'aspect-ratio', 'scale',
+  'line-height',
+  'font-weight',
+  'opacity',
+  'z-index',
+  'flex',
+  'flex-grow',
+  'flex-shrink',
+  'order',
+  'zoom',
+  'aspect-ratio',
+  'scale',
 ]);
 
 /** Check one `style={{ key: value }}` entry. */
@@ -23,13 +32,25 @@ export function checkStyleEntry(key: string, raw: string | number, ctx: CheckCon
 const ROOT_PROPERTY: ReadonlyMap<string, string> = new Map([
   ...['p', 'px', 'py', 'pt', 'pr', 'pb', 'pl', 'ps', 'pe'].map((r) => [r, 'padding'] as const),
   ...['m', 'mx', 'my', 'mt', 'mr', 'mb', 'ml', 'ms', 'me'].map((r) => [r, 'margin'] as const),
-  ['gap', 'gap'], ['gap-x', 'column-gap'], ['gap-y', 'row-gap'],
-  ['inset', 'inset'], ['top', 'top'], ['right', 'right'], ['bottom', 'bottom'], ['left', 'left'],
+  ['gap', 'gap'],
+  ['gap-x', 'column-gap'],
+  ['gap-y', 'row-gap'],
+  ['inset', 'inset'],
+  ['top', 'top'],
+  ['right', 'right'],
+  ['bottom', 'bottom'],
+  ['left', 'left'],
   ['rounded', 'border-radius'],
   ['text', 'font-size'],
-  ['bg', 'background-color'], ['border', 'border-color'], ['ring', 'outline-color'],
-  ['outline', 'outline-color'], ['fill', 'fill'], ['stroke', 'stroke'],
-  ['caret', 'caret-color'], ['accent', 'accent-color'], ['decoration', 'text-decoration-color'],
+  ['bg', 'background-color'],
+  ['border', 'border-color'],
+  ['ring', 'outline-color'],
+  ['outline', 'outline-color'],
+  ['fill', 'fill'],
+  ['stroke', 'stroke'],
+  ['caret', 'caret-color'],
+  ['accent', 'accent-color'],
+  ['decoration', 'text-decoration-color'],
 ]);
 
 export interface ClassViolation extends Violation {

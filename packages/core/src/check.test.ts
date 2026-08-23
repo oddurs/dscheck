@@ -90,3 +90,10 @@ describe('formatViolation', () => {
     );
   });
 });
+
+describe('alpha awareness', () => {
+  it('does not treat a translucent color as an exact match for its opaque twin', () => {
+    const [v] = checkDeclaration('background', 'rgba(29, 78, 216, 0.1)', ctx);
+    expect(v?.matches[0]?.kind).not.toBe('exact');
+  });
+});

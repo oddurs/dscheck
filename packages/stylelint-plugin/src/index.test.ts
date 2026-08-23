@@ -7,10 +7,7 @@ import { describe, expect, it } from 'vitest';
 const dir = mkdtempSync(join(tmpdir(), 'offsystem-sl-'));
 writeFileSync(join(dir, 'package.json'), '{}');
 writeFileSync(join(dir, 'offsystem.config.json'), JSON.stringify({ tokens: ['tokens.css'] }));
-writeFileSync(
-  join(dir, 'tokens.css'),
-  '@theme { --color-primary: #1d4ed8; --spacing-3: 12px; }',
-);
+writeFileSync(join(dir, 'tokens.css'), '@theme { --color-primary: #1d4ed8; --spacing-3: 12px; }');
 
 async function lint(css: string) {
   const file = join(dir, 'component.css');

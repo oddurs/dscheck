@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs';
+import { parse as parseColor } from 'culori';
 import postcss, { type Declaration } from 'postcss';
 import valueParser from 'postcss-value-parser';
-import { parse as parseColor } from 'culori';
-import { type Category, type Token, type ValueIndex, createIndex } from './types.js';
+import { type Category, createIndex, type Token, type ValueIndex } from './types.js';
 
 /**
  * Static CSS token source: collects custom properties from `@theme` blocks
@@ -134,6 +134,7 @@ function classifyByValue(value: string): Category {
   if (parseColor(value) !== undefined) return 'color';
   if (/^-?[\d.]+(px|rem|em|%|vh|vw|ch|svh|dvh)$/.test(value)) return 'length';
   if (/^[\d.]+m?s$/.test(value)) return 'duration';
-  if (/^cubic-bezier\(|^linear\(|^(ease|ease-in|ease-out|ease-in-out)$/.test(value)) return 'easing';
+  if (/^cubic-bezier\(|^linear\(|^(ease|ease-in|ease-out|ease-in-out)$/.test(value))
+    return 'easing';
   return 'other';
 }

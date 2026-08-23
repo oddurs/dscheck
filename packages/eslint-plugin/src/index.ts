@@ -1,5 +1,5 @@
 import { resolve } from 'node:path';
-import { type CheckContext, type RuleId, formatViolation, indexFor } from '@offsystem/core';
+import { type CheckContext, formatViolation, indexFor, type RuleId } from '@offsystem/core';
 import type { Rule } from 'eslint';
 import { checkClassString, checkStyleEntry } from './jsx.js';
 

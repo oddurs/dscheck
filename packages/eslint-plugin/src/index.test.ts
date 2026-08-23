@@ -51,7 +51,9 @@ describe('@offsystem/eslint-plugin', () => {
   });
 
   it('flags arbitrary Tailwind values with mapped roots', () => {
-    const messages = lint('const a = <div className="p-[13px] bg-[#1d4ed8] focus:rounded-[7px]" />;');
+    const messages = lint(
+      'const a = <div className="p-[13px] bg-[#1d4ed8] focus:rounded-[7px]" />;',
+    );
     expect(messages.map((m) => m.ruleId).sort()).toEqual([
       'offsystem/no-raw-color',
       'offsystem/no-raw-length',

@@ -1,13 +1,13 @@
 import {
   type CheckContext,
-  type RuleId,
-  type Violation,
   checkDeclaration,
   formatViolation,
   indexFor,
+  type RuleId,
+  type Violation,
 } from '@offsystem/core';
-import stylelint, { type PostcssResult, type Rule } from 'stylelint';
 import type { Declaration, Root } from 'postcss';
+import stylelint, { type PostcssResult, type Rule } from 'stylelint';
 
 const NAMESPACE = 'offsystem';
 const RULES: RuleId[] = ['no-raw-color', 'no-raw-length', 'no-unknown-token'];

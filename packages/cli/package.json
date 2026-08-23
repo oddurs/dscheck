@@ -1,0 +1,35 @@
+{
+  "name": "offsystem",
+  "version": "0.0.0",
+  "description": "The linter that knows your design system",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "offsystem": "./dist/cli.js"
+  },
+  "exports": {
+    ".": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown src/cli.ts --dts"
+  },
+  "dependencies": {
+    "@offsystem/core": "workspace:*",
+    "@offsystem/eslint-plugin": "workspace:*",
+    "@offsystem/stylelint-plugin": "workspace:*",
+    "@typescript-eslint/parser": "^8.67.0",
+    "eslint": "^9.39.0",
+    "picocolors": "^1.1.0",
+    "stylelint": "^16.25.0",
+    "tinyglobby": "^0.2.0"
+  },
+  "devDependencies": {
+    "tsdown": "^0.15.0"
+  },
+  "engines": {
+    "node": ">=20.19"
+  }
+}

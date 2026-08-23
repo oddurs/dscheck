@@ -1,6 +1,13 @@
-import valueParser from 'postcss-value-parser';
 import { parse as parseColor } from 'culori';
-import { type Match, type Tolerance, defaultTolerance, nearestColor, nearestLength, nearestName } from './match.js';
+import valueParser from 'postcss-value-parser';
+import {
+  defaultTolerance,
+  type Match,
+  nearestColor,
+  nearestLength,
+  nearestName,
+  type Tolerance,
+} from './match.js';
 import type { Category, ValueIndex } from './types.js';
 
 export type RuleId = 'no-raw-color' | 'no-raw-length' | 'no-unknown-token';
@@ -25,28 +32,84 @@ export interface CheckContext {
 
 /** Values that are never violations, in any property. */
 const ALWAYS_ALLOWED = new Set([
-  '0', 'auto', 'none', 'inherit', 'initial', 'unset', 'revert', 'revert-layer',
-  'currentcolor', 'transparent', '100%', '1px',
+  '0',
+  'auto',
+  'none',
+  'inherit',
+  'initial',
+  'unset',
+  'revert',
+  'revert-layer',
+  'currentcolor',
+  'transparent',
+  '100%',
+  '1px',
 ]);
 
-const COLOR_FUNCTIONS = new Set(['rgb', 'rgba', 'hsl', 'hsla', 'oklch', 'oklab', 'lab', 'lch', 'hwb', 'color']);
+const COLOR_FUNCTIONS = new Set([
+  'rgb',
+  'rgba',
+  'hsl',
+  'hsla',
+  'oklch',
+  'oklab',
+  'lab',
+  'lch',
+  'hwb',
+  'color',
+]);
 
 /** Properties whose bare keywords may be colors (`red`, `tan`…). Elsewhere only hex/functions count. */
 const COLOR_PROPERTIES = new Set([
-  'color', 'background-color', 'border-color', 'border-top-color', 'border-right-color',
-  'border-bottom-color', 'border-left-color', 'outline-color', 'text-decoration-color',
-  'caret-color', 'accent-color', 'fill', 'stroke', 'stop-color', 'column-rule-color',
+  'color',
+  'background-color',
+  'border-color',
+  'border-top-color',
+  'border-right-color',
+  'border-bottom-color',
+  'border-left-color',
+  'outline-color',
+  'text-decoration-color',
+  'caret-color',
+  'accent-color',
+  'fill',
+  'stroke',
+  'stop-color',
+  'column-rule-color',
 ]);
 
 /** Property → length category to enforce. Deliberately conservative (N2). */
 const LENGTH_PROPERTIES: ReadonlyMap<string, Category> = new Map([
-  ...['margin', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left',
-      'padding', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
-      'gap', 'row-gap', 'column-gap', 'inset', 'top', 'right', 'bottom', 'left',
-      'margin-inline', 'margin-block', 'padding-inline', 'padding-block',
+  ...[
+    'margin',
+    'margin-top',
+    'margin-right',
+    'margin-bottom',
+    'margin-left',
+    'padding',
+    'padding-top',
+    'padding-right',
+    'padding-bottom',
+    'padding-left',
+    'gap',
+    'row-gap',
+    'column-gap',
+    'inset',
+    'top',
+    'right',
+    'bottom',
+    'left',
+    'margin-inline',
+    'margin-block',
+    'padding-inline',
+    'padding-block',
   ].map((p) => [p, 'length'] as const),
-  ...['border-radius', 'border-top-left-radius', 'border-top-right-radius',
-      'border-bottom-left-radius', 'border-bottom-right-radius',
+  ...[
+    'border-radius',
+    'border-top-left-radius',
+    'border-top-right-radius',
+    'border-bottom-left-radius',
+    'border-bottom-right-radius',
   ].map((p) => [p, 'radius'] as const),
   ['font-size', 'font-size'],
 ]);
@@ -133,7 +196,8 @@ export function checkDeclaration(property: string, value: string, ctx: CheckCont
 /** Human/agent-facing one-liner with the best suggestion attached. */
 export function formatViolation(v: Violation): string {
   const best = v.matches[0];
-  if (!best) return `${v.message} — no ${v.rule === 'no-unknown-token' ? 'similar token' : 'token'} found`;
+  if (!best)
+    return `${v.message} — no ${v.rule === 'no-unknown-token' ? 'similar token' : 'token'} found`;
   const hint =
     v.rule === 'no-raw-color'
       ? `use var(${best.token.name}) (ΔEOK ${best.distance.toFixed(3)})`

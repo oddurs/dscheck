@@ -18,7 +18,15 @@ export interface Tolerance {
 
 export const defaultTolerance: Tolerance = { colorExact: 0.005, colorClose: 0.03 };
 
-const deltaEOK = differenceEuclidean('oklab');
+const deltaEOKBase = differenceEuclidean('oklab');
+
+/** ΔEOK plus an alpha term — a translucent value must not "match" its opaque twin. */
+function deltaEOK(
+  a: NonNullable<ReturnType<typeof parseColor>>,
+  b: NonNullable<ReturnType<typeof parseColor>>,
+): number {
+  return deltaEOKBase(a, b) + Math.abs((a.alpha ?? 1) - (b.alpha ?? 1));
+}
 
 /** Nearest color tokens for a literal, best first. Empty when the literal doesn't parse. */
 export function nearestColor(
@@ -35,7 +43,11 @@ export function nearestColor(
     if (!candidate) continue;
     const distance = deltaEOK(target, candidate);
     const kind =
-      distance <= tolerance.colorExact ? 'exact' : distance <= tolerance.colorClose ? 'close' : 'nearest';
+      distance <= tolerance.colorExact
+        ? 'exact'
+        : distance <= tolerance.colorClose
+          ? 'close'
+          : 'nearest';
     matches.push({ token, distance, kind });
   }
   return top(matches, limit);
