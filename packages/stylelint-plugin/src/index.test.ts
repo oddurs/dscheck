@@ -64,8 +64,6 @@ describe('autofix', () => {
       },
     });
     const { readFileSync } = await import('node:fs');
-    expect(readFileSync(file, 'utf8')).toBe(
-      '.a { color: var(--color-primary); padding: 14px; }',
-    );
+    expect(readFileSync(file, 'utf8')).toBe('.a { color: var(--color-primary); padding: 14px; }');
   });
 });

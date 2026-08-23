@@ -9,12 +9,14 @@ import { type Finding, lintFiles } from './run.js';
 const HELP = `offsystem — the linter that knows your design system
 
 Usage
-  offsystem check [paths...]   Lint files (default: cwd) against the token set
-  offsystem tokens             Print the resolved allowed set
+  offsystem check [paths...]     Lint files (default: cwd) against the token set
+  offsystem baseline [paths...]  Record current findings as accepted debt
+  offsystem tokens               Print the resolved allowed set
 
 Options
-  --format <pretty|json|agent>   Output format (default: pretty)
-  -h, --help                     Show help
+  --format <pretty|json|agent|sarif>  Output format (default: pretty)
+  --no-baseline                       Ignore .offsystem-baseline.json
+  -h, --help                          Show help
 
 Findings are also ordinary eslint/stylelint results — in CI, prefer mounting
 @offsystem/eslint-plugin and @offsystem/stylelint-plugin in your existing setup.`;
@@ -23,6 +25,7 @@ const { values, positionals } = parseArgs({
   allowPositionals: true,
   options: {
     format: { type: 'string', default: 'pretty' },
+    'no-baseline': { type: 'boolean', default: false },
     help: { type: 'boolean', short: 'h' },
   },
 });
@@ -44,12 +47,38 @@ if (command === 'tokens') {
   process.exit(0);
 }
 
-if (command !== 'check') fail(`Unknown command: ${command}\n\n${HELP}`);
+if (command !== 'check' && command !== 'baseline') fail(`Unknown command: ${command}\n\n${HELP}`);
 
 const files = expand(paths.length > 0 ? paths : ['.']);
 const findings = await lintFiles(files);
-render(findings, values.format as string);
-process.exit(findings.some((f) => f.severity === 'error') ? 1 : 0);
+const root = process.cwd();
+
+if (command === 'baseline') {
+  const { writeBaseline, BASELINE_FILE } = await import('./baseline.js');
+  writeBaseline(findings, root);
+  console.log(`${findings.length} findings recorded in ${BASELINE_FILE}`);
+  process.exit(0);
+}
+
+const { readBaseline, applyBaseline } = await import('./baseline.js');
+const baseline = values['no-baseline'] ? undefined : readBaseline(root);
+let reportable = findings;
+if (baseline) {
+  const { fresh, absorbed, stale } = applyBaseline(findings, baseline, root);
+  reportable = fresh;
+  if (values.format === 'pretty' && (absorbed > 0 || stale > 0)) {
+    console.log(
+      pc.dim(
+        `baseline: ${absorbed} known finding${absorbed === 1 ? '' : 's'} absorbed` +
+          (stale > 0
+            ? `, ${stale} entr${stale === 1 ? 'y' : 'ies'} paid down (re-run \`offsystem baseline\` to prune)`
+            : ''),
+      ),
+    );
+  }
+}
+await render(reportable, values.format as string);
+process.exitCode = reportable.some((f) => f.severity === 'error') ? 1 : 0;
 
 function expand(inputs: string[]): string[] {
   const out = new Set<string>();
@@ -76,7 +105,12 @@ function isDir(path: string): boolean {
   }
 }
 
-function render(all: Finding[], format: string): void {
+async function render(all: Finding[], format: string): Promise<void> {
+  if (format === 'sarif') {
+    const { toSarif } = await import('@offsystem/sarif'); // deferred: keeps the hook path light
+    console.log(JSON.stringify(toSarif(all), null, 2));
+    return;
+  }
   if (format === 'json') {
     console.log(JSON.stringify(all, null, 2));
     return;

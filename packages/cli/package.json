@@ -24,7 +24,8 @@
     "eslint": "^9.39.0",
     "picocolors": "^1.1.0",
     "stylelint": "^16.25.0",
-    "tinyglobby": "^0.2.0"
+    "tinyglobby": "^0.2.0",
+    "@offsystem/sarif": "workspace:*"
   },
   "devDependencies": {
     "tsdown": "^0.15.0"

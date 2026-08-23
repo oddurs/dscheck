@@ -10,7 +10,13 @@ import type { Declaration, Root } from 'postcss';
 import stylelint, { type PostcssResult, type Rule } from 'stylelint';
 
 const NAMESPACE = 'offsystem';
-const RULES: RuleId[] = ['no-raw-color', 'no-raw-length', 'no-unknown-token', 'no-raw-font', 'no-raw-shadow'];
+const RULES: RuleId[] = [
+  'no-raw-color',
+  'no-raw-length',
+  'no-unknown-token',
+  'no-raw-font',
+  'no-raw-shadow',
+];
 
 /**
  * Three stylelint rules over one shared walk: each rule filters the shared

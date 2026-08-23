@@ -1,0 +1,24 @@
+{
+  "name": "@offsystem/sarif",
+  "version": "0.0.0",
+  "description": "SARIF 2.1.0 output for offsystem — plus a standalone stylelint SARIF formatter",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.js",
+    "./stylelint-formatter": "./dist/stylelint-formatter.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown src/index.ts src/stylelint-formatter.ts --dts"
+  },
+  "devDependencies": {
+    "stylelint": "^16.25.0",
+    "tsdown": "^0.15.0"
+  },
+  "engines": {
+    "node": ">=20.19"
+  }
+}

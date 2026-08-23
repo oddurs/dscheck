@@ -3,7 +3,13 @@ import { type CheckContext, formatViolation, indexFor, type RuleId } from '@offs
 import type { Rule } from 'eslint';
 import { checkClassString, checkStyleEntry } from './jsx.js';
 
-const RULES: RuleId[] = ['no-raw-color', 'no-raw-length', 'no-unknown-token', 'no-raw-font', 'no-raw-shadow'];
+const RULES: RuleId[] = [
+  'no-raw-color',
+  'no-raw-length',
+  'no-unknown-token',
+  'no-raw-font',
+  'no-raw-shadow',
+];
 
 /** Attribute names treated as class strings. */
 const CLASS_ATTRIBUTES = new Set(['className', 'class']);
@@ -48,8 +54,7 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
           if (violation.rule !== ruleId) continue;
           const best = violation.matches[0];
           // Fix only literals the violation covers entirely — never partial rewrites.
-          const wholeLiteral =
-            node.type === 'Literal' && String(value).trim() === violation.value;
+          const wholeLiteral = node.type === 'Literal' && String(value).trim() === violation.value;
           if (best?.kind === 'exact' && wholeLiteral) {
             context.report({
               node: node as never,

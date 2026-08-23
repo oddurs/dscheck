@@ -26,6 +26,9 @@ importers:
       '@offsystem/eslint-plugin':
         specifier: workspace:*
         version: link:../eslint-plugin
+      '@offsystem/sarif':
+        specifier: workspace:*
+        version: link:../sarif
       '@offsystem/stylelint-plugin':
         specifier: workspace:*
         version: link:../stylelint-plugin
@@ -80,6 +83,15 @@ importers:
       eslint:
         specifier: ^9.39.0
         version: 9.39.5(jiti@2.7.0)(supports-color@7.2.0)
+      tsdown:
+        specifier: ^0.15.0
+        version: 0.15.12(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(supports-color@7.2.0)(typescript@5.9.3)
+
+  packages/sarif:
+    devDependencies:
+      stylelint:
+        specifier: ^16.25.0
+        version: 16.26.1(supports-color@7.2.0)(typescript@5.9.3)
       tsdown:
         specifier: ^0.15.0
         version: 0.15.12(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(supports-color@7.2.0)(typescript@5.9.3)

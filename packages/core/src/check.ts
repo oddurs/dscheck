@@ -55,8 +55,18 @@ const MATH_FUNCTIONS = new Set(['calc', 'clamp', 'min', 'max']);
 
 /** Generic families and keywords that are always acceptable in font-family. */
 const GENERIC_FAMILIES = new Set([
-  'serif', 'sans-serif', 'monospace', 'cursive', 'fantasy', 'system-ui',
-  'ui-serif', 'ui-sans-serif', 'ui-monospace', 'ui-rounded', 'math', 'emoji',
+  'serif',
+  'sans-serif',
+  'monospace',
+  'cursive',
+  'fantasy',
+  'system-ui',
+  'ui-serif',
+  'ui-sans-serif',
+  'ui-monospace',
+  'ui-rounded',
+  'math',
+  'emoji',
 ]);
 
 const COLOR_FUNCTIONS = new Set([
