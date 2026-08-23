@@ -95,3 +95,21 @@ describe('bare namespace names', () => {
     expect(loadCssTokens([file]).tokens.get('--shadow')?.category).toBe('shadow');
   });
 });
+
+describe('tailwind default theme', () => {
+  it('merges defaults when the source imports tailwindcss, repo tokens win', () => {
+    const file = fixture(`
+      @import 'tailwindcss';
+      @theme { --color-red-500: #b91c1c; }
+    `);
+    const index = loadCssTokens([file]);
+    expect(index.tokens.get('--color-gray-800')).toBeDefined(); // from defaults
+    expect(index.tokens.get('--color-red-500')?.value).toBe('#b91c1c'); // repo override
+    expect(index.tokens.get('--spacing')?.value).toBe('0.25rem');
+  });
+
+  it('does not merge defaults without the import', () => {
+    const file = fixture('@theme { --color-primary: #1d4ed8; }');
+    expect(loadCssTokens([file]).tokens.has('--color-gray-800')).toBe(false);
+  });
+});

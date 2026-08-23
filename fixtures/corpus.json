@@ -1,0 +1,12 @@
+{
+  "repos": [
+    {
+      "name": "tailwindcss.com",
+      "url": "https://github.com/tailwindlabs/tailwindcss.com",
+      "sha": "bd868a3",
+      "config": { "tokens": ["src/app/globals.css"], "ignore": ["src/components/blog/**"] },
+      "paths": ["src"],
+      "expected": { "errors": 12, "warnings": 80 }
+    }
+  ]
+}

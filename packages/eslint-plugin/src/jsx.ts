@@ -56,6 +56,17 @@ const ROOT_PROPERTY: ReadonlyMap<string, string> = new Map([
 export interface ClassViolation extends Violation {
   /** Offset of the arbitrary value within the class string. */
   classIndex: number;
+  /** The on-theme utility class, when the match is exact — e.g. `p-3` for `p-[12px]`. */
+  classFix?: string;
+}
+
+/** Utility class equivalent of a token, per Tailwind v4 namespace conventions. */
+function utilityFor(root: string, tokenName: string): string | undefined {
+  const suffix = /^--(?:color|spacing|text|font-weight|radius|shadow|leading|tracking)-(.+)$/.exec(
+    tokenName,
+  )?.[1];
+  if (!suffix) return undefined;
+  return `${root}-${suffix}`;
 }
 
 const ARBITRARY = /(?:^|[\s"'`])(?:[\w-]+:)*([a-z][\w.-]*)-\[([^\]]+)\]/g;
@@ -77,7 +88,13 @@ export function checkClassString(value: string, ctx: CheckContext): ClassViolati
       found = checkDeclaration('color', literal, ctx);
     }
     for (const violation of found) {
-      violations.push({ ...violation, classIndex: offset + violation.index });
+      const best = violation.matches[0];
+      const classFix = best?.kind === 'exact' ? utilityFor(root, best.token.name) : undefined;
+      violations.push({
+        ...violation,
+        classIndex: offset + violation.index,
+        ...(classFix ? { classFix } : {}),
+      });
     }
   }
   return violations;

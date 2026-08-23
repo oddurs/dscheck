@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, statSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
+import picomatch from 'picomatch';
 import { globSync } from 'tinyglobby';
 import { loadCssTokens } from './css-source.js';
 import type { ValueIndex } from './types.js';
@@ -7,6 +8,8 @@ import type { ValueIndex } from './types.js';
 export interface OffsystemConfig {
   /** Token source globs, relative to the config file (or discovery root). */
   tokens: string[];
+  /** Files exempt from linting (content pages, generated code), relative globs. */
+  ignore: string[];
   /** Directory the config was found in. */
   root: string;
 }
@@ -20,8 +23,11 @@ export function findConfig(from: string): OffsystemConfig | undefined {
   for (; ; dir = dirname(dir)) {
     const candidate = join(dir, CONFIG_NAME);
     if (existsSync(candidate)) {
-      const parsed = JSON.parse(readFileSync(candidate, 'utf8')) as { tokens?: string[] };
-      return { tokens: parsed.tokens ?? [], root: dir };
+      const parsed = JSON.parse(readFileSync(candidate, 'utf8')) as {
+        tokens?: string[];
+        ignore?: string[];
+      };
+      return { tokens: parsed.tokens ?? [], ignore: parsed.ignore ?? [], root: dir };
     }
     if (existsSync(join(dir, 'package.json')) || existsSync(join(dir, '.git'))) {
       return discover(dir);
@@ -41,7 +47,7 @@ function discover(root: string): OffsystemConfig | undefined {
     const css = readFileSync(join(root, file), 'utf8');
     return /@theme[\s{]/.test(css) || /:root\s*{[^}]*--/.test(css);
   });
-  return tokens.length > 0 ? { tokens, root } : undefined;
+  return tokens.length > 0 ? { tokens, ignore: [], root } : undefined;
 }
 
 interface CacheEntry {
@@ -66,8 +72,16 @@ export function loadIndex(config: OffsystemConfig): ValueIndex {
   return index;
 }
 
+/** True when the config exempts this file from linting. */
+export function isIgnored(filePath: string, config: OffsystemConfig): boolean {
+  if (config.ignore.length === 0) return false;
+  const rel = relative(config.root, resolve(filePath)).replaceAll('\\', '/');
+  return picomatch.isMatch(rel, config.ignore);
+}
+
 /** One-call convenience for adapters: config + index for the file being linted. */
 export function indexFor(filePath: string): ValueIndex | undefined {
   const config = findConfig(filePath);
-  return config && loadIndex(config);
+  if (!config || isIgnored(filePath, config)) return undefined;
+  return loadIndex(config);
 }

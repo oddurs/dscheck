@@ -20,7 +20,7 @@ Scope = the demo, nothing else (FR1 minus roles, R1–R3, MVP surfaces, agent fo
 5. Claude Code `PostToolUse` hook + docs snippet. → verify: **M1 demo run** — record the with/without numbers.
 - ✅ Exit: M1 achieved (0 vs N≥10) on a real repo; M2 rehearsed on a second repo; FP eyeball-pass on both.
 
-## Phase 2 — CI citizen & launch (weeks 4–8)
+## Phase 2 — CI citizen & launch — **ENGINEERING DONE 2026-08-23**; gated remainder: GitHub Action + docs site + launch (need npm publish → `npm login`, and the public-repo decision)
 
 1. Rules R4 (`no-arbitrary-class` wrapping Tailwind's canonical machinery), R5, R6; autofix per FR5.
 2. SARIF with stable fingerprints (+ standalone stylelint-SARIF formatter package — free adoption wedge); rdjson.

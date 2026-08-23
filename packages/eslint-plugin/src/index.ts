@@ -150,7 +150,11 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
             typeof value.value === 'string'
           ) {
             for (const violation of checkClassString(value.value, ctx)) {
-              if (violation.rule === ruleId) report(node, formatViolation(violation));
+              if (violation.rule !== ruleId) continue;
+              const text = violation.classFix
+                ? `${formatViolation(violation)} — class: ${violation.classFix}`
+                : formatViolation(violation);
+              report(node, text);
             }
           }
         },

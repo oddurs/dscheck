@@ -100,3 +100,13 @@ describe('constant indirection', () => {
     expect(messages.every((m) => m.ruleId === 'offsystem/no-raw-color')).toBe(true);
   });
 });
+
+describe('class-form suggestions', () => {
+  it('suggests the on-theme utility for exact arbitrary values', () => {
+    const messages = lint('const a = <div className="p-[12px] rounded-[6px]" />;');
+    expect(
+      messages.find((m) => m.message.includes('p-[12px]') || m.message.includes('12px'))?.message,
+    ).toContain('class: p-3');
+    expect(messages.find((m) => m.message.includes('6px'))?.message).toContain('class: rounded-md');
+  });
+});

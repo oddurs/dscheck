@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { parse as parseColor } from 'culori';
 import postcss, { type Declaration } from 'postcss';
 import valueParser from 'postcss-value-parser';
+import { tailwindDefaultTheme } from './tailwind-theme.js';
 import { type Category, createIndex, type Token, type ValueIndex } from './types.js';
 
 /**
@@ -15,9 +16,12 @@ import { type Category, createIndex, type Token, type ValueIndex } from './types
  */
 export function loadCssTokens(files: string[]): ValueIndex {
   const declared = new Map<string, { raw: string; source: string; fromTheme: boolean }>();
+  let importsTailwind = false;
 
   for (const file of files) {
-    const root = postcss.parse(readFileSync(file, 'utf8'), { from: file });
+    const css = readFileSync(file, 'utf8');
+    importsTailwind ||= /@import\s+['"]tailwindcss/.test(css);
+    const root = postcss.parse(css, { from: file });
     root.walkDecls(/^--/, (decl: Declaration) => {
       const inTheme = isInTheme(decl);
       const inRoot = isInRoot(decl);
@@ -31,6 +35,13 @@ export function loadCssTokens(files: string[]): ValueIndex {
         fromTheme: inTheme || prev?.fromTheme === true,
       });
     });
+  }
+
+  // `@import "tailwindcss"` brings the whole default theme; repo tokens override it.
+  if (importsTailwind) {
+    for (const [name, raw] of Object.entries(tailwindDefaultTheme)) {
+      if (!declared.has(name)) declared.set(name, { raw, source: 'tailwindcss', fromTheme: true });
+    }
   }
 
   const tokens: Token[] = [];

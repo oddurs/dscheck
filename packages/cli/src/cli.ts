@@ -11,6 +11,7 @@ const HELP = `offsystem — the linter that knows your design system
 Usage
   offsystem check [paths...]     Lint files (default: cwd) against the token set
   offsystem baseline [paths...]  Record current findings as accepted debt
+  offsystem report [paths...]    Debt overview: counts by rule and worst files, vs baseline
   offsystem tokens               Print the resolved allowed set
 
 Options
@@ -47,7 +48,8 @@ if (command === 'tokens') {
   process.exit(0);
 }
 
-if (command !== 'check' && command !== 'baseline') fail(`Unknown command: ${command}\n\n${HELP}`);
+if (!['check', 'baseline', 'report'].includes(command))
+  fail(`Unknown command: ${command}\n\n${HELP}`);
 
 const files = expand(paths.length > 0 ? paths : ['.']);
 const findings = await lintFiles(files);
@@ -57,6 +59,38 @@ if (command === 'baseline') {
   const { writeBaseline, BASELINE_FILE } = await import('./baseline.js');
   writeBaseline(findings, root);
   console.log(`${findings.length} findings recorded in ${BASELINE_FILE}`);
+  process.exit(0);
+}
+
+if (command === 'report') {
+  const { readBaseline } = await import('./baseline.js');
+  const known = readBaseline(root);
+  const baselined = known
+    ? Object.values(known).reduce(
+        (n, rules) => n + Object.values(rules).reduce((m, r) => m + r.count, 0),
+        0,
+      )
+    : undefined;
+  const byRule = new Map<string, number>();
+  const byFile = new Map<string, number>();
+  for (const f of findings) {
+    byRule.set(f.rule, (byRule.get(f.rule) ?? 0) + 1);
+    byFile.set(f.file, (byFile.get(f.file) ?? 0) + 1);
+  }
+  console.log(
+    pc.bold(`off-system findings: ${findings.length}`) +
+      (baselined !== undefined
+        ? pc.dim(
+            `  (baseline: ${baselined}, delta ${findings.length - baselined >= 0 ? '+' : ''}${findings.length - baselined})`,
+          )
+        : ''),
+  );
+  console.log(`\n${pc.bold('by rule')}`);
+  for (const [rule, n] of [...byRule].sort((a, b) => b[1] - a[1]))
+    console.log(`  ${String(n).padStart(5)}  ${rule}`);
+  console.log(`\n${pc.bold('worst files')}`);
+  for (const [file, n] of [...byFile].sort((a, b) => b[1] - a[1]).slice(0, 10))
+    console.log(`  ${String(n).padStart(5)}  ${file}`);
   process.exit(0);
 }
 

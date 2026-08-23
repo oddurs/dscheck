@@ -159,10 +159,15 @@ export function checkDeclaration(property: string, value: string, ctx: CheckCont
       return false;
     }
 
-    // R1 — unknown token references
+    // R1 — unknown token references (--tw-* are Tailwind internals, always fine)
     if (node.type === 'function' && node.value === 'var') {
       const name = node.nodes[0]?.value;
-      if (name && !ctx.index.tokens.has(name) && !ctx.localVars?.has(name)) {
+      if (
+        name &&
+        !name.startsWith('--tw-') &&
+        !ctx.index.tokens.has(name) &&
+        !ctx.localVars?.has(name)
+      ) {
         violations.push({
           rule: 'no-unknown-token',
           value: name,
@@ -235,7 +240,12 @@ function walkVarsOnly(
   valueParser.walk(fn.nodes, (node) => {
     if (node.type !== 'function' || node.value !== 'var') return;
     const name = node.nodes[0]?.value;
-    if (name && !ctx.index.tokens.has(name) && !ctx.localVars?.has(name)) {
+    if (
+      name &&
+      !name.startsWith('--tw-') &&
+      !ctx.index.tokens.has(name) &&
+      !ctx.localVars?.has(name)
+    ) {
       violations.push({
         rule: 'no-unknown-token',
         value: name,
