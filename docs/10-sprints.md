@@ -23,7 +23,7 @@ Open-source excellence for a linter is **trust**, earned four ways: it installs 
 
 **Exit:** 0.1.0 live with provenance; a stranger's repo gets its first finding in under 5 minutes using only the README.
 
-## Sprint 2 — Documentation excellence — **DONE 2026-08-23** (site 19 pages; 2.4 recording pending vhs install; deploy at go-public)
+## Sprint 2 — Documentation excellence — **DONE 2026-08-23** (site 19 pages; 2.4 demo GIF recorded; deploy at go-public)
 
 **Goal: every question a user hits in the first hour is answered one click away.**
 

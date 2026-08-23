@@ -1,5 +1,5 @@
 # vhs assets/demo/demo.tape  → assets/demo/dscheck.gif
-Output assets/demo/dscheck.gif
+Output ../dscheck.gif
 Set FontSize 15
 Set Width 1100
 Set Height 620

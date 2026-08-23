@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { statSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { relative, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import pc from 'picocolors';
 import { globSync } from 'tinyglobby';
@@ -169,7 +169,8 @@ async function render(all: Finding[], format: string): Promise<void> {
   let lastFile = '';
   for (const f of all) {
     if (f.file !== lastFile) {
-      console.log(`\n${pc.underline(f.file)}`);
+      const rel = relative(process.cwd(), f.file);
+      console.log(`\n${pc.underline(rel.startsWith('..') ? f.file : rel)}`);
       lastFile = f.file;
     }
     const badge = f.severity === 'error' ? pc.red('✖') : pc.yellow('⚠');

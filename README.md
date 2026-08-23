@@ -4,11 +4,7 @@
 
 dscheck reads the token source you already have — a Tailwind v4 `@theme`, DTCG JSON *(planned)*, or plain `:root` custom properties — and flags every off-system value in your code, with the nearest on-system token attached:
 
-```
-✖ 48:13  Raw color #2a2520 — use var(--color-cedar-700) (ΔEOK 0.040)   dscheck/no-raw-color
-⚠ 19:16  Raw length 14px in padding — use var(--spacing-3) (12px, Δ2px) dscheck/no-raw-length
-✖ 12:9   Unknown token --color-primry — did you mean --color-primary?   dscheck/no-unknown-token
-```
+![dscheck demo](assets/demo/dscheck.gif)
 
 Built for the age of agent-written UI: coding agents hallucinate plausible off-system values; dscheck catches them and hands back the exact fix, so the agent corrects itself before a human ever sees the diff.
 
