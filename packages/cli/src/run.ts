@@ -34,6 +34,8 @@ async function lintCss(files: string[]): Promise<Finding[]> {
         'offsystem/no-raw-color': true,
         'offsystem/no-unknown-token': true,
         'offsystem/no-raw-length': [true, { severity: 'warning' }],
+        'offsystem/no-raw-font': [true, { severity: 'warning' }],
+        'offsystem/no-raw-shadow': [true, { severity: 'warning' }],
       },
     },
   });
@@ -65,6 +67,8 @@ async function lintJsx(files: string[]): Promise<Finding[]> {
           'offsystem/no-raw-color': 'error',
           'offsystem/no-unknown-token': 'error',
           'offsystem/no-raw-length': 'warn',
+          'offsystem/no-raw-font': 'warn',
+          'offsystem/no-raw-shadow': 'warn',
         },
       },
       file,

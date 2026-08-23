@@ -106,3 +106,39 @@ describe('math functions', () => {
     expect(v?.rule).toBe('no-unknown-token');
   });
 });
+
+describe('no-raw-font / no-raw-shadow', () => {
+  const dir2 = mkdtempSync(join(tmpdir(), 'offsystem-r56-'));
+  const f = join(dir2, 'tokens.css');
+  writeFileSync(
+    f,
+    `@theme {
+      --font-sans: 'Inter', sans-serif;
+      --font-weight-medium: 500;
+      --shadow-md: 0 4px 6px rgb(0 0 0 / 0.1);
+    }`,
+  );
+  const ctx2 = { index: loadCssTokens([f]) };
+
+  it('flags custom font stacks, allows generic-only stacks and vars', () => {
+    const [v] = checkDeclaration('font-family', "'Inter', sans-serif", ctx2);
+    expect(v?.rule).toBe('no-raw-font');
+    expect(v?.matches[0]?.kind).toBe('exact');
+    expect(checkDeclaration('font-family', 'system-ui, sans-serif', ctx2)).toHaveLength(0);
+    expect(checkDeclaration('font-family', 'var(--font-sans)', ctx2)).toHaveLength(0);
+  });
+
+  it('flags numeric font-weight with nearest token', () => {
+    const [v] = checkDeclaration('font-weight', '600', ctx2);
+    expect(v?.rule).toBe('no-raw-font');
+    expect(v?.matches[0]?.token.name).toBe('--font-weight-medium');
+    expect(checkDeclaration('font-weight', 'bold', ctx2)).toHaveLength(0);
+  });
+
+  it('flags raw box-shadow, exact when numerically identical', () => {
+    const [v] = checkDeclaration('box-shadow', '0 4px 6px rgba(0,0,0,0.1)', ctx2);
+    expect(v?.rule).toBe('no-raw-shadow');
+    expect(v?.matches[0]?.kind).toBe('exact');
+    expect(checkDeclaration('box-shadow', 'var(--shadow-md)', ctx2)).toHaveLength(0);
+  });
+});

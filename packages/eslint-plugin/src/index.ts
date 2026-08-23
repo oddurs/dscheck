@@ -3,7 +3,7 @@ import { type CheckContext, formatViolation, indexFor, type RuleId } from '@offs
 import type { Rule } from 'eslint';
 import { checkClassString, checkStyleEntry } from './jsx.js';
 
-const RULES: RuleId[] = ['no-raw-color', 'no-raw-length', 'no-unknown-token'];
+const RULES: RuleId[] = ['no-raw-color', 'no-raw-length', 'no-unknown-token', 'no-raw-font', 'no-raw-shadow'];
 
 /** Attribute names treated as class strings. */
 const CLASS_ATTRIBUTES = new Set(['className', 'class']);
@@ -21,6 +21,7 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
         description: `Enforce design-system tokens (${ruleId})`,
         url: `https://github.com/oddurs/offsystem#${ruleId}`,
       },
+      fixable: 'code',
       schema: [],
       messages: { violation: '{{ text }}' },
     },
@@ -44,7 +45,21 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
 
       const checkEntry = (key: string, value: string | number, node: Node) => {
         for (const violation of checkStyleEntry(key, value, ctx)) {
-          if (violation.rule === ruleId) report(node, formatViolation(violation));
+          if (violation.rule !== ruleId) continue;
+          const best = violation.matches[0];
+          // Fix only literals the violation covers entirely — never partial rewrites.
+          const wholeLiteral =
+            node.type === 'Literal' && String(value).trim() === violation.value;
+          if (best?.kind === 'exact' && wholeLiteral) {
+            context.report({
+              node: node as never,
+              messageId: 'violation',
+              data: { text: formatViolation(violation) },
+              fix: (fixer) => fixer.replaceText(node as never, `'var(${best.token.name})'`),
+            });
+          } else {
+            report(node, formatViolation(violation));
+          }
         }
       };
 
@@ -178,6 +193,8 @@ export const configs = {
       'offsystem/no-raw-color': 'error',
       'offsystem/no-unknown-token': 'error',
       'offsystem/no-raw-length': 'warn',
+      'offsystem/no-raw-font': 'warn',
+      'offsystem/no-raw-shadow': 'warn',
     },
   },
 };

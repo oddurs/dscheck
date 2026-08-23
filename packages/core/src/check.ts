@@ -10,7 +10,12 @@ import {
 } from './match.js';
 import type { Category, ValueIndex } from './types.js';
 
-export type RuleId = 'no-raw-color' | 'no-raw-length' | 'no-unknown-token';
+export type RuleId =
+  | 'no-raw-color'
+  | 'no-raw-length'
+  | 'no-unknown-token'
+  | 'no-raw-font'
+  | 'no-raw-shadow';
 
 export interface Violation {
   rule: RuleId;
@@ -47,6 +52,12 @@ const ALWAYS_ALLOWED = new Set([
 ]);
 
 const MATH_FUNCTIONS = new Set(['calc', 'clamp', 'min', 'max']);
+
+/** Generic families and keywords that are always acceptable in font-family. */
+const GENERIC_FAMILIES = new Set([
+  'serif', 'sans-serif', 'monospace', 'cursive', 'fantasy', 'system-ui',
+  'ui-serif', 'ui-sans-serif', 'ui-monospace', 'ui-rounded', 'math', 'emoji',
+]);
 
 const COLOR_FUNCTIONS = new Set([
   'rgb',
@@ -126,6 +137,10 @@ export function checkDeclaration(property: string, value: string, ctx: CheckCont
   if (prop.startsWith('--')) return violations; // token definitions are not usages
   const tolerance = ctx.tolerance ?? defaultTolerance;
   const parsed = valueParser(value);
+
+  // R5/R6 — whole-value checks for font-family, font-weight, line-height, box-shadow
+  const whole = checkWholeValue(prop, value, ctx);
+  if (whole) return [whole];
 
   parsed.walk((node) => {
     // Fluid/math expressions are deliberate: their components are not raw-value drift.
@@ -223,6 +238,96 @@ function walkVarsOnly(
   });
 }
 
+/** R5/R6: properties judged as a whole value rather than literal-by-literal. */
+function checkWholeValue(prop: string, value: string, ctx: CheckContext): Violation | undefined {
+  const trimmed = value.trim();
+  if (trimmed.includes('var(') || ALWAYS_ALLOWED.has(trimmed.toLowerCase())) return undefined;
+
+  if (prop === 'font-family') {
+    const families = trimmed.split(',').map((f) => f.trim().replace(/^['"]|['"]$/g, ''));
+    if (families.every((f) => GENERIC_FAMILIES.has(f.toLowerCase()))) return undefined;
+    const tokens = ctx.index.byCategory('font-family');
+    if (tokens.length === 0) return undefined;
+    const exact = tokens.find((t) => normalizeFamily(t.value) === normalizeFamily(trimmed));
+    return {
+      rule: 'no-raw-font',
+      value: trimmed,
+      property: prop,
+      matches: (exact ? [exact] : tokens.slice(0, 3)).map((token) => ({
+        token,
+        distance: exact ? 0 : 1,
+        kind: exact ? ('exact' as const) : ('nearest' as const),
+      })),
+      index: 0,
+      message: `Raw font stack in ${prop}`,
+    };
+  }
+
+  if (prop === 'font-weight' && /^[1-9]00$/.test(trimmed)) {
+    const tokens = ctx.index.byCategory('font-weight');
+    if (tokens.length === 0) return undefined;
+    const matches: Match[] = tokens
+      .map((token) => ({
+        token,
+        distance: Math.abs(Number(token.value) - Number(trimmed)),
+        kind: token.value === trimmed ? ('exact' as const) : ('nearest' as const),
+      }))
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, 3);
+    return {
+      rule: 'no-raw-font',
+      value: trimmed,
+      property: prop,
+      matches,
+      index: 0,
+      message: `Raw font-weight ${trimmed}`,
+    };
+  }
+
+  if (prop === 'box-shadow') {
+    const tokens = ctx.index.byCategory('shadow');
+    if (tokens.length === 0) return undefined;
+    const target = shadowVector(trimmed);
+    const matches: Match[] = tokens
+      .map((token) => {
+        const distance = vectorDistance(target, shadowVector(token.value));
+        return {
+          token,
+          distance,
+          kind: distance === 0 ? ('exact' as const) : ('nearest' as const),
+        };
+      })
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, 3);
+    return {
+      rule: 'no-raw-shadow',
+      value: trimmed,
+      property: prop,
+      matches,
+      index: 0,
+      message: 'Raw box-shadow',
+    };
+  }
+
+  return undefined;
+}
+
+function normalizeFamily(stack: string): string {
+  return stack.toLowerCase().replaceAll(/['"\s]/g, '');
+}
+
+/** Numeric fingerprint of a shadow: every px number in order. */
+function shadowVector(shadow: string): number[] {
+  return [...shadow.matchAll(/(-?[\d.]+)px/g)].map((m) => Number(m[1]));
+}
+
+function vectorDistance(a: number[], b: number[]): number {
+  const length = Math.max(a.length, b.length);
+  let sum = 0;
+  for (let i = 0; i < length; i++) sum += Math.abs((a[i] ?? 0) - (b[i] ?? 0));
+  return sum;
+}
+
 /** Human/agent-facing one-liner with the best suggestion attached. */
 export function formatViolation(v: Violation): string {
   const best = v.matches[0];
@@ -233,6 +338,8 @@ export function formatViolation(v: Violation): string {
       ? `use var(${best.token.name}) (ΔEOK ${best.distance.toFixed(3)})`
       : v.rule === 'no-raw-length'
         ? `use var(${best.token.name}) (${best.token.value}${best.distance === 0 ? '' : `, Δ${best.distance}px`})`
-        : `did you mean ${best.token.name}?`;
+        : v.rule === 'no-unknown-token'
+          ? `did you mean ${best.token.name}?`
+          : `use var(${best.token.name})${best.kind === 'exact' ? ' (identical)' : ''}`;
   return `${v.message} — ${hint}`;
 }

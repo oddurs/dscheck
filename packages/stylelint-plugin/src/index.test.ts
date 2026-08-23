@@ -50,3 +50,22 @@ describe('@offsystem/stylelint-plugin', () => {
     expect(warnings).toHaveLength(0);
   });
 });
+
+describe('autofix', () => {
+  it('fixes exact matches only', async () => {
+    const file = join(dir, 'fixme.css');
+    writeFileSync(file, '.a { color: #1d4ed8; padding: 14px; }');
+    await stylelint.lint({
+      files: file,
+      fix: true,
+      config: {
+        plugins: [join(import.meta.dirname, '..', 'dist', 'index.js')],
+        rules: { 'offsystem/no-raw-color': true, 'offsystem/no-raw-length': true },
+      },
+    });
+    const { readFileSync } = await import('node:fs');
+    expect(readFileSync(file, 'utf8')).toBe(
+      '.a { color: var(--color-primary); padding: 14px; }',
+    );
+  });
+});

@@ -10,7 +10,7 @@ import type { Declaration, Root } from 'postcss';
 import stylelint, { type PostcssResult, type Rule } from 'stylelint';
 
 const NAMESPACE = 'offsystem';
-const RULES: RuleId[] = ['no-raw-color', 'no-raw-length', 'no-unknown-token'];
+const RULES: RuleId[] = ['no-raw-color', 'no-raw-length', 'no-unknown-token', 'no-raw-font', 'no-raw-shadow'];
 
 /**
  * Three stylelint rules over one shared walk: each rule filters the shared
@@ -38,6 +38,8 @@ function createRule(ruleId: RuleId): Rule {
       root.walkDecls((decl: Declaration) => {
         for (const violation of checkDeclaration(decl.prop, decl.value, ctx)) {
           if (violation.rule !== ruleId) continue;
+          const best = violation.matches[0];
+          const fixable = best?.kind === 'exact';
           stylelint.utils.report({
             message: messages.rejected(violation),
             node: decl,
@@ -45,6 +47,16 @@ function createRule(ruleId: RuleId): Rule {
             endIndex: declarationValueIndex(decl) + violation.index + violation.value.length,
             result,
             ruleName,
+            ...(fixable && best
+              ? {
+                  fix: () => {
+                    decl.value =
+                      decl.value.slice(0, violation.index) +
+                      `var(${best.token.name})` +
+                      decl.value.slice(violation.index + violation.value.length);
+                  },
+                }
+              : {}),
           });
         }
       });
@@ -53,7 +65,7 @@ function createRule(ruleId: RuleId): Rule {
 
   rule.ruleName = ruleName;
   rule.messages = messages;
-  rule.meta = { url: `https://github.com/oddurs/offsystem#${ruleId}` };
+  rule.meta = { url: `https://github.com/oddurs/offsystem#${ruleId}`, fixable: true };
   return rule;
 }
 
@@ -74,6 +86,8 @@ export const configs = {
       'offsystem/no-raw-color': true,
       'offsystem/no-unknown-token': true,
       'offsystem/no-raw-length': [true, { severity: 'warning' }],
+      'offsystem/no-raw-font': [true, { severity: 'warning' }],
+      'offsystem/no-raw-shadow': [true, { severity: 'warning' }],
     },
   },
 };
