@@ -4,9 +4,32 @@
       "name": "tailwindcss.com",
       "url": "https://github.com/tailwindlabs/tailwindcss.com",
       "sha": "bd868a3",
+      "configDir": ".",
       "config": { "tokens": ["src/app/globals.css"], "ignore": ["src/components/blog/**"] },
       "paths": ["src"],
       "expected": { "errors": 12, "warnings": 80 }
+    },
+    {
+      "name": "ai-chatbot",
+      "url": "https://github.com/vercel/ai-chatbot",
+      "sha": "c2f8235",
+      "configDir": ".",
+      "config": { "tokens": ["app/globals.css"] },
+      "paths": ["."],
+      "expected": { "errors": 12, "warnings": 48 }
+    },
+    {
+      "name": "shadcn-ui/apps/v4",
+      "url": "https://github.com/shadcn-ui/ui",
+      "sha": "ac60ef5",
+      "configDir": "apps/v4",
+      "config": {
+        "tokens": ["app/globals.css"],
+        "allow": ["--shiki-*", "--header-height", "--font-ar", "--font-he"]
+      },
+      "paths": ["apps/v4"],
+      "expected": { "errors": 1, "warnings": 173 }
     }
-  ]
+  ],
+  "perfBudgetMsPerFile": 15
 }
