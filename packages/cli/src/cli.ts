@@ -94,6 +94,10 @@ if (command === 'tokens') {
   if (!index) fail('No design system found (no dscheck.config.json or @theme/:root css).');
   if (values.doctor) {
     const d = index.diagnostics;
+    if (index.tokens.size === 0) {
+      console.error(pc.red('✖ empty token set — sources matched no tokens (check `tokens` globs)'));
+      process.exit(1);
+    }
     if (
       !d ||
       (d.conflicts.length === 0 && d.unresolved.length === 0 && d.danglingAliases.length === 0)
