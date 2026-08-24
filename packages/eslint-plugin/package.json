@@ -14,7 +14,8 @@
     "build": "tsdown src/index.ts --dts"
   },
   "dependencies": {
-    "@dscheck/core": "workspace:*"
+    "@dscheck/core": "workspace:*",
+    "@dscheck/tw": "workspace:*"
   },
   "peerDependencies": {
     "eslint": ">=9"

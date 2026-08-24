@@ -7,6 +7,7 @@ export {
   indexFor,
   isIgnored,
   loadIndex,
+  tokenFilesFor,
   toleranceFor,
 } from './config.js';
 export { loadCssTokens } from './css-source.js';

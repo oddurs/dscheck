@@ -6,10 +6,14 @@ import {
   formatViolation,
   indexFor,
   type RuleId,
+  tokenFilesFor,
   toleranceFor,
 } from '@dscheck/core';
+import { engineFor } from '@dscheck/tw';
 import type { Rule } from 'eslint';
 import { checkClassString, checkStyleEntry } from './jsx.js';
+
+export { checkClassString } from './jsx.js';
 
 const RULES: RuleId[] = [
   'no-raw-color',
@@ -18,6 +22,7 @@ const RULES: RuleId[] = [
   'no-raw-font',
   'no-raw-shadow',
   'token-role',
+  'no-unknown-class',
 ];
 
 /** Attribute names treated as class strings. */
@@ -53,6 +58,9 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
         tolerance: toleranceFor(config),
         ...(config ? { isAllowedName: allowedNameMatcher(config) } : {}),
       };
+      const engine = config ? engineFor(config.root, tokenFilesFor(config)) : undefined;
+      if (process.env.DSCHECK_DEBUG)
+        console.error('[dscheck] create', ruleId, 'index:', index.tokens.size, 'engine:', !!engine);
 
       /** Object variables that might be style maps or palettes, by name. */
       const objectVars = new Map<string, Node>();
@@ -140,14 +148,35 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
       const seenClassNodes = new Set<Node>();
 
       const checkClasses = (value: string, node: Node) => {
+        if (process.env.DSCHECK_DEBUG) console.error('[dscheck] classes:', JSON.stringify(value));
         if (seenClassNodes.has(node)) return;
         seenClassNodes.add(node);
-        for (const violation of checkClassString(value, ctx)) {
+        for (const violation of checkClassString(value, ctx, engine)) {
           if (violation.rule !== ruleId) continue;
           const text = violation.classFix
             ? `${formatViolation(violation)} — class: ${violation.classFix}`
             : formatViolation(violation);
-          report(node, text);
+          // Real autofix for exact matches in plain string literals: the
+          // class-token span maps 1:1 into the source between the quotes.
+          const fixable =
+            violation.classFix !== undefined &&
+            violation.fixStart !== undefined &&
+            violation.fixEnd !== undefined &&
+            node.type === 'Literal' &&
+            typeof (node as { range?: [number, number] }).range?.[0] === 'number';
+          if (fixable) {
+            const range = (node as unknown as { range: [number, number] }).range;
+            const start = range[0] + 1 + (violation.fixStart as number);
+            const end = range[0] + 1 + (violation.fixEnd as number);
+            context.report({
+              node: node as never,
+              messageId: 'violation',
+              data: { text },
+              fix: (fixer) => fixer.replaceTextRange([start, end], violation.classFix as string),
+            });
+          } else {
+            report(node, text);
+          }
         }
       };
 
@@ -289,6 +318,7 @@ export const configs = {
       'dscheck/no-raw-font': 'warn',
       'dscheck/no-raw-shadow': 'warn',
       'dscheck/token-role': 'warn',
+      'dscheck/no-unknown-class': 'error',
     },
   },
 };

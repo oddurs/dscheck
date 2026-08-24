@@ -16,7 +16,8 @@ export type RuleId =
   | 'no-unknown-token'
   | 'no-raw-font'
   | 'no-raw-shadow'
-  | 'token-role';
+  | 'token-role'
+  | 'no-unknown-class';
 
 export interface Violation {
   rule: RuleId;
@@ -27,6 +28,8 @@ export interface Violation {
   /** Character offset of `value` within the declaration's value string. */
   index: number;
   message: string;
+  /** Direct textual suggestion (class names etc.) when matches don't carry it. */
+  suggestion?: string;
 }
 
 export interface CheckContext {
@@ -400,6 +403,7 @@ function vectorDistance(a: number[], b: number[]): number {
 /** Human/agent-facing one-liner with the best suggestion attached. */
 export function formatViolation(v: Violation): string {
   const best = v.matches[0];
+  if (v.suggestion) return `${v.message} — did you mean ${v.suggestion}?`;
   if (!best)
     return `${v.message} — no ${v.rule === 'no-unknown-token' ? 'similar token' : 'token'} found`;
   const hint =
@@ -411,6 +415,8 @@ export function formatViolation(v: Violation): string {
           ? `did you mean ${best.token.name}?`
           : v.rule === 'token-role'
             ? `nearest right-role token: var(${best.token.name})`
-            : `use var(${best.token.name})${best.kind === 'exact' ? ' (identical)' : ''}`;
+            : v.rule === 'no-unknown-class'
+              ? `did you mean ${v.suggestion ?? best.token.name}?`
+              : `use var(${best.token.name})${best.kind === 'exact' ? ' (identical)' : ''}`;
   return `${v.message} — ${hint}`;
 }

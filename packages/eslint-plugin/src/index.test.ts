@@ -132,3 +132,52 @@ describe('class factories & dynamic class expressions (A2/A3)', () => {
     expect(messages).toHaveLength(0);
   });
 });
+
+describe('tailwind engine path (D2–D4)', () => {
+  const twDir = mkdtempSync(join(tmpdir(), 'dscheck-eltw-'));
+  writeFileSync(join(twDir, 'package.json'), '{}');
+  const { symlinkSync, mkdirSync } = require('node:fs') as typeof import('node:fs');
+  const { createRequire } = require('node:module') as typeof import('node:module');
+  const twRequire = createRequire(join(import.meta.dirname, '..', '..', 'tw', 'package.json'));
+  const tailwindDir = join(twRequire.resolve('tailwindcss/package.json'), '..');
+  mkdirSync(join(twDir, 'node_modules'), { recursive: true });
+  symlinkSync(tailwindDir, join(twDir, 'node_modules', 'tailwindcss'));
+  writeFileSync(join(twDir, 'dscheck.config.json'), JSON.stringify({ tokens: ['app.css'] }));
+  writeFileSync(
+    join(twDir, 'app.css'),
+    `@import 'tailwindcss';\n@theme { --color-brand: #1d4ed8; --spacing-3: 12px; }`,
+  );
+  const twLinter = new Linter({ cwd: twDir });
+  const twLint = (code: string, fix = false) => {
+    const cfg = {
+      files: ['**/*.tsx'],
+      plugins: { dscheck: plugin as never },
+      languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
+      rules: {
+        'dscheck/no-raw-color': 'error',
+        'dscheck/no-raw-length': 'error',
+        'dscheck/no-unknown-class': 'error',
+      },
+    } as const;
+    return fix
+      ? twLinter.verifyAndFix(code, cfg as never, 'component.tsx')
+      : { messages: twLinter.verify(code, cfg as never, 'component.tsx'), output: code };
+  };
+
+  it('parses variant-wrapped arbitrary values via the engine', () => {
+    const { messages } = twLint('const a = <div className="md:hover:p-[13px]" />;');
+    expect(messages[0]?.message).toContain('13px');
+  });
+
+  it('flags fabricated utilities with a did-you-mean', () => {
+    const { messages } = twLint('const a = <div className="bg-brnad" />;');
+    expect(messages[0]?.ruleId).toBe('dscheck/no-unknown-class');
+    expect(messages[0]?.message).toContain('did you mean bg-brand?');
+  });
+
+  it('autofixes exact arbitrary values to the canonical utility', () => {
+    const { output } = twLint('const a = <div className="md:p-[12px] bg-[#eee]" />;', true);
+    expect(output).toContain('md:p-3');
+    expect(output).toContain('bg-[#eee]'); // non-exact stays
+  });
+});

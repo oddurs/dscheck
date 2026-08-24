@@ -178,6 +178,15 @@ export function isIgnored(filePath: string, config: DscheckConfig): boolean {
   return picomatch.isMatch(rel, config.ignore);
 }
 
+/** The resolved token file list for a config (config order, globs expanded). */
+export function tokenFilesFor(config: DscheckConfig): string[] {
+  return config.tokens.flatMap((pattern) =>
+    globSync(pattern, { cwd: config.root, ignore: ['**/node_modules/**'] })
+      .sort()
+      .map((f) => join(config.root, f)),
+  );
+}
+
 /** One-call convenience for adapters: config + index for the file being linted. */
 export function indexFor(filePath: string): ValueIndex | undefined {
   const config = findConfig(filePath);

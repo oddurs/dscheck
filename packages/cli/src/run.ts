@@ -23,7 +23,11 @@ const DEFAULT_SEVERITIES: Record<string, Severity> = {
   'no-raw-font': 'warn',
   'no-raw-shadow': 'warn',
   'token-role': 'warn',
+  'no-unknown-class': 'error',
 };
+
+/** Class strings only exist in JSX — stylelint never sees this rule. */
+const ESLINT_ONLY = new Set(['no-unknown-class']);
 
 /** Effective severities: defaults overridden by dscheck.config.json `rules`. */
 function severitiesFor(anchor: string | undefined): Record<string, Severity> {
@@ -50,7 +54,7 @@ async function lintCss(files: string[]): Promise<Finding[]> {
   const severities = severitiesFor(files[0]);
   const rules = Object.fromEntries(
     Object.entries(severities)
-      .filter(([, s]) => s !== 'off')
+      .filter(([rule, s]) => s !== 'off' && !ESLINT_ONLY.has(rule))
       .map(([rule, s]) => [
         `dscheck/${rule}`,
         s === 'error' ? true : [true, { severity: 'warning' }],

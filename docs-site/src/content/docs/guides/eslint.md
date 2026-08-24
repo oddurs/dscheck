@@ -27,7 +27,10 @@ That's it — zero-config finds your tokens (`@theme` in an imported CSS entry, 
 - `style={{ color: '#333', padding: 14 }}` — literals, with React's numeric-px semantics
 - `const styles = { card: { … } }` referenced from `style={styles.card}`
 - Palette constants: `const palette = { cedar: '#7a4a2b' }` … `color: palette.cedar`
-- Tailwind arbitrary values in string `className`s: `p-[13px]` → *did you mean `p-3`?*
+- Tailwind class strings — including `clsx`/`cn`/`cva` arguments and template statics.
+  With Tailwind installed, parsing runs through **Tailwind's own engine**: variants are
+  handled exactly, `p-[12px]` **autofixes** to `p-3` when identical, and fabricated
+  utilities are caught ([no-unknown-class](/rules/no-unknown-class/)).
 
 Dynamic expressions (`clsx(cond && …)`, template interpolations) are **skipped, never
 guessed** — a guardrail that cries wolf gets disabled.
