@@ -15,7 +15,7 @@
 
 ---
 
-## Sprint G — Zero-FP engineering (contract #1)
+## Sprint G — Zero-FP engineering — **DONE 2026-08-24** (surfaces contract fixture-backed; audit 39/39 true; --explain-skips; corpus ×5 incl. scss/scoped excalidraw + openstatus; fp/ regression corpus. Forced fixes: scss loader crash→postcss-scss + visible parse failures, monorepo config shadowing, cross-file component vars, vendor runtime vars, blur-as-spacing suggestions)
 
 **Goal: every finding on a supported surface is true, and every silence is a documented decision.**
 
@@ -29,7 +29,7 @@
 
 **Exit:** audit shows 100% true on supported surfaces; skip list is exhaustive and fixture-backed.
 
-## Sprint H — Resolver totality (contract #2)
+## Sprint H — Resolver totality — **DONE 2026-08-24** (kitchen-sink golden — caught alias mode-inheritance, scss interpolation unresolved, -radius suffix; static-vs-engine differential; property tests vs reference resolver; doctor complete incl. empty-set)
 
 **Goal: no real-world token-source shape parses wrong, and every ambiguity has a diagnostic.**
 
@@ -42,7 +42,7 @@
 
 **Exit:** resolver matrix + differential + doctor inventory all green and complete.
 
-## Sprint I — Fix safety proofs (contracts #3, #4)
+## Sprint I — Fix safety proofs — **DONE 2026-08-24** (round-trip/idempotence suite; fix fuzz; mode-honest messages; scale run: 5 repos, 74 fixes, 0 new findings, 0 damage — after catching real stale-offset corruption, fixed by recompute-per-fix)
 
 **Goal: `fix` is provably harmless; suggestions are provably honest.**
 
@@ -56,7 +56,7 @@
 
 **Exit:** round-trip + honesty + scale-run all green; fix documented as "provably identical-only".
 
-## Sprint J — Contract freeze (contracts #5, #6)
+## Sprint J — Contract freeze — **DONE 2026-08-24** (config schema + fail-fast validation w/ did-you-mean; json/agent/sarif/exit-code contract tests; baseline property invariants; core API snapshot; versioning policy page)
 
 **Goal: everything a user's CI or script can parse is schema'd, tested, and versioned.**
 
@@ -70,7 +70,7 @@
 
 **Exit:** a script written against 0.x output/config keeps working, verifiably, through 1.0.
 
-## Sprint K — Beta, proofs, and the tag 🔒 gates: npm login, go-public
+## Sprint K — Beta, proofs, and the tag 🔒 gates: npm login, go-public — ungated slice DONE 2026-08-24 (RELEASES.md scoreboard + public 1.0 criteria in README); K1–K5 await the gates
 
 **Goal: 1.0 earned in public, declared by the criteria, not the calendar.**
 

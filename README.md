@@ -57,6 +57,13 @@ Full docs live in [`docs-site/`](docs-site/src/content/docs/) (Starlight; deploy
 [config](docs-site/src/content/docs/reference/config.md) ·
 [architecture](docs-site/src/content/docs/reference/architecture.md)
 
-## Status
+## Status & the road to 1.0
 
-Pre-release. Planning corpus: [docs/](docs/) — research, concept, competitor analysis, requirements, roadmap, sprints.
+Pre-release. 1.0 is a promise, not a feature level — the criteria are public in
+[RELEASES.md](RELEASES.md): three consecutive releases with **zero confirmed false
+positives on supported surfaces**, plus passed stranger tests. Every finding surface is
+contract-tested; every silence is documented and fixture-backed; `fix` is provably
+identical-only. Found a false positive? It becomes a permanent fixture in
+[`fixtures/fp/`](fixtures/fp/) and a scoreboard entry — that's the deal.
+
+Planning corpus: [docs/](docs/) — research, concept, competitor analysis, requirements, roadmap, sprints.
