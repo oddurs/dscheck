@@ -2,6 +2,7 @@
 // Usage: node scripts/docs-audit.mjs [baseUrl]   (default http://localhost:4322)
 import { mkdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
+
 const require = createRequire(new URL('../docs-site/package.json', import.meta.url));
 const { chromium } = require('playwright');
 
@@ -14,7 +15,11 @@ const PAGES = [
   ['brand', '/reference/brand/'],
   ['404', '/definitely-missing/'],
 ];
-const WIDTHS = [['desktop', 1280], ['tablet', 768], ['phone', 390]];
+const WIDTHS = [
+  ['desktop', 1280],
+  ['tablet', 768],
+  ['phone', 390],
+];
 
 mkdirSync('fixtures/docs-ui', { recursive: true });
 const browser = await chromium.launch();

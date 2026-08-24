@@ -6,7 +6,7 @@ these sprints finish the surface (UI), the machinery (engine), and the words (wr
 Sequence P → Q → R; all ungated. The house doctrine extends to docs: **claims are
 tested, silence is deliberate, and examples must actually run.***
 
-## Sprint P — Docs UI
+## Sprint P — Docs UI — **DONE 2026-08-24** (playwright audit harness: 38 shots × 2 themes × 3 widths committed; caught Steps-counter collision + harness viewport bug; contrast proof 24/24; landing pitch; ergonomics/responsive/reduced-motion; pagefind on-system — search's top query lands the right rule page)
 
 **Goal: every surface a reader touches looks intentional — not just the markdown well.**
 
@@ -21,7 +21,7 @@ tested, silence is deliberate, and examples must actually run.***
 
 **Exit:** the committed audit shows every surface, both themes, three widths — all on-system (self-lint already enforces the CSS side).
 
-## Sprint Q — Docs engine
+## Sprint Q — Docs engine — **DONE 2026-08-24** (build-time link+anchor validation; llms.txt + llms-full.txt + 31 pages mirrored as .md for agents; tested-snippet gate over schema/CLI/rules; description enforcement + OG/social meta + lastUpdated + editLink; on-system 404; redirect map; weekly lychee)
 
 **Goal: the machinery guarantees what the site promises — links resolve, agents can read it, metadata is right.**
 
@@ -36,7 +36,7 @@ tested, silence is deliberate, and examples must actually run.***
 
 **Exit:** CI proves links, snippets, and metadata; agents can consume the whole site as text.
 
-## Sprint R — Docs writing
+## Sprint R — Docs writing — **DONE 2026-08-24** (glossary; Why/Troubleshooting/honest-Comparisons pages; prose gates in CI — first run caught 3 violations incl. mine; rule-template conformance with docs-defaults==code-defaults; cold-reader dry-run caught a real API-convention bug: plugin.configs now attached per ecosystem convention)
 
 **Goal: every page earns its read — plain voice, task-first, honest, and each claim backed by something that runs.**
 

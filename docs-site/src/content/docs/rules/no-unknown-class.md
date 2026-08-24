@@ -14,4 +14,6 @@ version of a hallucinated token — and gets a did-you-mean from your theme:
 - **Requires:** Tailwind v4 installed in the linted project (otherwise the rule is silent —
   dscheck never guesses class validity from patterns alone).
 - **Default severity:** error — like `no-unknown-token`, there is no legitimate steady state.
+- **Not flagged:** anything when the engine is unavailable (the rule goes silent, never
+  approximate), classes containing arbitrary values (those go to the value rules).
 - Variants are preserved in suggestions (`md:bg-brnad` → `md:bg-brand`).

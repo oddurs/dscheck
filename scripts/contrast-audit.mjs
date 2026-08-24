@@ -1,8 +1,9 @@
 // P6: every fg/bg pairing the docs site uses, WCAG-checked and recorded.
 // Also the manual dry-run for the future `dscheck contrast` command.
 import { writeFileSync } from 'node:fs';
-import { loadCssTokens } from '../packages/core/dist/index.js';
 import { createRequire } from 'node:module';
+import { loadCssTokens } from '../packages/core/dist/index.js';
+
 const require = createRequire(import.meta.url);
 const { wcagContrast } = require('culori');
 
@@ -29,16 +30,28 @@ const PAIRS = [
   ['--color-ink', '--color-danger-soft', 4.5, 'danger aside text'],
 ];
 
-const lines = ['# Contrast audit — docs design system', '', `Generated ${new Date().toISOString().slice(0, 10)} by scripts/contrast-audit.mjs (WCAG 2 ratios via culori).`, ''];
+const lines = [
+  '# Contrast audit — docs design system',
+  '',
+  `Generated ${new Date().toISOString().slice(0, 10)} by scripts/contrast-audit.mjs (WCAG 2 ratios via culori).`,
+  '',
+];
 let failures = 0;
 for (const mode of ['light', 'dark']) {
-  lines.push(`## ${mode}`, '', '| pairing | use | ratio | needs | verdict |', '|---|---|---|---|---|');
+  lines.push(
+    `## ${mode}`,
+    '',
+    '| pairing | use | ratio | needs | verdict |',
+    '|---|---|---|---|---|',
+  );
   for (const [fg, bg, min, use] of PAIRS) {
     const ratio = wcagContrast(value(fg, mode), value(bg, mode));
     const ok = ratio >= min;
     if (!ok) failures++;
     lines.push(`| ${fg} / ${bg} | ${use} | ${ratio.toFixed(2)} | ${min} | ${ok ? '✔' : '✖'} |`);
-    console.log(`${ok ? '✔' : '✖'} [${mode}] ${fg} on ${bg}: ${ratio.toFixed(2)} (needs ${min}) — ${use}`);
+    console.log(
+      `${ok ? '✔' : '✖'} [${mode}] ${fg} on ${bg}: ${ratio.toFixed(2)} (needs ${min}) — ${use}`,
+    );
   }
   lines.push('');
 }

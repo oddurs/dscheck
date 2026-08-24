@@ -14,7 +14,9 @@ function walk(dir) {
     const full = join(dir, entry.name);
     if (entry.isDirectory()) walk(full);
     else if (/\.(md|mdx)$/.test(entry.name)) {
-      const route = relative(src, full).replace(/\.(md|mdx)$/, '').replace(/(^|\/)index$/, '$1index');
+      const route = relative(src, full)
+        .replace(/\.(md|mdx)$/, '')
+        .replace(/(^|\/)index$/, '$1index');
       const out = join(dist, `${route}.md`);
       mkdirSync(dirname(out), { recursive: true });
       cpSync(full, out);

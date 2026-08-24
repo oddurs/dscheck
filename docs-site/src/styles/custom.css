@@ -407,8 +407,8 @@ starlight-toc a[aria-current="true"] {
 }
 
 /* quiet external-link marker (site-relative links stay unmarked) */
-.sl-markdown-content a[href^='https://']::after {
-  content: ' ↗';
+.sl-markdown-content a[href^="https://"]::after {
+  content: " ↗";
   font-size: var(--text-code-inline);
   color: var(--color-ink-faint);
 }
@@ -450,8 +450,8 @@ starlight-toc a[aria-current="true"] {
 
 /* ── search (pagefind) joins the system ─────────────────────────────── */
 :root,
-[data-theme='light'],
-[data-theme='dark'] {
+[data-theme="light"],
+[data-theme="dark"] {
   --pagefind-ui-font: var(--font-sans);
   --pagefind-ui-text: var(--color-ink);
   --pagefind-ui-background: var(--color-surface-raised);
@@ -462,7 +462,7 @@ starlight-toc a[aria-current="true"] {
   --pagefind-ui-border-width: 1px;
 }
 
-dialog[aria-label='Search'] {
+dialog[aria-label="Search"] {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);

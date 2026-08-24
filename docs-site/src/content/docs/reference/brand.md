@@ -9,7 +9,7 @@ it's a font *stack*, never a font file — and it renders everywhere a terminal 
 
 ## The name
 
-Always lowercase: **dscheck**. Never Dscheck, DSCheck, or DS-Check — including at the
+Always lowercase: **dscheck**. Never Dscheck, DSCheck, or DS-Check — including at the <!-- prose-lint-ignore -->
 start of a sentence. (Code identifiers follow code conventions: `DscheckConfig` is
 correct TypeScript, not a brand violation.)
 

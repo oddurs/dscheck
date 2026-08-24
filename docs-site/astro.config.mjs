@@ -25,7 +25,10 @@ export default defineConfig({
       head: [
         { tag: 'meta', attrs: { property: 'og:image', content: 'https://dscheck.dev/social.png' } },
         { tag: 'meta', attrs: { name: 'twitter:card', content: 'summary_large_image' } },
-        { tag: 'meta', attrs: { name: 'twitter:image', content: 'https://dscheck.dev/social.png' } },
+        {
+          tag: 'meta',
+          attrs: { name: 'twitter:image', content: 'https://dscheck.dev/social.png' },
+        },
       ],
       customCss: ['./src/styles/tokens.css', './src/styles/custom.css'],
       favicon: '/favicon.svg',
@@ -40,10 +43,13 @@ export default defineConfig({
         {
           label: 'Start here',
           items: [
+            { slug: 'guides/why' },
             { slug: 'guides/agent-guardrail' },
             { slug: 'guides/eslint' },
             { slug: 'guides/stylelint' },
             { slug: 'guides/ci' },
+            { slug: 'guides/css-in-js' },
+            { slug: 'guides/troubleshooting' },
           ],
         },
         { label: 'Rules', items: [{ autogenerate: { directory: 'rules' } }] },

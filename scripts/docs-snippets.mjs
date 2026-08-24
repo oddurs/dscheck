@@ -3,7 +3,7 @@
 // invocations against the real CLI, rule references against the registry —
 // and every page must carry a real description. A doctored example fails CI.
 import { execFileSync } from 'node:child_process';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -19,8 +19,14 @@ const help = execFileSync('node', [join(root, 'packages/cli/dist/cli.js'), '--he
 const COMMANDS = new Set([...help.matchAll(/^\s{2}dscheck (\w[\w-]*)/gm)].map((m) => m[1]));
 const FLAGS = new Set([...help.matchAll(/(--[\w-]+)/g)].map((m) => m[1]));
 const RULES = new Set([
-  'no-raw-color', 'no-raw-length', 'no-unknown-token', 'no-raw-font', 'no-raw-shadow',
-  'token-role', 'no-unknown-class', 'unparsed',
+  'no-raw-color',
+  'no-raw-length',
+  'no-unknown-token',
+  'no-raw-font',
+  'no-raw-shadow',
+  'token-role',
+  'no-unknown-class',
+  'unparsed',
 ]);
 
 const problems = [];
@@ -54,7 +60,8 @@ function checkFile(file) {
         const parsed = JSON.parse(stripped);
         for (const key of Object.keys(parsed)) {
           if (key.startsWith('x-')) continue;
-          if (!CONFIG_KEYS.has(key)) problems.push(`${rel}: config example uses unknown key "${key}"`);
+          if (!CONFIG_KEYS.has(key))
+            problems.push(`${rel}: config example uses unknown key "${key}"`);
         }
         for (const key of Object.keys(parsed.tolerance ?? {})) {
           if (!TOLERANCE_KEYS.has(key)) problems.push(`${rel}: tolerance example key "${key}"`);
@@ -64,11 +71,14 @@ function checkFile(file) {
       }
     }
     // every `dscheck <cmd> --flag` must exist
-    for (const cmd of body.matchAll(/(?:^|[$>]\s*|npx )dscheck\s+(\w[\w-]*)((?:\s+--?[\w-]+)*)/gm)) {
+    for (const cmd of body.matchAll(
+      /(?:^|[$>]\s*|npx )dscheck\s+(\w[\w-]*)((?:\s+--?[\w-]+)*)/gm,
+    )) {
       checkedBlocks++;
       if (!COMMANDS.has(cmd[1])) problems.push(`${rel}: unknown command "dscheck ${cmd[1]}"`);
       for (const flag of cmd[2].matchAll(/--[\w-]+/g)) {
-        if (!FLAGS.has(flag[0])) problems.push(`${rel}: unknown flag "${flag[0]}" on dscheck ${cmd[1]}`);
+        if (!FLAGS.has(flag[0]))
+          problems.push(`${rel}: unknown flag "${flag[0]}" on dscheck ${cmd[1]}`);
       }
     }
     // every rule reference is a real rule

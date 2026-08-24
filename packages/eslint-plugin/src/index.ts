@@ -371,12 +371,17 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
 const plugin = {
   meta: { name: '@dscheck/eslint-plugin', version: '0.0.0' },
   rules: Object.fromEntries(RULES.map((id) => [id, createRule(id)])),
+  /** Filled below — flat-config presets reference the plugin object itself. */
+  configs: {} as Record<string, unknown>,
 };
 
 export default plugin;
 
 /** Flat-config preset: `import dscheck from '@dscheck/eslint-plugin'` → `dscheck.configs.recommended`. */
-export const configs = {
+export const configs = plugin.configs as unknown as Record<string, unknown> & {
+  recommended: unknown;
+};
+Object.assign(plugin.configs, {
   recommended: {
     plugins: { dscheck: plugin },
     rules: {
@@ -389,4 +394,4 @@ export const configs = {
       'dscheck/no-unknown-class': 'error',
     },
   },
-};
+});

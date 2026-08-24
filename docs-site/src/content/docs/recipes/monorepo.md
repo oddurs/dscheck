@@ -17,5 +17,5 @@ repo/
 ```
 
 A file with no config in scope falls back to zero-config discovery at its package
-boundary (`package.json`/`.git`), and a package with no token source at all is simply not
+boundary (`package.json`/`.git`), and a package with no token source at all is not
 linted — dscheck never enforces a system that isn't there.

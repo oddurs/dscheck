@@ -38,6 +38,7 @@ jobs:
       # an off-system value in the site's stylesheets fails this build.
       - run: node packages/cli/dist/cli.js check docs-site/src --no-baseline
       - run: node scripts/docs-snippets.mjs
+      - run: node scripts/prose-lint.mjs
       - run: node scripts/contrast-audit.mjs
       - run: pnpm --filter @dscheck/docs build
   test:
