@@ -1,0 +1,73 @@
+import { execFileSync } from 'node:child_process';
+import { cpSync, mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
+
+/**
+ * J2: everything a user's script can parse, asserted key-for-key. A failure
+ * here is a breaking change (major), full stop.
+ */
+const demoProject = join(import.meta.dirname, '..', '..', '..', 'assets', 'demo', 'project');
+const cli = join(import.meta.dirname, '..', 'dist', 'cli.js');
+
+function run(args: string[]): { stdout: string; code: number } {
+  const dir = mkdtempSync(join(tmpdir(), 'dscheck-contract-'));
+  cpSync(demoProject, dir, { recursive: true });
+  try {
+    return {
+      stdout: execFileSync('node', [cli, ...args], { cwd: dir, encoding: 'utf8' }),
+      code: 0,
+    };
+  } catch (error) {
+    const e = error as { stdout?: string; status?: number };
+    return { stdout: e.stdout ?? '', code: e.status ?? -1 };
+  }
+}
+
+describe('output contracts', () => {
+  it('json findings carry exactly the contract keys', () => {
+    const { stdout, code } = run(['check', 'Button.tsx', '--format', 'json']);
+    expect(code).toBe(1); // error-severity findings present
+    const findings = JSON.parse(stdout) as Record<string, unknown>[];
+    expect(findings.length).toBeGreaterThan(0);
+    for (const f of findings) {
+      const keys = Object.keys(f).sort();
+      for (const required of ['file', 'line', 'col', 'rule', 'severity', 'message'])
+        expect(keys).toContain(required);
+      for (const key of keys)
+        expect(['col', 'file', 'line', 'message', 'rule', 'severity', 'suggestion']).toContain(key);
+      expect(['error', 'warning']).toContain(f.severity);
+      expect(String(f.rule)).toMatch(/^dscheck\//);
+    }
+  });
+
+  it('agent format is NDJSON with fix first', () => {
+    const { stdout } = run(['check', 'Button.tsx', '--format', 'agent']);
+    const lines = stdout.trim().split('\n');
+    for (const line of lines) {
+      const parsed = JSON.parse(line) as Record<string, unknown>;
+      expect(Object.keys(parsed)[0]).toBe('fix');
+      for (const key of Object.keys(parsed))
+        expect(['fix', 'rule', 'file', 'line', 'col', 'message']).toContain(key);
+    }
+  });
+
+  it('sarif is 2.1.0 with fingerprints on every result', () => {
+    const { stdout } = run(['check', 'Button.tsx', '--format', 'sarif']);
+    const sarif = JSON.parse(stdout);
+    expect(sarif.version).toBe('2.1.0');
+    for (const result of sarif.runs[0].results) {
+      expect(result.partialFingerprints.dscheckFingerprint).toMatch(/^[0-9a-f]{32}$/);
+      expect(result.locations[0].physicalLocation.artifactLocation.uri).toBeTypeOf('string');
+    }
+  });
+
+  it('exit codes: 1 on errors, 0 when baseline absorbs everything', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'dscheck-exit-'));
+    cpSync(demoProject, dir, { recursive: true });
+    execFileSync('node', [cli, 'baseline', 'Button.tsx'], { cwd: dir });
+    const out = execFileSync('node', [cli, 'check', 'Button.tsx'], { cwd: dir, encoding: 'utf8' });
+    expect(out).toContain('baseline');
+  });
+});

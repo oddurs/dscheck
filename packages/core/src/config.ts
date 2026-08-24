@@ -52,7 +52,9 @@ function findConfigWalk(start: string): DscheckConfig | undefined {
   for (; ; dir = dirname(dir)) {
     const candidate = join(dir, CONFIG_NAME);
     if (existsSync(candidate)) {
-      const parsed = JSON.parse(readFileSync(candidate, 'utf8')) as {
+      const raw = JSON.parse(readFileSync(candidate, 'utf8')) as Record<string, unknown>;
+      validateConfig(raw, candidate);
+      const parsed = raw as {
         tokens?: string[];
         ignore?: string[];
         allow?: string[];
@@ -80,6 +82,66 @@ function findConfigWalk(start: string): DscheckConfig | undefined {
       return firstBoundary ? discover(firstBoundary) : undefined;
     }
   }
+}
+
+const CONFIG_KEYS = [
+  '$schema',
+  'tokens',
+  'ignore',
+  'allow',
+  'tolerance',
+  'rules',
+  'roles',
+  'rootSelectors',
+] as const;
+
+/**
+ * J1: a misconfiguration silently ignored is worse than a failed run.
+ * Unknown keys and wrong types fail fast, with a did-you-mean.
+ */
+function validateConfig(raw: Record<string, unknown>, file: string): void {
+  const problems: string[] = [];
+  for (const key of Object.keys(raw)) {
+    if ((CONFIG_KEYS as readonly string[]).includes(key)) continue;
+    const nearest = [...CONFIG_KEYS].sort(
+      (a, b) => editDistance(key, a) - editDistance(key, b),
+    )[0] as string;
+    problems.push(
+      `unknown key "${key}"${editDistance(key, nearest) <= 3 ? ` — did you mean "${nearest}"?` : ''}`,
+    );
+  }
+  for (const key of ['tokens', 'ignore', 'allow', 'rootSelectors'] as const) {
+    if (key in raw && !Array.isArray(raw[key]))
+      problems.push(`"${key}" must be an array of strings`);
+  }
+  if ('roles' in raw && typeof raw.roles !== 'string')
+    problems.push('"roles" must be a file path string');
+  if ('rules' in raw) {
+    for (const [rule, severity] of Object.entries(raw.rules as Record<string, unknown>)) {
+      if (!['off', 'warn', 'error'].includes(severity as string)) {
+        problems.push(`rules["${rule}"] must be "off" | "warn" | "error"`);
+      }
+    }
+  }
+  if (problems.length > 0) {
+    throw new Error(`Invalid ${file}:\n  ${problems.join('\n  ')}`);
+  }
+}
+
+function editDistance(a: string, b: string): number {
+  let previous = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    const current = [i];
+    for (let j = 1; j <= b.length; j++) {
+      current[j] = Math.min(
+        (previous[j] as number) + 1,
+        (current[j - 1] as number) + 1,
+        (previous[j - 1] as number) + (a[i - 1] === b[j - 1] ? 0 : 1),
+      );
+    }
+    previous = current;
+  }
+  return previous[b.length] as number;
 }
 
 /** Zero-config: any css file in the usual places that declares @theme or :root tokens. */

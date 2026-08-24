@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dscheck.dev/config.schema.json",
+  "title": "dscheck.config.json",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "tokens": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Token source globs (css/scss, DTCG json, ts objects), relative to this file. Order matters: first source of a name wins the primary value."
+    },
+    "ignore": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Files exempt from linting."
+    },
+    "allow": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Custom-property name globs never reported as unknown."
+    },
+    "tolerance": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "colorExact": {
+          "type": "number",
+          "description": "ΔEOK at or below which a color match is exact (autofixable). Default 0.005."
+        },
+        "colorClose": {
+          "type": "number",
+          "description": "ΔEOK at or below which a color match is a confident suggestion. Default 0.03."
+        }
+      }
+    },
+    "rules": {
+      "type": "object",
+      "additionalProperties": { "enum": ["off", "warn", "error"] },
+      "description": "CLI severity overrides by rule name (without the dscheck/ prefix)."
+    },
+    "roles": {
+      "type": "string",
+      "description": "Path to a roles sidecar: { \"name-glob\": [\"bg\", \"fg\"] }."
+    },
+    "rootSelectors": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Selectors treated as the system root besides :root (scoped systems, e.g. \".excalidraw\")."
+    }
+  }
+}

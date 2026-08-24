@@ -154,3 +154,23 @@ describe('cross-file component vars (contract #1)', () => {
     expect(checkDeclaration('color', 'var(--butotn-color)', ctx)).toHaveLength(1); // typo still caught
   });
 });
+
+describe('config validation (J1)', () => {
+  it('fails fast on unknown keys with a did-you-mean', () => {
+    const dir = project({
+      'package.json': '{}',
+      'dscheck.config.json': '{"tokens":["t.css"],"ignroe":["x/**"]}',
+      't.css': '@theme { --color-a: #fff; }',
+    });
+    expect(() => findConfig(dir)).toThrowError(/unknown key "ignroe" — did you mean "ignore"\?/);
+  });
+
+  it('fails fast on wrong types', () => {
+    const dir = project({
+      'package.json': '{}',
+      'dscheck.config.json': '{"tokens":"t.css"}',
+      't.css': '@theme { --color-a: #fff; }',
+    });
+    expect(() => findConfig(dir)).toThrowError(/"tokens" must be an array/);
+  });
+});
