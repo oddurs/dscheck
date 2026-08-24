@@ -1,0 +1,22 @@
+name: Feature request
+description: Propose a rule, surface, or capability
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The drift you're trying to catch
+      description: What off-system thing gets through today?
+    validations: { required: true }
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What dscheck would do
+      description: Ideally a finding message — what should it say, and what should it suggest?
+    validations: { required: true }
+  - type: textarea
+    id: silence
+    attributes:
+      label: When it should stay silent
+      description: dscheck never guesses. What cases must this NOT fire on?
+    validations: { required: true }

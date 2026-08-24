@@ -1,0 +1,32 @@
+name: Bug
+description: Something is broken that isn't a false positive
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+    validations: { required: true }
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations: { required: true }
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: A repo, or the smallest file set plus the command you ran.
+    validations: { required: true }
+  - type: textarea
+    id: output
+    attributes:
+      label: Output
+      description: Include `dscheck tokens --doctor` and `dscheck check --explain-skips` if relevant.
+      render: text
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      placeholder: 'dscheck 0.1.0 · eslint 10.9 · stylelint 17.14 · node 22'
+    validations: { required: true }

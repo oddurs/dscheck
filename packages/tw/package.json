@@ -1,7 +1,7 @@
 {
   "name": "@dscheck/tw",
   "version": "0.0.0",
-  "description": "Tailwind engine bridge for dscheck — candidate parsing and theme via Tailwind itself",
+  "description": "Tailwind engine bridge for dscheck \u2014 candidate parsing and theme via Tailwind itself",
   "license": "MIT",
   "type": "module",
   "exports": {

@@ -57,6 +57,15 @@ Full docs live in [`docs-site/`](docs-site/src/content/docs/) (Starlight; deploy
 [config](docs-site/src/content/docs/reference/config.md) ·
 [architecture](docs-site/src/content/docs/reference/architecture.md)
 
+## Contributing
+
+False positives are the highest-priority bug class here — [report one](.github/ISSUE_TEMPLATE/false-positive.yml)
+and it becomes a permanent regression fixture. See [CONTRIBUTING.md](CONTRIBUTING.md)
+for setup and the rules that protect the core promise, [SECURITY.md](SECURITY.md) for
+the threat model, and [RUNBOOK.md](RUNBOOK.md) for how the project is operated.
+
+MIT licensed — see [LICENSE](LICENSE).
+
 ## Status & the road to 1.0
 
 Pre-release. 1.0 is a promise, not a feature level — the criteria are public in

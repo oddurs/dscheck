@@ -1,7 +1,7 @@
 {
   "name": "@dscheck/sarif",
   "version": "0.0.0",
-  "description": "SARIF 2.1.0 output for dscheck — plus a standalone stylelint SARIF formatter",
+  "description": "SARIF 2.1.0 output for dscheck \u2014 plus a standalone stylelint SARIF formatter",
   "license": "MIT",
   "type": "module",
   "exports": {

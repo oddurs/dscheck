@@ -1,0 +1,7 @@
+# Everything, until there is a second maintainer (see RUNBOOK → Succession).
+*                       @oddurs
+
+# The pieces where a mistake breaks the core promise.
+/packages/core/         @oddurs
+/fixtures/              @oddurs
+/RELEASES.md            @oddurs
