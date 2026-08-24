@@ -21,6 +21,14 @@ Work top to bottom — each step rules out a layer.
 4. **Is there a token to enforce against?** Rules only fire when your system defines
    tokens of that category. No shadow tokens → no `no-raw-shadow` findings, by design.
 
+## An OG image / React Native / email component reports nothing
+
+Deliberate. Those renderers don't resolve CSS custom properties, so `var(--color-x)`
+is not equivalent to the literal it replaces — reporting (or worse, fixing) there would
+break rendering while the code still parses. dscheck detects the import and skips the
+file. Keep design decisions in those files in sync by hand, or generate them from the
+token source at build time.
+
 ## "Unknown token" on a variable that exists
 
 - Defined in another file of the project? That's covered automatically (stylesheets

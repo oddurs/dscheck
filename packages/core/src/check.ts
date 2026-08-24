@@ -415,8 +415,13 @@ export function formatViolation(v: Violation): string {
   if (!best)
     return `${v.message} — no ${v.rule === 'no-unknown-token' ? 'similar token' : 'token'} found`;
   const modeNote = best.matchedValue ? ` — matches its themed value ${best.matchedValue}` : '';
-  const hint =
-    v.rule === 'no-raw-color'
+  // A far match is not a suggestion. Claiming "use var(--color-black)" for a
+  // translucent value 0.95 away would be a lie the reader might act on — say
+  // plainly that the system has nothing close instead.
+  const farColor = v.rule === 'no-raw-color' && best.kind === 'nearest';
+  const hint = farColor
+    ? `no on-system token is close (nearest ${best.token.name}, ΔEOK ${best.distance.toFixed(3)}) — add a token, or accept it via baseline/allow`
+    : v.rule === 'no-raw-color'
       ? `use var(${best.token.name}) (ΔEOK ${best.distance.toFixed(3)})${modeNote}`
       : v.rule === 'no-raw-length'
         ? `use var(${best.token.name}) (${best.token.value}${best.distance === 0 ? '' : `, Δ${best.distance}px`})`

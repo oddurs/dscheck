@@ -35,6 +35,7 @@ and skipped alike — is enforced by a fixture test; a change here is a semver e
 | Names matched by config `allow` globs | declared runtime-injected vars (`--shiki-*`, `next/font`) |
 | Files matched by config `ignore` globs | content surfaces exempted by decision |
 | Class strings whose Tailwind root has no property mapping (regex fallback mode) | conservative: unmapped roots aren't guessed |
+| Files importing a renderer that can't resolve `var()` — `next/og`, `@vercel/og`, `satori`, `react-native`, `@react-email/*`, `@react-pdf/renderer` | a token reference is **not** equivalent to the literal there, so neither the finding nor a fix would be honest |
 | Vue/Svelte templates, Astro class:list, HTML files | not yet supported — planned, not silently half-done |
 
 Run `dscheck check --explain-skips` to see the skip counts for a real run.

@@ -65,3 +65,18 @@ describe('finding messages', () => {
     `);
   });
 });
+
+describe('far color matches (dogfooding finding)', () => {
+  it('does not present a distant token as a suggestion', () => {
+    // the system has no translucent tokens; the nearest opaque one is far away
+    const [v] = checkDeclaration('background', 'rgba(0, 0, 0, 0.05)', ctx);
+    const message = formatViolation(v as never);
+    expect(message).toContain('no on-system token is close');
+    expect(message).not.toContain('use var(');
+  });
+
+  it('still suggests when something is genuinely close', () => {
+    const [v] = checkDeclaration('color', '#1d4fd9', ctx);
+    expect(formatViolation(v as never)).toContain('use var(--color-primary)');
+  });
+});

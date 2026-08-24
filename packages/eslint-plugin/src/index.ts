@@ -29,6 +29,17 @@ const RULES: RuleId[] = [
 /** Attribute names treated as class strings. */
 const CLASS_ATTRIBUTES = new Set(['className', 'class']);
 
+/**
+ * Renderers that do NOT resolve CSS custom properties. In these files a token
+ * reference is not equivalent to the literal — rewriting `#6b7c80` to
+ * `var(--color-mist-500)` produces an image that renders wrong while the code
+ * still parses. dscheck's promise is that a fix is provably identical, so
+ * these files are skipped entirely rather than reported-but-not-fixed.
+ * (Found by dogfooding: a `next/og` component was silently broken by `fix`.)
+ */
+const VAR_HOSTILE_IMPORTS =
+  /from\s+['"](?:next\/og|@vercel\/og|satori|react-native|react-native-web|@react-email\/[\w-]+|@react-pdf\/renderer)['"]/;
+
 /** Callees whose string arguments are class strings wherever they appear. */
 const CLASS_CALLEES = new Set(['clsx', 'cn', 'cx', 'cva', 'tv', 'classnames', 'classNames']);
 
@@ -54,6 +65,10 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
       const filename = resolve(context.cwd, context.filename);
       const index = indexFor(filename);
       if (!index) return {} as Rule.RuleListener;
+      // var() is not universally resolvable — see VAR_HOSTILE_IMPORTS.
+      if (VAR_HOSTILE_IMPORTS.test(context.sourceCode.getText())) {
+        return {} as Rule.RuleListener;
+      }
       const config = findConfig(filename);
       const ctx: CheckContext = {
         index,

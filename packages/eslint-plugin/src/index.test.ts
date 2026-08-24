@@ -268,3 +268,21 @@ describe('engine failure degrades, never crashes (review hardening)', () => {
     expect(degraded).toEqual(checkClassString('p-[13px] bg-brnad', ctx));
   });
 });
+
+describe('var()-hostile renderers are skipped (dogfooding finding)', () => {
+  it('reports nothing in a next/og component — var() would not resolve there', () => {
+    const messages = lint(`
+      import { ImageResponse } from 'next/og';
+      export const image = () => new ImageResponse(
+        <div style={{ color: '#1d4ed8', padding: 14 }} />,
+      );`);
+    expect(messages).toEqual([]);
+  });
+
+  it('still checks ordinary components in the same project', () => {
+    const messages = lint(`
+      import { something } from 'next/image';
+      const a = <div style={{ color: '#1d4ed8' }} />;`);
+    expect(messages.some((m) => m.ruleId === 'dscheck/no-raw-color')).toBe(true);
+  });
+});
