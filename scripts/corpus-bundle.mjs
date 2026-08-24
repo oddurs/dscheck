@@ -1,6 +1,10 @@
-// M1: self-containment. Snapshots each corpus repo's *linted tree* (paths +
-// token sources + config dir) into fixtures/corpus-bundles/<name>.tar.gz so
-// upstream deletion or force-push degrades the nightly, never breaks it.
+// M1: a LOCAL offline cache of each corpus repo's linted tree, so upstream
+// deletion or a flaky network degrades the nightly instead of breaking it.
+//
+// Deliberately gitignored, never committed: these repos carry their own
+// licenses (openstatus is AGPL-3.0; tailwindcss.com publishes none at all),
+// and redistributing their source from this MIT repository would misrepresent
+// their terms. Run this yourself to populate the cache.
 import { execSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';

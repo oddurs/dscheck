@@ -5,3 +5,4 @@ dist/
 coverage/
 docs-site/dist/
 docs-site/.astro/
+fixtures/corpus-bundles/

@@ -26,7 +26,7 @@
 
 **Exit:** every supported combination tested; every foreseeable churn event has a playbook.
 
-## Sprint M — External-state & data durability — **DONE 2026-08-24** (corpus bundles 4.9MB — offline drill 5/5 exact + exit-3 availability; drill caught knownNames needing the full stylesheet sweep; clone retry; x-*/newer-$schema forward-compat; baseline $version + tolerant reader)
+## Sprint M — External-state & data durability — **DONE 2026-08-24** (corpus cache — offline drill 5/5 exact + exit-3 availability; bundles later made a LOCAL gitignored cache rather than committed artifacts, because the corpus repos' own licenses (AGPL / none) forbid redistribution from an MIT repo — caught pre-public; drill caught knownNames needing the full stylesheet sweep; clone retry; x-*/newer-$schema forward-compat; baseline $version + tolerant reader)
 
 **Goal: nothing outside the repo can break the build; nothing written today becomes unreadable tomorrow.**
 

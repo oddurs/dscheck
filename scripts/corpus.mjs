@@ -3,9 +3,12 @@
 // human looks before the number moves (re-pin protocol in RUNBOOK.md).
 //
 // Durability posture:
-//  - upstream clone failures retry once, then fall back to the committed
-//    bundle (fixtures/corpus-bundles) with a loud warning — external deletion
-//    degrades the run, never breaks it (M1)
+//  - upstream clone failures retry once, then fall back to a LOCAL cache
+//    (fixtures/corpus-bundles, gitignored) when one has been built — external
+//    deletion degrades the run rather than breaking it (M1). The cache is
+//    never committed: the corpus repos carry their own licenses (one AGPL,
+//    one with none at all), so redistributing their source from this MIT
+//    repository would misrepresent them. Build it with corpus-bundle.mjs.
 //  - availability problems exit 3, distinct from count regressions' 1 (M2)
 //  - per-repo ms/file is checked against 2× the trailing median of
 //    fixtures/perf-history.jsonl, inside the absolute budget (O1);
@@ -53,7 +56,7 @@ function materialize(repo) {
   const bundle = `fixtures/corpus-bundles/${repo.name.replaceAll('/', '__')}.tar.gz`;
   if (!existsSync(bundle)) return undefined;
   execSync(`tar -xzf '${bundle}' -C '${dir}'`, { shell: '/bin/bash' });
-  console.error(`⚠ ${repo.name}: upstream unavailable — running from committed bundle`);
+  console.error(`⚠ ${repo.name}: upstream unavailable — running from local cache`);
   availabilityProblems++;
   return dir;
 }
