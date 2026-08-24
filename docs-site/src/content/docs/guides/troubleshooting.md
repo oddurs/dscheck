@@ -26,8 +26,11 @@ Work top to bottom — each step rules out a layer.
 Deliberate. Those renderers don't resolve CSS custom properties, so `var(--color-x)`
 is not equivalent to the literal it replaces — reporting (or worse, fixing) there would
 break rendering while the code still parses. dscheck detects the import and skips the
-file. Keep design decisions in those files in sync by hand, or generate them from the
-token source at build time.
+file — by its imports, and by the framework path conventions (`api/og/`,
+`opengraph-image.*`, `apple-icon.*`) that are Satori-rendered even when a helper
+component imports nothing telling. Keep design decisions in those files in sync by hand,
+or generate them from the token source at build time. A helper living elsewhere can be
+listed in the config's `ignore` globs.
 
 ## "Unknown token" on a variable that exists
 

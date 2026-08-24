@@ -1,7 +1,7 @@
 {
   "name": "dscheck-cli",
   "version": "0.1.0",
-  "description": "The linter that knows your design system \u2014 check, fix, baseline, and report off-system values.",
+  "description": "The linter that knows your design system — check, fix, baseline, and report off-system values.",
   "license": "MIT",
   "type": "module",
   "bin": {
@@ -19,15 +19,16 @@
     "build": "tsdown src/cli.ts src/worker.ts --dts"
   },
   "dependencies": {
-    "dscheck-core": "workspace:*",
-    "eslint-plugin-dscheck": "workspace:*",
-    "dscheck-sarif": "workspace:*",
-    "stylelint-dscheck": "workspace:*",
     "@typescript-eslint/parser": "^8.67.0",
+    "dscheck-core": "workspace:*",
+    "dscheck-sarif": "workspace:*",
     "eslint": "^10.9.0",
+    "eslint-plugin-dscheck": "workspace:*",
     "picocolors": "^1.1.0",
+    "postcss-html": "^2.0.0",
     "postcss-scss": "^4.0.9",
     "stylelint": "^17.14.1",
+    "stylelint-dscheck": "workspace:*",
     "tinyglobby": "^0.2.0"
   },
   "devDependencies": {

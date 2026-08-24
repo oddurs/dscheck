@@ -37,6 +37,14 @@ const CLASS_ATTRIBUTES = new Set(['className', 'class']);
  * these files are skipped entirely rather than reported-but-not-fixed.
  * (Found by dogfooding: a `next/og` component was silently broken by `fix`.)
  */
+/**
+ * Framework file conventions that are always rendered by Satori, even when the
+ * file itself imports nothing telling (a helper component under `api/og/`).
+ * Deliberately narrow: these paths mean image generation in Next.js.
+ */
+const VAR_HOSTILE_PATHS =
+  /(^|\/)(api\/og|og-image)(\/|$)|(^|\/)(opengraph-image|twitter-image|apple-icon|icon)[.\w-]*\.(tsx|jsx)$/;
+
 const VAR_HOSTILE_IMPORTS =
   /from\s+['"](?:next\/og|@vercel\/og|satori|react-native|react-native-web|@react-email\/[\w-]+|@react-pdf\/renderer)['"]/;
 
@@ -65,8 +73,12 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
       const filename = resolve(context.cwd, context.filename);
       const index = indexFor(filename);
       if (!index) return {} as Rule.RuleListener;
-      // var() is not universally resolvable — see VAR_HOSTILE_IMPORTS.
-      if (VAR_HOSTILE_IMPORTS.test(context.sourceCode.getText())) {
+      // var() is not universally resolvable — see VAR_HOSTILE_IMPORTS/PATHS.
+      const posixName = filename.replaceAll('\\', '/');
+      if (
+        VAR_HOSTILE_PATHS.test(posixName) ||
+        VAR_HOSTILE_IMPORTS.test(context.sourceCode.getText())
+      ) {
         return {} as Rule.RuleListener;
       }
       const config = findConfig(filename);

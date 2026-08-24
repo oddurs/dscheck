@@ -43,7 +43,7 @@ export async function lintFiles(
   files: string[],
   options: { fix?: boolean } = {},
 ): Promise<Finding[]> {
-  const css = files.filter((f) => /\.(css|scss)$/.test(f));
+  const css = files.filter((f) => /\.(css|scss|vue|svelte|html|astro)$/.test(f));
   const jsx = files.filter((f) => /\.(jsx|tsx)$/.test(f));
   const fix = options.fix ?? false;
   const findings = [
@@ -54,11 +54,15 @@ export async function lintFiles(
 }
 
 async function lintCss(files: string[], fix: boolean): Promise<Finding[]> {
-  const plain = files.filter((f) => !f.endsWith('.scss'));
-  const scssFiles = files.filter((f) => f.endsWith('.scss'));
+  // One stylelint run per syntax: plain CSS, SCSS, and the HTML-ish family
+  // (Vue SFCs, Svelte, HTML, Astro) whose <style> blocks postcss-html extracts.
+  const plain = files.filter((f) => /\.css$/.test(f));
+  const scssFiles = files.filter((f) => /\.scss$/.test(f));
+  const markup = files.filter((f) => /\.(vue|svelte|html|astro)$/.test(f));
   return [
     ...(plain.length > 0 ? await lintCssWith(plain, fix, undefined) : []),
     ...(scssFiles.length > 0 ? await lintCssWith(scssFiles, fix, 'postcss-scss') : []),
+    ...(markup.length > 0 ? await lintCssWith(markup, fix, 'postcss-html') : []),
   ];
 }
 

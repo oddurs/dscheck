@@ -12,6 +12,7 @@ and skipped alike — is enforced by a fixture test; a change here is a semver e
 | surface | constructs |
 |---|---|
 | CSS / SCSS | every declaration; `var()` references validated; `--*` definitions exempt |
+| Vue · Svelte · Astro · HTML | `<style>` blocks **and** inline `style="…"` attributes, with positions inside the file (via stylelint's `postcss-html`) |
 | JSX inline styles | `style={{ … }}` literals; numeric-px React semantics; unitless props respected |
 | Referenced style maps | `const styles = { card: {…} }` used in `style={styles.card}`; palette-const folding (`palette.cedar`) |
 | Tailwind classes | string `className`s; `clsx`/`cn`/`cx`/`cva`/`tv`/`classnames` arguments anywhere; template-literal static chunks; classnames-object keys; cva-config values. With Tailwind installed: variant-exact parsing + `no-unknown-class` |
@@ -36,6 +37,7 @@ and skipped alike — is enforced by a fixture test; a change here is a semver e
 | Files matched by config `ignore` globs | content surfaces exempted by decision |
 | Class strings whose Tailwind root has no property mapping (regex fallback mode) | conservative: unmapped roots aren't guessed |
 | Files importing a renderer that can't resolve `var()` — `next/og`, `@vercel/og`, `satori`, `react-native`, `@react-email/*`, `@react-pdf/renderer` | a token reference is **not** equivalent to the literal there, so neither the finding nor a fix would be honest |
-| Vue/Svelte templates, Astro class:list, HTML files | not yet supported — planned, not silently half-done |
+| Framework image-generation paths — `**/api/og/**`, `opengraph-image.*`, `twitter-image.*`, `apple-icon.*`, `icon.*` | Satori-rendered by convention, including helper components that import nothing telling |
+| `class` attributes in Vue/Svelte/HTML markup, and Astro `class:list` | Tailwind class checking is JSX-only for now |
 
 Run `dscheck check --explain-skips` to see the skip counts for a real run.

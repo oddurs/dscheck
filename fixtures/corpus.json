@@ -18,7 +18,7 @@
       ],
       "expected": {
         "errors": 13,
-        "warnings": 88
+        "warnings": 85
       }
     },
     {
@@ -60,7 +60,7 @@
       ],
       "expected": {
         "errors": 1,
-        "warnings": 200
+        "warnings": 197
       }
     },
     {
@@ -108,8 +108,8 @@
         "apps/web/src"
       ],
       "expected": {
-        "errors": 3,
-        "warnings": 14
+        "errors": 0,
+        "warnings": 8
       }
     }
   ],

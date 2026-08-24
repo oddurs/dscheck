@@ -313,7 +313,7 @@ function expand(inputs: string[]): string[] {
   for (const input of inputs) {
     const abs = resolve(input);
     if (isDir(abs)) {
-      for (const f of globSync('**/*.{css,scss,jsx,tsx}', {
+      for (const f of globSync('**/*.{css,scss,jsx,tsx,vue,svelte,astro}', {
         cwd: abs,
         ignore: ['**/node_modules/**', '**/dist/**', '**/.next/**'],
       }))

@@ -286,3 +286,20 @@ describe('var()-hostile renderers are skipped (dogfooding finding)', () => {
     expect(messages.some((m) => m.ruleId === 'dscheck/no-raw-color')).toBe(true);
   });
 });
+
+describe('satori file conventions (audit finding)', () => {
+  it('skips helper components under api/og that import nothing telling', () => {
+    const linterOg = new Linter({ cwd: dir });
+    const messages = linterOg.verify(
+      "const a = <div style={{ color: '#1d4ed8' }} />;",
+      {
+        files: ['**/*.tsx'],
+        plugins: { dscheck: plugin as never },
+        languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
+        rules: { 'dscheck/no-raw-color': 'error' },
+      } as never,
+      'app/api/og/_components/background.tsx',
+    );
+    expect(messages).toEqual([]);
+  });
+});
