@@ -309,10 +309,8 @@ body {
 }
 
 [data-has-hero] .hero h1 {
-  font-family: var(--font-mono);
   font-weight: var(--font-weight-semibold);
-  letter-spacing: var(--tracking-brand);
-  text-transform: lowercase;
+  letter-spacing: var(--tracking-tight);
 }
 
 [data-has-hero] .hero .tagline {

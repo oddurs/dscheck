@@ -15,16 +15,13 @@ correct TypeScript, not a brand violation.)
 
 ## The wordmark
 
-The wordmark is the name, typeset — reproducible anywhere with one rule:
+The wordmark is the name, set like a heading — one rule, reproducible anywhere,
+entirely inside the style system:
 
-> monospace stack (`--font-mono`) · semibold (`--font-weight-semibold`) · lowercase ·
-> tracking `--tracking-brand` (0.02em) · ink (`--color-ink`)
+> system sans (`--font-sans`) · semibold (`--font-weight-semibold`) · lowercase ·
+> tracking `--tracking-tight` · ink (`--color-ink`)
 
-Its only ornament is the prompt chevron, in success green:
-
-```text
-❯ dscheck
-```
+No ornament. If it can't be typed, it isn't part of the wordmark.
 
 ## The marks
 
