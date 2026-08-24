@@ -409,17 +409,99 @@ body {
   background-color: var(--color-primary-strong);
 }
 
-/* ── chrome: wordmark, sidebar, toc ─────────────────────────────────── */
+/* ── chrome: navbar ─────────────────────────────────────────────────── */
+:root {
+  --sl-nav-height: 3.75rem;
+  --sl-nav-pad-x: var(--spacing-6);
+  --sl-nav-gap: var(--spacing-6);
+}
+
+header.header {
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+}
+
 /* the header wordmark is the SVG (typography as artwork-free artwork) */
 .site-title img {
   height: var(--spacing-8);
 }
 
+/* search: a compact pill, not a loose bar */
+site-search button[data-open-modal] {
+  max-width: var(--spacing-16);
+  width: auto;
+  height: var(--spacing-8);
+  gap: var(--spacing-2);
+  padding-inline: var(--spacing-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-sunken);
+  color: var(--color-ink-faint);
+  font-size: var(--text-sm);
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+site-search button[data-open-modal]:hover {
+  border-color: var(--color-border-strong);
+  color: var(--color-ink-soft);
+}
+
+site-search button[data-open-modal] kbd {
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding-inline: var(--spacing-1);
+  font-size: var(--text-xs);
+  color: var(--color-ink-faint);
+}
+
+/* right-side controls: tight, consistent */
+.header .right-group {
+  gap: var(--spacing-4);
+}
+
+.social-icons a {
+  color: var(--color-ink-soft);
+  padding: var(--spacing-1);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.social-icons a:hover {
+  color: var(--color-ink);
+}
+
+starlight-theme-select label {
+  color: var(--color-ink-soft);
+}
+
+starlight-theme-select select {
+  font-size: var(--text-sm);
+}
+
+/* ── left rail: compact, defined, calm ──────────────────────────────── */
+:root {
+  --sl-sidebar-width: 16rem;
+  --sl-sidebar-pad-x: var(--spacing-4);
+}
+
+.sidebar-pane {
+  border-inline-end: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+}
+
+/* tight vertical rhythm: the rail is an index, not prose */
 nav.sidebar .top-level a {
   font-size: var(--text-sm);
-  line-height: var(--text-sm--line-height);
+  line-height: var(--text-xs--line-height);
   border-radius: var(--radius-sm);
-  padding-block: var(--spacing-2);
+  padding-block: var(--spacing-1);
+  padding-inline: var(--spacing-3);
+  color: var(--color-ink-soft);
+}
+
+nav.sidebar .top-level a:hover {
+  color: var(--color-ink);
+  background-color: var(--color-surface-sunken);
 }
 
 nav.sidebar .top-level a[aria-current="page"] {
@@ -428,13 +510,38 @@ nav.sidebar .top-level a[aria-current="page"] {
   font-weight: var(--font-weight-medium);
 }
 
-/* sidebar group labels: quiet eyebrows */
+nav.sidebar .top-level li {
+  margin-block: 0;
+}
+
+/* group labels: quiet eyebrows, clear group separation */
+nav.sidebar summary {
+  padding-block: var(--spacing-1);
+  margin-top: var(--spacing-4);
+}
+
+nav.sidebar .top-level > li:first-child summary {
+  margin-top: 0;
+}
+
 nav.sidebar summary .group-label > span {
   font-size: var(--text-xs);
   font-weight: var(--font-weight-semibold);
   letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
   color: var(--color-ink-faint);
+}
+
+nav.sidebar summary .caret {
+  color: var(--color-ink-faint);
+  font-size: var(--text-sm);
+}
+
+/* nested lists sit close to their group */
+nav.sidebar .top-level details ul {
+  margin-block: var(--spacing-1);
+  padding-inline-start: 0;
+  border-inline-start: none;
 }
 
 /* right-hand toc */
