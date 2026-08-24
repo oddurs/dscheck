@@ -25,6 +25,10 @@ export interface Token {
   aliasOf?: string;
   /** True when a var() chain could not be resolved to a literal. */
   unresolved?: boolean;
+  /** Additional values from mode scopes (`.dark`, `[data-theme=…]`, prefers-color-scheme). */
+  modeValues?: string[];
+  /** Semantic roles (fg, bg, border, …) from roles config or $extensions. */
+  roles?: string[];
 }
 
 /** The allowed set: every token the design system defines, indexed for lookup. */

@@ -17,6 +17,9 @@ import { type Category, createIndex, type Token, type ValueIndex } from './types
  */
 export function loadCssTokens(files: string[]): ValueIndex {
   const declared = new Map<string, { raw: string; source: string; fromTheme: boolean }>();
+  /** raw values declared in mode scopes (`.dark`, `[data-theme=…]`, media-wrapped :root). */
+  const modeDeclared = new Map<string, Set<string>>();
+  const modeCandidates: Array<{ name: string; raw: string; source: string; themed: boolean }> = [];
   let importsTailwind = false;
 
   for (const file of files) {
@@ -26,16 +29,36 @@ export function loadCssTokens(files: string[]): ValueIndex {
     root.walkDecls(/^--/, (decl: Declaration) => {
       const inTheme = isInTheme(decl);
       const inRoot = isInRoot(decl);
-      if (!inTheme && !inRoot) return;
-      // Last declaration wins, but a @theme declaration marks the name as
-      // part of the design-system API even if :root re-declares the value.
-      const prev = declared.get(decl.prop);
-      declared.set(decl.prop, {
-        raw: decl.value,
-        source: file,
-        fromTheme: inTheme || prev?.fromTheme === true,
-      });
+      if (inTheme || inRoot) {
+        // Last declaration wins, but a @theme declaration marks the name as
+        // part of the design-system API even if :root re-declares the value.
+        const prev = declared.get(decl.prop);
+        declared.set(decl.prop, {
+          raw: decl.value,
+          source: file,
+          fromTheme: inTheme || prev?.fromTheme === true,
+        });
+        return;
+      }
+      const scope = modeScopeKind(decl);
+      if (scope !== 'none') {
+        modeCandidates.push({ name: decl.prop, raw: decl.value, source: file, themed: scope === 'themed' });
+      }
     });
+  }
+
+  // Mode values attach only to names the system anchors in :root/@theme — a bare
+  // `.button { --gap: 4px }` stays a component var. Explicit theme selectors
+  // (.dark, [data-theme=…]) may introduce names on their own.
+  for (const { name, raw, source, themed } of modeCandidates) {
+    if (!declared.has(name)) {
+      if (!themed) continue;
+      declared.set(name, { raw, source, fromTheme: false });
+      continue;
+    }
+    const values = modeDeclared.get(name) ?? new Set<string>();
+    values.add(raw);
+    modeDeclared.set(name, values);
   }
 
   // `@import "tailwindcss"` brings the whole default theme; repo tokens override it.
@@ -49,6 +72,9 @@ export function loadCssTokens(files: string[]): ValueIndex {
   for (const [name, { raw, source }] of declared) {
     const { value, unresolved } = resolveValue(raw, declared);
     const aliasOf = immediateAlias(raw);
+    const modeValues = [...(modeDeclared.get(name) ?? [])]
+      .map((modeRaw) => resolveValue(modeRaw, declared).value)
+      .filter((v) => v !== value);
     tokens.push({
       name,
       value,
@@ -56,9 +82,33 @@ export function loadCssTokens(files: string[]): ValueIndex {
       source,
       ...(aliasOf ? { aliasOf } : {}),
       ...(unresolved ? { unresolved: true } : {}),
+      ...(modeValues.length > 0 ? { modeValues } : {}),
     });
   }
   return createIndex(tokens);
+}
+
+/**
+ * Mode scopes hold per-theme values for system tokens: `.dark { --bg: … }`,
+ * `[data-theme='sepia'] { … }`, `:root` inside a media query, `:root.dark`.
+ * 'themed' scopes (recognisably theme-flavoured selectors) may introduce new
+ * token names; other bare custom-prop-only rules may only re-value known ones.
+ */
+function modeScopeKind(decl: Declaration): 'themed' | 'bare' | 'none' {
+  const parent = decl.parent;
+  if (parent?.type !== 'rule') return 'none';
+  const selector = (parent as postcss.Rule).selector;
+  if (/(:root|\bhtml\b)/.test(selector)) return 'themed'; // compound/media-nested root
+  if (/^\s*(\.(dark|light|theme-[\w-]+)|\[data-(theme|mode|color-scheme)[^\]]*\])\s*$/.test(selector)) {
+    return 'themed';
+  }
+  const bareScope = /^\s*(\.[\w-]+|\[[^\]]+\])\s*$/.test(selector);
+  if (!bareScope) return 'none';
+  let allCustom = true;
+  (parent as postcss.Rule).walkDecls((d) => {
+    if (!d.prop.startsWith('--')) allCustom = false;
+  });
+  return allCustom ? 'bare' : 'none';
 }
 
 function isInTheme(decl: Declaration): boolean {
@@ -70,10 +120,15 @@ function isInTheme(decl: Declaration): boolean {
 
 function isInRoot(decl: Declaration): boolean {
   const parent = decl.parent;
-  return (
-    parent?.type === 'rule' &&
-    /(^|,)\s*(:root|html)\s*(,|$)/.test((parent as postcss.Rule).selector)
-  );
+  if (parent?.type !== 'rule') return false;
+  if (!/(^|,)\s*(:root|html)\s*(,|$)/.test((parent as postcss.Rule).selector)) return false;
+  // `:root` inside @media/@supports/@container holds *mode* values, not the primary.
+  for (let node = parent.parent; node; node = node.parent as typeof node) {
+    if (node.type === 'atrule' && /^(media|supports|container)$/.test((node as postcss.AtRule).name)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 /** Follow `var(--x)` chains to a literal, using declared values; cap depth to break cycles. */

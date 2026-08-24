@@ -142,3 +142,18 @@ describe('no-raw-font / no-raw-shadow', () => {
     expect(checkDeclaration('box-shadow', 'var(--shadow-md)', ctx2)).toHaveLength(0);
   });
 });
+
+describe('mode-aware matching (A1)', () => {
+  it('treats a dark-mode value as on-system', () => {
+    const dirM = mkdtempSync(join(tmpdir(), 'dscheck-mode-'));
+    const fM = join(dirM, 'tokens.css');
+    writeFileSync(
+      fM,
+      ':root { --color-surface: #ffffff; } .dark { --color-surface: #111113; }',
+    );
+    const ctxM = { index: loadCssTokens([fM]) };
+    const [v] = checkDeclaration('background', '#111113', ctxM);
+    expect(v?.matches[0]?.token.name).toBe('--color-surface');
+    expect(v?.matches[0]?.kind).toBe('exact');
+  });
+});

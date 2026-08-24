@@ -110,3 +110,25 @@ describe('class-form suggestions', () => {
     expect(messages.find((m) => m.message.includes('6px'))?.message).toContain('class: rounded-md');
   });
 });
+
+describe('class factories & dynamic class expressions (A2/A3)', () => {
+  it('scans clsx/cva/cn arguments and template statics', () => {
+    const messages = lint(`
+      const button = cva('rounded-[7px] font-bold', { variants: { pad: { big: 'p-[13px]' } } });
+      const a = <div className={clsx('bg-[#1d4ed8]', cond && 'p-[13px]', \`m-[13px] \${x}\`)} />;`);
+    const texts = messages.map((m) => m.message).join('\n');
+    expect(texts).toContain('7px');
+    expect(texts).toContain('#1d4ed8');
+    expect(messages.filter((m) => m.message.includes('13px'))).toHaveLength(3);
+  });
+
+  it('does not double-report className={clsx(…)} strings', () => {
+    const messages = lint(`const a = <div className={clsx('p-[13px]')} />;`);
+    expect(messages).toHaveLength(1);
+  });
+
+  it('still skips genuinely dynamic values', () => {
+    const messages = lint('const a = <div className={clsx(dynamic, `${x}-[13px]`)} />;');
+    expect(messages).toHaveLength(0);
+  });
+});

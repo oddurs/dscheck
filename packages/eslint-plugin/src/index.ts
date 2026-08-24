@@ -21,6 +21,9 @@ const RULES: RuleId[] = [
 /** Attribute names treated as class strings. */
 const CLASS_ATTRIBUTES = new Set(['className', 'class']);
 
+/** Callees whose string arguments are class strings wherever they appear. */
+const CLASS_CALLEES = new Set(['clsx', 'cn', 'cx', 'cva', 'tv', 'classnames', 'classNames']);
+
 interface Node {
   type: string;
   [key: string]: unknown;
@@ -130,6 +133,64 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
         return undefined;
       };
 
+      /** Class-string nodes already reported — className={clsx(…)} hits two visitors. */
+      const seenClassNodes = new Set<Node>();
+
+      const checkClasses = (value: string, node: Node) => {
+        if (seenClassNodes.has(node)) return;
+        seenClassNodes.add(node);
+        for (const violation of checkClassString(value, ctx)) {
+          if (violation.rule !== ruleId) continue;
+          const text = violation.classFix
+            ? `${formatViolation(violation)} — class: ${violation.classFix}`
+            : formatViolation(violation);
+          report(node, text);
+        }
+      };
+
+      /** Every static class string reachable in an expression; dynamic parts skipped. */
+      const collectClassStrings = (
+        node: Node | null | undefined,
+        depth = 0,
+      ): Array<{ value: string; node: Node }> => {
+        if (!node || depth > 6) return [];
+        switch (node.type) {
+          case 'Literal':
+            return typeof node.value === 'string' ? [{ value: node.value, node }] : [];
+          case 'TemplateLiteral':
+            return ((node.quasis as Node[]) ?? []).map((quasi) => ({
+              value: String((quasi.value as { cooked?: string }).cooked ?? ''),
+              node: quasi,
+            }));
+          case 'ConditionalExpression':
+            return [
+              ...collectClassStrings(node.consequent as Node, depth + 1),
+              ...collectClassStrings(node.alternate as Node, depth + 1),
+            ];
+          case 'LogicalExpression':
+            return collectClassStrings(node.right as Node, depth + 1);
+          case 'ArrayExpression':
+            return ((node.elements as Node[]) ?? []).flatMap((el) => collectClassStrings(el, depth + 1));
+          case 'ObjectExpression':
+            // classnames form: keys are classes; cva/tv config form: values hold classes
+            return ((node.properties as Node[]) ?? []).flatMap((property) => {
+              if (property.type !== 'Property') return [];
+              const key = property.key as Node;
+              const fromKey =
+                key.type === 'Literal' && typeof key.value === 'string'
+                  ? [{ value: key.value, node: key }]
+                  : [];
+              return [...fromKey, ...collectClassStrings(property.value as Node, depth + 1)];
+            });
+          case 'CallExpression':
+            return ((node.arguments as Node[]) ?? []).flatMap((argument) =>
+              collectClassStrings(argument, depth + 1),
+            );
+          default:
+            return [];
+        }
+      };
+
       /** The identifier a style={} expression is rooted in, if any. */
       const rootName = (expr: Node | undefined): string | undefined => {
         if (!expr) return undefined;
@@ -153,20 +214,26 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
             return;
           }
 
-          // className="p-[13px] bg-[#3b82f6]" — string literals only, dynamic is skipped
-          if (
-            typeof name === 'string' &&
-            CLASS_ATTRIBUTES.has(name) &&
-            value?.type === 'Literal' &&
-            typeof value.value === 'string'
-          ) {
-            for (const violation of checkClassString(value.value, ctx)) {
-              if (violation.rule !== ruleId) continue;
-              const text = violation.classFix
-                ? `${formatViolation(violation)} — class: ${violation.classFix}`
-                : formatViolation(violation);
-              report(node, text);
-            }
+          // className="…" and className={clsx('…', cond && '…', `…${x}…`)}
+          if (typeof name === 'string' && CLASS_ATTRIBUTES.has(name) && value) {
+            const expr =
+              value.type === 'JSXExpressionContainer' ? (value.expression as Node) : value;
+            for (const found of collectClassStrings(expr)) checkClasses(found.value, found.node);
+          }
+        },
+
+        // const button = cva('…') / clsx('…') anywhere — class factories outside JSX
+        CallExpression(node: Node) {
+          const callee = node.callee as Node;
+          const calleeName =
+            callee.type === 'Identifier'
+              ? (callee.name as string)
+              : callee.type === 'MemberExpression'
+                ? ((callee.property as Node).name as string | undefined)
+                : undefined;
+          if (!calleeName || !CLASS_CALLEES.has(calleeName)) return;
+          for (const argument of (node.arguments as Node[]) ?? []) {
+            for (const found of collectClassStrings(argument)) checkClasses(found.value, found.node);
           }
         },
 

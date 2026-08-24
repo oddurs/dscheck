@@ -113,3 +113,33 @@ describe('tailwind default theme', () => {
     expect(loadCssTokens([file]).tokens.has('--color-gray-800')).toBe(false);
   });
 });
+
+describe('mode scopes (A1)', () => {
+  it('recognises .dark and [data-theme] values as the same token', () => {
+    const file = fixture(`
+      :root { --background: oklch(0.97 0 0); }
+      .dark { --background: oklch(0.15 0 0); }
+      [data-theme='sepia'] { --background: oklch(0.9 0.03 80); }
+    `);
+    const index = loadCssTokens([file]);
+    const token = index.tokens.get('--background');
+    expect(token?.value).toBe('oklch(0.97 0 0)');
+    expect(token?.modeValues).toHaveLength(2);
+  });
+
+  it('knows tokens defined only in a mode scope', () => {
+    const file = fixture('.dark { --glow: oklch(0.8 0.1 200); }');
+    expect(loadCssTokens([file]).tokens.has('--glow')).toBe(true);
+  });
+
+  it('media-wrapped :root counts; mixed component rules do not', () => {
+    const file = fixture(`
+      :root { --a: 1px; }
+      @media (prefers-color-scheme: dark) { :root { --a: 2px; } }
+      .button { --button-gap: 4px; padding: var(--a); }
+    `);
+    const index = loadCssTokens([file]);
+    expect(index.tokens.get('--a')?.modeValues).toEqual(['2px']);
+    expect(index.tokens.has('--button-gap')).toBe(false);
+  });
+});

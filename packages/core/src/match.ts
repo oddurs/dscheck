@@ -49,16 +49,17 @@ export function nearestColor(
   if (!target) return [];
   const matches: Match[] = [];
   for (const token of index.byCategory('color')) {
-    const candidate = safeParseColor(token.value);
-    if (!candidate) continue;
-    const distance = deltaEOK(target, candidate);
+    let best: number | undefined;
+    for (const tokenValue of [token.value, ...(token.modeValues ?? [])]) {
+      const candidate = safeParseColor(tokenValue);
+      if (!candidate) continue;
+      const distance = deltaEOK(target, candidate);
+      if (best === undefined || distance < best) best = distance;
+    }
+    if (best === undefined) continue;
     const kind =
-      distance <= tolerance.colorExact
-        ? 'exact'
-        : distance <= tolerance.colorClose
-          ? 'close'
-          : 'nearest';
-    matches.push({ token, distance, kind });
+      best <= tolerance.colorExact ? 'exact' : best <= tolerance.colorClose ? 'close' : 'nearest';
+    matches.push({ token, distance: best, kind });
   }
   return top(matches, limit);
 }
