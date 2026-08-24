@@ -22,6 +22,7 @@ const DEFAULT_SEVERITIES: Record<string, Severity> = {
   'no-raw-length': 'warn',
   'no-raw-font': 'warn',
   'no-raw-shadow': 'warn',
+  'token-role': 'warn',
 };
 
 /** Effective severities: defaults overridden by dscheck.config.json `rules`. */

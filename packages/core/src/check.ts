@@ -15,7 +15,8 @@ export type RuleId =
   | 'no-raw-length'
   | 'no-unknown-token'
   | 'no-raw-font'
-  | 'no-raw-shadow';
+  | 'no-raw-shadow'
+  | 'token-role';
 
 export interface Violation {
   rule: RuleId;
@@ -54,6 +55,26 @@ const ALWAYS_ALLOWED = new Set([
 ]);
 
 const MATH_FUNCTIONS = new Set(['calc', 'clamp', 'min', 'max']);
+
+/** The semantic role a color-bearing property expects. */
+const PROPERTY_ROLE: ReadonlyMap<string, string> = new Map([
+  ['color', 'fg'],
+  ['fill', 'fg'],
+  ['caret-color', 'fg'],
+  ['text-decoration-color', 'fg'],
+  ['background', 'bg'],
+  ['background-color', 'bg'],
+  ...[
+    'border-color',
+    'border-top-color',
+    'border-right-color',
+    'border-bottom-color',
+    'border-left-color',
+    'outline-color',
+    'stroke',
+    'column-rule-color',
+  ].map((p) => [p, 'border'] as const),
+]);
 
 /** Generic families and keywords that are always acceptable in font-family. */
 const GENERIC_FAMILIES = new Set([
@@ -172,6 +193,22 @@ export function checkDeclaration(property: string, value: string, ctx: CheckCont
     // R1 — unknown token references (--tw-* are Tailwind internals, always fine)
     if (node.type === 'function' && node.value === 'var') {
       const name = node.nodes[0]?.value;
+      // R7 — right token, wrong job: roles are opt-in per token
+      const known = name ? ctx.index.tokens.get(name) : undefined;
+      const requiredRole = PROPERTY_ROLE.get(prop);
+      if (known?.roles && requiredRole && !known.roles.includes(requiredRole)) {
+        violations.push({
+          rule: 'token-role',
+          value: name as string,
+          property: prop,
+          matches: nearestColor(known.value, ctx.index, tolerance).filter(
+            (m) => m.token.roles?.includes(requiredRole) && m.token.name !== name,
+          ),
+          index: node.sourceIndex,
+          message: `${name} is ${known.roles.join('/')}, not ${requiredRole}, in ${prop}`,
+        });
+        return false;
+      }
       if (
         name &&
         !name.startsWith('--tw-') &&
@@ -227,7 +264,7 @@ export function checkDeclaration(property: string, value: string, ctx: CheckCont
   });
 
   function pushColor(literal: string, sourceIndex: number): void {
-    const matches = nearestColor(literal, ctx.index, tolerance);
+    const matches = nearestColor(literal, ctx.index, tolerance, 3, PROPERTY_ROLE.get(prop));
     if (matches.length === 0) return; // unparseable or no color tokens → not our business
     violations.push({
       rule: 'no-raw-color',
@@ -372,6 +409,8 @@ export function formatViolation(v: Violation): string {
         ? `use var(${best.token.name}) (${best.token.value}${best.distance === 0 ? '' : `, Δ${best.distance}px`})`
         : v.rule === 'no-unknown-token'
           ? `did you mean ${best.token.name}?`
-          : `use var(${best.token.name})${best.kind === 'exact' ? ' (identical)' : ''}`;
+          : v.rule === 'token-role'
+            ? `nearest right-role token: var(${best.token.name})`
+            : `use var(${best.token.name})${best.kind === 'exact' ? ' (identical)' : ''}`;
   return `${v.message} — ${hint}`;
 }

@@ -17,6 +17,7 @@ const RULES: RuleId[] = [
   'no-unknown-token',
   'no-raw-font',
   'no-raw-shadow',
+  'token-role',
 ];
 
 /** Attribute names treated as class strings. */
@@ -287,6 +288,7 @@ export const configs = {
       'dscheck/no-raw-length': 'warn',
       'dscheck/no-raw-font': 'warn',
       'dscheck/no-raw-shadow': 'warn',
+      'dscheck/token-role': 'warn',
     },
   },
 };

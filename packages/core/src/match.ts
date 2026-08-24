@@ -44,6 +44,7 @@ export function nearestColor(
   index: ValueIndex,
   tolerance: Tolerance = defaultTolerance,
   limit = 3,
+  role?: string,
 ): Match[] {
   const target = safeParseColor(value);
   if (!target) return [];
@@ -60,6 +61,19 @@ export function nearestColor(
     const kind =
       best <= tolerance.colorExact ? 'exact' : best <= tolerance.colorClose ? 'close' : 'nearest';
     matches.push({ token, distance: best, kind });
+  }
+  // Role-aware ranking: right-role tokens outrank closer wrong-role ones,
+  // but only within suggestion range — an exact hit always surfaces.
+  if (role) {
+    matches.sort((a, b) => {
+      const aRight = a.token.roles?.includes(role) ?? true; // unroled tokens stay neutral
+      const bRight = b.token.roles?.includes(role) ?? true;
+      if (aRight !== bRight && a.kind !== 'exact' && b.kind !== 'exact') {
+        return aRight ? -1 : 1;
+      }
+      return a.distance - b.distance;
+    });
+    return matches.slice(0, limit);
   }
   return top(matches, limit);
 }

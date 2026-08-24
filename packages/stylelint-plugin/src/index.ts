@@ -19,6 +19,7 @@ const RULES: RuleId[] = [
   'no-unknown-token',
   'no-raw-font',
   'no-raw-shadow',
+  'token-role',
 ];
 
 /**
@@ -108,6 +109,7 @@ export const configs = {
       'dscheck/no-raw-length': [true, { severity: 'warning' }],
       'dscheck/no-raw-font': [true, { severity: 'warning' }],
       'dscheck/no-raw-shadow': [true, { severity: 'warning' }],
+      'dscheck/token-role': [true, { severity: 'warning' }],
     },
   },
 };

@@ -28,6 +28,7 @@ const { values, positionals } = parseArgs({
   options: {
     format: { type: 'string', default: 'pretty' },
     doctor: { type: 'boolean', default: false },
+    suggest: { type: 'boolean', default: false },
     'no-baseline': { type: 'boolean', default: false },
     help: { type: 'boolean', short: 'h' },
   },
@@ -37,6 +38,36 @@ const [command = 'check', ...paths] = positionals;
 
 if (values.help || command === 'help') {
   console.log(HELP);
+  process.exit(0);
+}
+
+if (command === 'roles') {
+  const { indexFor } = await import('@dscheck/core');
+  const index = indexFor(resolve('.'));
+  if (!index) fail('No design system found.');
+  const HEURISTICS: Array<[RegExp, string[]]> = [
+    [/foreground|-fg$|^--color-(ink|text)/, ['fg']],
+    [/background|surface|-bg$|card|popover|canvas/, ['bg']],
+    [/border|ring|input|outline|divider|line|stroke/, ['border']],
+  ];
+  const proposal: Record<string, string[]> = {};
+  for (const token of index.tokens.values()) {
+    if (token.category !== 'color') continue;
+    for (const [pattern, roles] of HEURISTICS) {
+      if (pattern.test(token.name)) {
+        proposal[token.name] = roles;
+        break;
+      }
+    }
+  }
+  if (!values.suggest) fail('Usage: dscheck roles --suggest > roles.json');
+  console.log(JSON.stringify(proposal, null, 2));
+  console.error(
+    `\n# ${Object.keys(proposal).length} of ${index.byCategory('color').length} color tokens matched a heuristic.`,
+  );
+  console.error(
+    '# Review, edit, save as roles.json, then set { "roles": "roles.json" } in dscheck.config.json.',
+  );
   process.exit(0);
 }
 
