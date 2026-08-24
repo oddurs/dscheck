@@ -174,3 +174,25 @@ describe('config validation (J1)', () => {
     expect(() => findConfig(dir)).toThrowError(/"tokens" must be an array/);
   });
 });
+
+describe('config forward-compat (M3)', () => {
+  it('x-* keys are reserved extension space', () => {
+    const dir = project({
+      'package.json': '{}',
+      'dscheck.config.json': '{"tokens":["t.css"],"x-team-notes":"anything"}',
+      't.css': '@theme { --color-a: #fff; }',
+    });
+    expect(findConfig(dir)?.tokens).toEqual(['t.css']);
+  });
+
+  it('a newer $schema downgrades unknown keys to a warning', () => {
+    const dir = project({
+      'package.json': '{}',
+      'dscheck.config.json':
+        '{"$schema":"https://dscheck.dev/config.schema.v9.json","tokens":["t.css"],"futureKey":true}',
+      't.css': '@theme { --color-a: #fff; }',
+    });
+    expect(() => findConfig(dir)).not.toThrow();
+    expect(findConfig(dir)?.tokens).toEqual(['t.css']);
+  });
+});

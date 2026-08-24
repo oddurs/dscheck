@@ -101,13 +101,27 @@ const CONFIG_KEYS = [
  */
 function validateConfig(raw: Record<string, unknown>, file: string): void {
   const problems: string[] = [];
+  // Forward-compat (M3): a config written for a NEWER dscheck must degrade,
+  // not die — a foreign/newer $schema turns unknown-key errors into warnings,
+  // and x-* keys are reserved extension space, always ignored.
+  const knownSchema =
+    raw.$schema === undefined || raw.$schema === 'https://dscheck.dev/config.schema.json';
+  const unknownKeyProblems: string[] = [];
   for (const key of Object.keys(raw)) {
+    if (key.startsWith('x-')) continue;
     if ((CONFIG_KEYS as readonly string[]).includes(key)) continue;
     const nearest = [...CONFIG_KEYS].sort(
       (a, b) => editDistance(key, a) - editDistance(key, b),
     )[0] as string;
-    problems.push(
+    unknownKeyProblems.push(
       `unknown key "${key}"${editDistance(key, nearest) <= 3 ? ` — did you mean "${nearest}"?` : ''}`,
+    );
+  }
+  if (knownSchema) {
+    problems.push(...unknownKeyProblems);
+  } else if (unknownKeyProblems.length > 0) {
+    console.warn(
+      `dscheck: ${file} declares a newer schema — ignoring: ${unknownKeyProblems.join('; ')}`,
     );
   }
   for (const key of ['tokens', 'ignore', 'allow', 'rootSelectors'] as const) {

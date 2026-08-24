@@ -63,3 +63,32 @@ describe('baseline invariants', () => {
 function abs(f: Omit<Finding, 'file'> & { file: string }): Finding {
   return { ...f, file: join(root, f.file) };
 }
+
+describe('format versioning (M4)', () => {
+  it('stamps $version, tolerates and preserves unknown $-metadata', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'dscheck-basever-'));
+    const findings = [
+      {
+        file: join(dir, 'a.css'),
+        line: 1,
+        col: 1,
+        rule: 'dscheck/no-raw-color',
+        severity: 'error' as const,
+        message: 'm',
+      },
+    ];
+    writeBaseline(findings, dir);
+    const { readFileSync, writeFileSync } = require('node:fs') as typeof import('node:fs');
+    const raw = JSON.parse(readFileSync(join(dir, '.dscheck-baseline.json'), 'utf8'));
+    expect(raw.$version).toBe(1);
+    // a future dscheck writes extra metadata; today's build must keep it
+    raw.$futureField = 'kept';
+    writeFileSync(join(dir, '.dscheck-baseline.json'), JSON.stringify(raw));
+    const baseline = writeBaseline(findings, dir);
+    const rewritten = JSON.parse(readFileSync(join(dir, '.dscheck-baseline.json'), 'utf8'));
+    expect(rewritten.$futureField).toBe('kept');
+    // and reading skips metadata cleanly
+    const { fresh } = applyBaseline(findings, baseline, dir);
+    expect(fresh).toEqual([]);
+  });
+});

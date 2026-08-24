@@ -33,6 +33,14 @@ versions accordingly.
 All of the above are enforced by contract tests in CI — a violation cannot ship
 accidentally; it has to arrive as a reviewed, versioned decision.
 
+## On-disk artifacts
+
+dscheck writes exactly one file: `.dscheck-baseline.json` (opt-in, `$version`-stamped,
+unknown `$`-metadata preserved on rewrite, always safe to delete and regenerate). There
+are no hidden caches; all in-memory caches die with the process. A config written for a
+newer dscheck degrades gracefully: `x-*` keys are reserved-and-ignored, and a newer
+`$schema` turns unknown-key errors into warnings.
+
 ## Deprecation
 
 A frozen surface is never removed in place: it ships a deprecation notice for at least

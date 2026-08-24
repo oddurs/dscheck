@@ -11,8 +11,15 @@ export type Baseline = Record<string, Record<string, { count: number }>>;
 
 export const BASELINE_FILE = '.dscheck-baseline.json';
 
+const FORMAT_VERSION = 1;
+
 export function writeBaseline(findings: Finding[], root: string): Baseline {
-  const baseline: Baseline = {};
+  // Preserve $-metadata (including fields from future versions) on rewrite.
+  const previous = readRaw(root);
+  const meta = Object.fromEntries(
+    Object.entries(previous ?? {}).filter(([k]) => k.startsWith('$')),
+  );
+  const baseline: Baseline = { ...meta, $version: FORMAT_VERSION } as unknown as Baseline;
   for (const f of findings) {
     const file = relative(root, f.file).replaceAll('\\', '/');
     const rules = (baseline[file] ??= {});
@@ -23,8 +30,15 @@ export function writeBaseline(findings: Finding[], root: string): Baseline {
 }
 
 export function readBaseline(root: string): Baseline | undefined {
+  const raw = readRaw(root);
+  if (!raw) return undefined;
+  // Tolerant reader: $-keys are metadata; entries are per-file rule counts.
+  return Object.fromEntries(Object.entries(raw).filter(([k]) => !k.startsWith('$'))) as Baseline;
+}
+
+function readRaw(root: string): Record<string, unknown> | undefined {
   try {
-    return JSON.parse(readFileSync(`${root}/${BASELINE_FILE}`, 'utf8')) as Baseline;
+    return JSON.parse(readFileSync(`${root}/${BASELINE_FILE}`, 'utf8')) as Record<string, unknown>;
   } catch {
     return undefined;
   }
@@ -65,6 +79,7 @@ export function applyBaseline(
   }
   let stale = 0;
   for (const [file, rules] of Object.entries(baseline)) {
+    if (file.startsWith('$')) continue;
     for (const rule of Object.keys(rules)) {
       if (!seenKeys.has(`${file}::${rule}`)) stale++;
     }
