@@ -9,6 +9,9 @@ import { describe, expect, it } from 'vitest';
  * here is a breaking change (major), full stop.
  */
 const demoProject = join(import.meta.dirname, '..', '..', '..', 'assets', 'demo', 'project');
+
+/** CI enables colour; assertions are about words, not escapes. */
+const plain = (text: string) => text.replace(/\u001B\[[0-9;]*m/g, '');
 const cli = join(import.meta.dirname, '..', 'dist', 'cli.js');
 
 function run(args: string[]): { stdout: string; code: number } {
@@ -82,10 +85,13 @@ describe('failure modes never look like success (W)', () => {
     writeFileSync(join(dir, 'package.json'), '{}');
     for (const [name, content] of Object.entries(files)) writeFileSync(join(dir, name), content);
     try {
-      return { out: execFileSync('node', [cli, ...args], { cwd: dir, encoding: 'utf8' }), code: 0 };
+      return {
+        out: plain(execFileSync('node', [cli, ...args], { cwd: dir, encoding: 'utf8' })),
+        code: 0,
+      };
     } catch (error) {
       const e = error as { stdout?: string; stderr?: string; status?: number };
-      return { out: `${e.stdout ?? ''}${e.stderr ?? ''}`, code: e.status ?? -1 };
+      return { out: plain(`${e.stdout ?? ''}${e.stderr ?? ''}`), code: e.status ?? -1 };
     }
   }
 

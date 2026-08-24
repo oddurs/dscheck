@@ -3,6 +3,13 @@ import { isExactMatch, renderFindings, renderSummary, wrap } from './render.js';
 import type { Finding } from './run.js';
 
 /**
+ * Colour depends on the environment (CI enables it, pipes disable it), so
+ * every assertion here is about *layout and words* — strip the escapes first
+ * or the suite passes on a laptop and fails on a runner.
+ */
+const plain = (text: string) => text.replace(/\u001B\[[0-9;]*m/g, '');
+
+/**
  * X: the terminal output is a contract too. These goldens are reviewed like
  * code — a diff here means the CLI looks different to every user.
  */
@@ -43,7 +50,7 @@ describe('findings list', () => {
         message: 'Raw length 15px in margin — use var(--spacing-4) (16px, Δ1px)',
       }),
     ];
-    expect(renderFindings(findings, options).join('\n')).toMatchInlineSnapshot(`
+    expect(plain(renderFindings(findings, options).join('\n'))).toMatchInlineSnapshot(`
       "
       src/Button.tsx
         !    3:5  Raw length 14px in gap — use var(--spacing-3) (12px, Δ2px)
@@ -60,7 +67,7 @@ describe('findings list', () => {
     });
     const lines = renderFindings([long], { ...options, width: 60 });
     expect(lines.length).toBeGreaterThan(3);
-    for (const line of lines) expect(line.length).toBeLessThanOrEqual(70);
+    for (const line of lines) expect(plain(line).length).toBeLessThanOrEqual(70);
   });
 });
 
@@ -74,7 +81,7 @@ describe('summary', () => {
         message: 'Raw length 14px in gap — use var(--spacing-3) (12px, Δ2px)',
       }),
     ];
-    expect(renderSummary(findings, options).join('\n')).toMatchInlineSnapshot(`
+    expect(plain(renderSummary(findings, options).join('\n'))).toMatchInlineSnapshot(`
       "
       1 error, 1 warning
            1  no-raw-color
@@ -86,8 +93,8 @@ describe('summary', () => {
   });
 
   it('says nothing was found, in ascii when asked', () => {
-    expect(renderSummary([], options).join('\n')).toBe('\nok on-system: no findings');
-    expect(renderSummary([], { ...options, ascii: false }).join('\n')).toContain('✔');
+    expect(plain(renderSummary([], options).join('\n'))).toBe('\nok on-system: no findings');
+    expect(plain(renderSummary([], { ...options, ascii: false }).join('\n'))).toContain('✔');
   });
 });
 
