@@ -428,8 +428,6 @@ header.header {
 
 /* search: a compact pill, not a loose bar */
 site-search button[data-open-modal] {
-  max-width: var(--spacing-16);
-  width: auto;
   height: var(--spacing-8);
   gap: var(--spacing-2);
   padding-inline: var(--spacing-3);
