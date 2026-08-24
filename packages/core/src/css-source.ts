@@ -20,6 +20,7 @@ export function loadCssTokens(files: string[]): ValueIndex {
   /** raw values declared in mode scopes (`.dark`, `[data-theme=…]`, media-wrapped :root). */
   const modeDeclared = new Map<string, Set<string>>();
   const modeCandidates: Array<{ name: string; raw: string; source: string; themed: boolean }> = [];
+  const conflicts = new Map<string, { values: string[]; sources: string[] }>();
   let importsTailwind = false;
 
   for (const file of files) {
@@ -33,6 +34,15 @@ export function loadCssTokens(files: string[]): ValueIndex {
         // Last declaration wins, but a @theme declaration marks the name as
         // part of the design-system API even if :root re-declares the value.
         const prev = declared.get(decl.prop);
+        if (prev && prev.raw !== decl.value && stripVar(prev.raw) !== stripVar(decl.value)) {
+          const entry = conflicts.get(decl.prop) ?? {
+            values: [prev.raw],
+            sources: [prev.source],
+          };
+          entry.values.push(decl.value);
+          entry.sources.push(file);
+          conflicts.set(decl.prop, entry);
+        }
         declared.set(decl.prop, {
           raw: decl.value,
           source: file,
@@ -42,7 +52,12 @@ export function loadCssTokens(files: string[]): ValueIndex {
       }
       const scope = modeScopeKind(decl);
       if (scope !== 'none') {
-        modeCandidates.push({ name: decl.prop, raw: decl.value, source: file, themed: scope === 'themed' });
+        modeCandidates.push({
+          name: decl.prop,
+          raw: decl.value,
+          source: file,
+          themed: scope === 'themed',
+        });
       }
     });
   }
@@ -85,7 +100,18 @@ export function loadCssTokens(files: string[]): ValueIndex {
       ...(modeValues.length > 0 ? { modeValues } : {}),
     });
   }
-  return createIndex(tokens);
+  const index = createIndex(tokens);
+  index.diagnostics = {
+    conflicts: [...conflicts].map(([name, c]) => ({ name, ...c })),
+    unresolved: tokens.filter((t) => t.unresolved).map((t) => t.name),
+    danglingAliases: tokens.filter((t) => t.aliasOf && !declared.has(t.aliasOf)).map((t) => t.name),
+  };
+  return index;
+}
+
+/** `var(--x)` → `--x`, so an alias vs its target's value is not a conflict. */
+function stripVar(raw: string): string {
+  return raw.trim().replace(/^var\((--[\w-]+)\)$/, '$1');
 }
 
 /**
@@ -99,7 +125,9 @@ function modeScopeKind(decl: Declaration): 'themed' | 'bare' | 'none' {
   if (parent?.type !== 'rule') return 'none';
   const selector = (parent as postcss.Rule).selector;
   if (/(:root|\bhtml\b)/.test(selector)) return 'themed'; // compound/media-nested root
-  if (/^\s*(\.(dark|light|theme-[\w-]+)|\[data-(theme|mode|color-scheme)[^\]]*\])\s*$/.test(selector)) {
+  if (
+    /^\s*(\.(dark|light|theme-[\w-]+)|\[data-(theme|mode|color-scheme)[^\]]*\])\s*$/.test(selector)
+  ) {
     return 'themed';
   }
   const bareScope = /^\s*(\.[\w-]+|\[[^\]]+\])\s*$/.test(selector);
@@ -124,7 +152,10 @@ function isInRoot(decl: Declaration): boolean {
   if (!/(^|,)\s*(:root|html)\s*(,|$)/.test((parent as postcss.Rule).selector)) return false;
   // `:root` inside @media/@supports/@container holds *mode* values, not the primary.
   for (let node = parent.parent; node; node = node.parent as typeof node) {
-    if (node.type === 'atrule' && /^(media|supports|container)$/.test((node as postcss.AtRule).name)) {
+    if (
+      node.type === 'atrule' &&
+      /^(media|supports|container)$/.test((node as postcss.AtRule).name)
+    ) {
       return false;
     }
   }

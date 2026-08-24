@@ -31,13 +31,25 @@ export interface Token {
   roles?: string[];
 }
 
+export interface IndexDiagnostics {
+  /** Same name declared with different primary values in root/theme scopes. */
+  conflicts: Array<{ name: string; values: string[]; sources: string[] }>;
+  /** Tokens whose var() chains never reached a literal. */
+  unresolved: string[];
+  /** Aliases pointing at names that do not exist. */
+  danglingAliases: string[];
+}
+
 /** The allowed set: every token the design system defines, indexed for lookup. */
 export interface ValueIndex {
   tokens: ReadonlyMap<string, Token>;
   byCategory(category: Category): Token[];
+  diagnostics?: IndexDiagnostics;
 }
 
-export function createIndex(tokens: Iterable<Token>): ValueIndex {
+export function createIndex(
+  tokens: Iterable<Token>,
+): ValueIndex & { diagnostics?: IndexDiagnostics } {
   const map = new Map<string, Token>();
   for (const t of tokens) map.set(t.name, t);
   const buckets = new Map<Category, Token[]>();

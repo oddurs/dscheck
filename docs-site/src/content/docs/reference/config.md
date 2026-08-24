@@ -16,7 +16,13 @@ block. The config file makes it explicit:
 
   // Custom-property names never reported as unknown —
   // for variables injected at runtime (syntax highlighters, next/font).
-  "allow": ["--shiki-*", "--font-geist-*", "--header-height"]
+  "allow": ["--shiki-*", "--font-geist-*", "--header-height"],
+
+  // Matching tolerances (ΔEOK): exact = autofixable, close = confident suggestion.
+  "tolerance": { "colorExact": 0.005, "colorClose": 0.03 },
+
+  // CLI severity overrides (plugins use their host's severity config instead).
+  "rules": { "no-raw-length": "off" }
 }
 ```
 

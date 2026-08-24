@@ -6,6 +6,7 @@ import {
   formatViolation,
   indexFor,
   type RuleId,
+  toleranceFor,
 } from '@dscheck/core';
 import type { Rule } from 'eslint';
 import { checkClassString, checkStyleEntry } from './jsx.js';
@@ -48,6 +49,7 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
       const config = findConfig(filename);
       const ctx: CheckContext = {
         index,
+        tolerance: toleranceFor(config),
         ...(config ? { isAllowedName: allowedNameMatcher(config) } : {}),
       };
 
@@ -170,7 +172,9 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
           case 'LogicalExpression':
             return collectClassStrings(node.right as Node, depth + 1);
           case 'ArrayExpression':
-            return ((node.elements as Node[]) ?? []).flatMap((el) => collectClassStrings(el, depth + 1));
+            return ((node.elements as Node[]) ?? []).flatMap((el) =>
+              collectClassStrings(el, depth + 1),
+            );
           case 'ObjectExpression':
             // classnames form: keys are classes; cva/tv config form: values hold classes
             return ((node.properties as Node[]) ?? []).flatMap((property) => {
@@ -233,7 +237,8 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
                 : undefined;
           if (!calleeName || !CLASS_CALLEES.has(calleeName)) return;
           for (const argument of (node.arguments as Node[]) ?? []) {
-            for (const found of collectClassStrings(argument)) checkClasses(found.value, found.node);
+            for (const found of collectClassStrings(argument))
+              checkClasses(found.value, found.node);
           }
         },
 

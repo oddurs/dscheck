@@ -3,6 +3,7 @@ import { dirname, join, relative, resolve } from 'node:path';
 import picomatch from 'picomatch';
 import { globSync } from 'tinyglobby';
 import { loadCssTokens } from './css-source.js';
+import { defaultTolerance, type Tolerance } from './match.js';
 import type { ValueIndex } from './types.js';
 
 export interface DscheckConfig {
@@ -12,6 +13,10 @@ export interface DscheckConfig {
   ignore: string[];
   /** Custom-property name globs never reported as unknown (runtime-injected vars: --shiki-*, next/font). */
   allow: string[];
+  /** Matching tolerances; omitted fields use defaults. */
+  tolerance?: { colorExact?: number; colorClose?: number };
+  /** CLI-side severity overrides: { "no-raw-length": "off" | "warn" | "error" }. */
+  rules?: Record<string, 'off' | 'warn' | 'error'>;
   /** Directory the config was found in. */
   root: string;
 }
@@ -32,11 +37,15 @@ export function findConfig(from: string): DscheckConfig | undefined {
         tokens?: string[];
         ignore?: string[];
         allow?: string[];
+        tolerance?: { colorExact?: number; colorClose?: number };
+        rules?: Record<string, 'off' | 'warn' | 'error'>;
       };
       return {
         tokens: parsed.tokens ?? [],
         ignore: parsed.ignore ?? [],
         allow: parsed.allow ?? [],
+        ...(parsed.tolerance ? { tolerance: parsed.tolerance } : {}),
+        ...(parsed.rules ? { rules: parsed.rules } : {}),
         root: dir,
       };
     }
@@ -81,6 +90,11 @@ export function loadIndex(config: DscheckConfig): ValueIndex {
   const index = loadCssTokens(files);
   cache.set(config.root, { key, index });
   return index;
+}
+
+/** Resolved tolerance for a config, defaults filled. */
+export function toleranceFor(config: OffsystemConfig | undefined): Tolerance {
+  return { ...defaultTolerance, ...config?.tolerance };
 }
 
 /** Predicate over config.allow globs, memoized per config. */

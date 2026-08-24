@@ -4,7 +4,8 @@ description: Color literals must come from the token set.
 ---
 
 Flags hex literals and color functions (`rgb()`, `oklch()`, `hsl()`, …) anywhere, and
-named colors (`tomato`) in color-typed properties, whenever your system defines color
+named colors (`tomato`) in color-typed properties and color-bearing shorthands
+(`background`, `border`, `outline`), whenever your system defines color
 tokens. Suggests up to three nearest tokens by **ΔEOK** (perceptual distance in OKLab),
 with an alpha term so `rgba(0,0,0,0.05)` never "matches" solid black.
 

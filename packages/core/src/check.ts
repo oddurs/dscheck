@@ -101,6 +101,14 @@ const COLOR_PROPERTIES = new Set([
   'stroke',
   'stop-color',
   'column-rule-color',
+  // shorthands that carry a color: a word parsing as a color here is one
+  'background',
+  'border',
+  'border-top',
+  'border-right',
+  'border-bottom',
+  'border-left',
+  'outline',
 ]);
 
 /** Property → length category to enforce. Deliberately conservative (N2). */

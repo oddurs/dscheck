@@ -6,6 +6,7 @@ import {
   formatViolation,
   indexFor,
   type RuleId,
+  toleranceFor,
   type Violation,
 } from '@dscheck/core';
 import type { Declaration, Root } from 'postcss';
@@ -45,6 +46,7 @@ function createRule(ruleId: RuleId): Rule {
       const ctx: CheckContext = {
         index,
         localVars,
+        tolerance: toleranceFor(config),
         ...(config ? { isAllowedName: allowedNameMatcher(config) } : {}),
       };
 

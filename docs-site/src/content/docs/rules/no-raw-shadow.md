@@ -12,4 +12,5 @@ color format is reported as identical.
 ```
 
 - **Default severity:** warning.
-- **Not flagged:** `none`, values already using `var()`.
+- **Not flagged:** `none`, values already using `var()`, `text-shadow` (box-shadow tokens
+  are a different geometry; deliberate).

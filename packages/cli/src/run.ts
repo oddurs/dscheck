@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import { findConfig } from '@dscheck/core';
 
 export interface Finding {
   file: string;
@@ -13,6 +14,25 @@ export interface Finding {
 
 const require = createRequire(import.meta.url);
 
+type Severity = 'off' | 'warn' | 'error';
+
+const DEFAULT_SEVERITIES: Record<string, Severity> = {
+  'no-raw-color': 'error',
+  'no-unknown-token': 'error',
+  'no-raw-length': 'warn',
+  'no-raw-font': 'warn',
+  'no-raw-shadow': 'warn',
+};
+
+/** Effective severities: defaults overridden by dscheck.config.json `rules`. */
+function severitiesFor(anchor: string | undefined): Record<string, Severity> {
+  const config = anchor ? findConfig(anchor) : undefined;
+  const overrides = Object.fromEntries(
+    Object.entries(config?.rules ?? {}).map(([rule, s]) => [rule.replace(/^dscheck\//, ''), s]),
+  );
+  return { ...DEFAULT_SEVERITIES, ...overrides };
+}
+
 /** Lint by driving the real hosts with our plugins — findings match editor/CI output exactly. */
 export async function lintFiles(files: string[]): Promise<Finding[]> {
   const css = files.filter((f) => /\.(css|scss)$/.test(f));
@@ -26,18 +46,18 @@ export async function lintFiles(files: string[]): Promise<Finding[]> {
 
 async function lintCss(files: string[]): Promise<Finding[]> {
   const { default: stylelint } = await import('stylelint');
+  const severities = severitiesFor(files[0]);
+  const rules = Object.fromEntries(
+    Object.entries(severities)
+      .filter(([, s]) => s !== 'off')
+      .map(([rule, s]) => [
+        `dscheck/${rule}`,
+        s === 'error' ? true : [true, { severity: 'warning' }],
+      ]),
+  );
   const result = await stylelint.lint({
     files: files.map((f) => f.replaceAll('\\', '/')), // stylelint globs; windows backslashes would escape
-    config: {
-      plugins: [require.resolve('@dscheck/stylelint-plugin')],
-      rules: {
-        'dscheck/no-raw-color': true,
-        'dscheck/no-unknown-token': true,
-        'dscheck/no-raw-length': [true, { severity: 'warning' }],
-        'dscheck/no-raw-font': [true, { severity: 'warning' }],
-        'dscheck/no-raw-shadow': [true, { severity: 'warning' }],
-      },
-    },
+    config: { plugins: [require.resolve('@dscheck/stylelint-plugin')], rules },
   });
   return result.results.flatMap((r) =>
     r.warnings
@@ -52,6 +72,12 @@ async function lintJsx(files: string[]): Promise<Finding[]> {
   const { default: plugin } = await import('@dscheck/eslint-plugin');
   const { default: tsParser } = await import('@typescript-eslint/parser');
   const linter = new Linter({ cwd: '/' });
+  const severities = severitiesFor(files[0]);
+  const eslintRules = Object.fromEntries(
+    Object.entries(severities)
+      .filter(([, s]) => s !== 'off')
+      .map(([rule, s]) => [`dscheck/${rule}`, s]),
+  );
   const findings: Finding[] = [];
   for (const file of files) {
     const messages = linter.verify(
@@ -63,13 +89,7 @@ async function lintJsx(files: string[]): Promise<Finding[]> {
           parser: tsParser as never,
           parserOptions: { ecmaFeatures: { jsx: true } },
         },
-        rules: {
-          'dscheck/no-raw-color': 'error',
-          'dscheck/no-unknown-token': 'error',
-          'dscheck/no-raw-length': 'warn',
-          'dscheck/no-raw-font': 'warn',
-          'dscheck/no-raw-shadow': 'warn',
-        },
+        rules: eslintRules,
       },
       file,
     );

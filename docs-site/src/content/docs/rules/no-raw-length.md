@@ -5,7 +5,8 @@ description: Spacing, radius, and font-size literals must come from the scale.
 
 Flags raw `px`/`rem`/`em` literals in **spacing properties** (`margin`, `padding`, `gap`,
 `inset`, …), **radius properties**, and `font-size` — the properties where a scale exists
-and drift hurts. Deliberately not enforced on `width`/`height` (too noisy).
+and drift hurts. Deliberately not enforced on `width`/`height`, `letter-spacing`, or `line-height` (too
+noisy relative to the drift they represent — revisit with roles).
 
 ```text
 ⚠ Raw length 14px in padding — use var(--spacing-3) (12px, Δ2px)

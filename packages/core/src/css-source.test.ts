@@ -143,3 +143,23 @@ describe('mode scopes (A1)', () => {
     expect(index.tokens.has('--button-gap')).toBe(false);
   });
 });
+
+describe('diagnostics (A6)', () => {
+  it('reports conflicts, unresolved chains, and dangling aliases', () => {
+    const file = fixture(`
+      :root { --brand: #111; --brand: #222; --chain: var(--missing); --alias: var(--gone); }
+    `);
+    const d = loadCssTokens([file]).diagnostics;
+    expect(d?.conflicts[0]?.name).toBe('--brand');
+    expect(d?.unresolved).toContain('--chain');
+    expect(d?.danglingAliases).toContain('--alias');
+  });
+
+  it('an alias and its target are not a conflict', () => {
+    const file = fixture(`
+      @theme inline { --color-a: var(--a); }
+      :root { --a: #123456; }
+    `);
+    expect(loadCssTokens([file]).diagnostics?.conflicts).toHaveLength(0);
+  });
+});

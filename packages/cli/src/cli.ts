@@ -27,6 +27,7 @@ const { values, positionals } = parseArgs({
   allowPositionals: true,
   options: {
     format: { type: 'string', default: 'pretty' },
+    doctor: { type: 'boolean', default: false },
     'no-baseline': { type: 'boolean', default: false },
     help: { type: 'boolean', short: 'h' },
   },
@@ -43,6 +44,25 @@ if (command === 'tokens') {
   const { indexFor } = await import('@dscheck/core');
   const index = indexFor(resolve('.'));
   if (!index) fail('No design system found (no dscheck.config.json or @theme/:root css).');
+  if (values.doctor) {
+    const d = index.diagnostics;
+    if (
+      !d ||
+      (d.conflicts.length === 0 && d.unresolved.length === 0 && d.danglingAliases.length === 0)
+    ) {
+      console.log(
+        pc.green('✔ token set healthy: no conflicts, unresolved chains, or dangling aliases'),
+      );
+      process.exit(0);
+    }
+    for (const c of d.conflicts)
+      console.log(`${pc.red('conflict')}   ${c.name}: ${c.values.join(' ≠ ')}`);
+    for (const name of d.unresolved)
+      console.log(`${pc.yellow('unresolved')} ${name} (var() chain has no literal end)`);
+    for (const name of d.danglingAliases)
+      console.log(`${pc.red('dangling')}   ${name} → missing target`);
+    process.exit(1);
+  }
   for (const token of [...index.tokens.values()].sort((a, b) => a.name.localeCompare(b.name))) {
     console.log(`${token.name}\t${token.category}\t${token.value}`);
   }

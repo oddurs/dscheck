@@ -91,3 +91,21 @@ describe('allow globs', () => {
     expect(checkDeclaration('color', 'var(--nope)', ctx)).toHaveLength(1);
   });
 });
+
+describe('tolerance & rules config (A4)', () => {
+  it('plumbs tolerance from config into matching', async () => {
+    const { checkDeclaration } = await import('./check.js');
+    const { findConfig, loadIndex, toleranceFor } = await import('./config.js');
+    const dir = project({
+      'package.json': '{}',
+      'dscheck.config.json': '{"tokens":["t.css"],"tolerance":{"colorClose":0.5}}',
+      't.css': '@theme { --color-primary: #1d4ed8; }',
+    });
+    const config = findConfig(dir);
+    if (!config) throw new Error('no config');
+    const ctx = { index: loadIndex(config), tolerance: toleranceFor(config) };
+    // far-off red is "close" under a huge tolerance — proves the value flows through
+    const [v] = checkDeclaration('color', '#ff0000', ctx);
+    expect(v?.matches[0]?.kind).toBe('close');
+  });
+});

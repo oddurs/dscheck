@@ -147,13 +147,20 @@ describe('mode-aware matching (A1)', () => {
   it('treats a dark-mode value as on-system', () => {
     const dirM = mkdtempSync(join(tmpdir(), 'dscheck-mode-'));
     const fM = join(dirM, 'tokens.css');
-    writeFileSync(
-      fM,
-      ':root { --color-surface: #ffffff; } .dark { --color-surface: #111113; }',
-    );
+    writeFileSync(fM, ':root { --color-surface: #ffffff; } .dark { --color-surface: #111113; }');
     const ctxM = { index: loadCssTokens([fM]) };
     const [v] = checkDeclaration('background', '#111113', ctxM);
     expect(v?.matches[0]?.token.name).toBe('--color-surface');
     expect(v?.matches[0]?.kind).toBe('exact');
+  });
+});
+
+describe('shorthand colors (A5)', () => {
+  it('catches named colors in border/background/outline shorthands', () => {
+    expect(checkDeclaration('border', '1px solid tomato', ctx)).toHaveLength(1);
+    expect(checkDeclaration('background', 'tomato url(x.png)', ctx)).toHaveLength(1);
+    expect(checkDeclaration('outline', '2px dashed tomato', ctx)).toHaveLength(1);
+    // 'solid'/'dashed' don't parse as colors; still no false hits
+    expect(checkDeclaration('border', '1px solid var(--color-primary)', ctx)).toHaveLength(0);
   });
 });
