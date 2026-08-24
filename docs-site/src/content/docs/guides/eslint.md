@@ -32,7 +32,8 @@ That's it — zero-config finds your tokens (`@theme` in an imported CSS entry, 
   handled exactly, `p-[12px]` **autofixes** to `p-3` when identical, and fabricated
   utilities are caught ([no-unknown-class](/rules/no-unknown-class/)).
 
-Dynamic expressions (`clsx(cond && …)`, template interpolations) are **skipped, never
+CSS-in-JS tagged templates and `css()`/`sx` objects are covered too — see the
+[CSS-in-JS guide](/guides/css-in-js/). Dynamic expressions are **skipped, never
 guessed** — a guardrail that cries wolf gets disabled.
 
 ## Severities

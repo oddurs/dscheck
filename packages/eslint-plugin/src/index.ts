@@ -12,6 +12,7 @@ import {
 import { engineFor } from '@dscheck/tw';
 import type { Rule } from 'eslint';
 import { checkClassString, checkStyleEntry } from './jsx.js';
+import { checkTemplate } from './template.js';
 
 export { checkClassString } from './jsx.js';
 
@@ -106,8 +107,8 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
                 : undefined;
           const valueNode = property.value as Node;
           if (!key) continue;
-          if (valueNode.type === 'ObjectExpression' && depth === 0) {
-            checkStyleObject(valueNode, 1); // styles = { card: {...}, cta: {...} }
+          if (valueNode.type === 'ObjectExpression' && depth < 4) {
+            checkStyleObject(valueNode, depth + 1); // style maps & pseudo-selector nesting
           } else {
             const resolved = resolveStatic(valueNode);
             if (resolved !== undefined) checkEntry(key, resolved, valueNode);
@@ -225,6 +226,17 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
         }
       };
 
+      /** styled.div / styled(X) / css / keyframes / createGlobalStyle tags. */
+      const isStyleTag = (tag: Node): boolean => {
+        if (tag.type === 'Identifier')
+          return ['css', 'keyframes', 'createGlobalStyle', 'injectGlobal', 'styled'].includes(
+            tag.name as string,
+          );
+        if (tag.type === 'MemberExpression') return isStyleTag(tag.object as Node);
+        if (tag.type === 'CallExpression') return isStyleTag(tag.callee as Node);
+        return false;
+      };
+
       /** The identifier a style={} expression is rooted in, if any. */
       const rootName = (expr: Node | undefined): string | undefined => {
         if (!expr) return undefined;
@@ -248,6 +260,13 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
             return;
           }
 
+          // emotion/MUI object styles: sx={{ … }} / css={{ … }}
+          if ((name === 'sx' || name === 'css') && value?.type === 'JSXExpressionContainer') {
+            const expr = value.expression as Node;
+            if (expr.type === 'ObjectExpression') inlineStyles.push(expr);
+            return;
+          }
+
           // className="…" and className={clsx('…', cond && '…', `…${x}…`)}
           if (typeof name === 'string' && CLASS_ATTRIBUTES.has(name) && value) {
             const expr =
@@ -265,10 +284,47 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
               : callee.type === 'MemberExpression'
                 ? ((callee.property as Node).name as string | undefined)
                 : undefined;
+          if (calleeName === 'css') {
+            for (const argument of (node.arguments as Node[]) ?? []) {
+              if (argument.type === 'ObjectExpression') checkStyleObject(argument, 1);
+            }
+          }
           if (!calleeName || !CLASS_CALLEES.has(calleeName)) return;
           for (const argument of (node.arguments as Node[]) ?? []) {
             for (const found of collectClassStrings(argument))
               checkClasses(found.value, found.node);
+          }
+        },
+
+        // styled.div`…` / css`…` — static chunks checked, interpolations skipped
+        TaggedTemplateExpression(node: Node) {
+          if (!isStyleTag(node.tag as Node)) return;
+          const quasi = node.quasi as Node;
+          const quasis = ((quasi.quasis as Node[]) ?? []).map((q) => ({
+            text: String((q.value as { raw?: string }).raw ?? ''),
+            // TemplateElement range starts on the backtick / closing brace.
+            sourceStart: (q as unknown as { range: [number, number] }).range[0] + 1,
+          }));
+          for (const violation of checkTemplate(quasis, ctx)) {
+            if (violation.rule !== ruleId) continue;
+            const sourceCode = context.sourceCode;
+            const best = violation.matches[0];
+            const start = sourceCode.getLocFromIndex(violation.sourceIndex);
+            const end = sourceCode.getLocFromIndex(violation.sourceIndex + violation.value.length);
+            context.report({
+              loc: { start, end },
+              messageId: 'violation',
+              data: { text: formatViolation(violation) },
+              ...(best?.kind === 'exact' && violation.rule !== 'token-role'
+                ? {
+                    fix: (fixer) =>
+                      fixer.replaceTextRange(
+                        [violation.sourceIndex, violation.sourceIndex + violation.value.length],
+                        `var(${best.token.name})`,
+                      ),
+                  }
+                : {}),
+            });
           }
         },
 

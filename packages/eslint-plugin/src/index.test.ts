@@ -181,3 +181,47 @@ describe('tailwind engine path (D2–D4)', () => {
     expect(output).toContain('bg-[#eee]'); // non-exact stays
   });
 });
+
+describe('css-in-js (E1–E3)', () => {
+  it('checks styled-components templates with accurate positions and fixes', () => {
+    const code = `const Button = styled.button\`
+      color: #1d4ed8;
+      padding: \${(p) => p.pad}px;
+      gap: 14px;
+      --local: 4px;
+      margin: var(--local);
+    \`;`;
+    const messages = lint(code);
+    const colorMsg = messages.find((m) => m.message.includes('#1d4ed8'));
+    expect(colorMsg?.line).toBe(2);
+    expect(colorMsg?.message).toContain('var(--color-primary)');
+    // interpolated padding skipped; local var accepted
+    expect(messages.some((m) => m.message.includes('p.pad'))).toBe(false);
+    expect(messages.filter((m) => m.message.includes('14px'))).toHaveLength(1);
+  });
+
+  it('autofixes exact template values', () => {
+    const linterFix = new Linter({ cwd: dir });
+    const result = linterFix.verifyAndFix(
+      'const A = styled.div`color: #1d4ed8; padding: 14px;`;',
+      {
+        files: ['**/*.tsx'],
+        plugins: { dscheck: plugin as never },
+        languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
+        rules: { 'dscheck/no-raw-color': 'error', 'dscheck/no-raw-length': 'error' },
+      },
+      'component.tsx',
+    );
+    expect(result.output).toContain('color: var(--color-primary);');
+    expect(result.output).toContain('padding: 14px;'); // Δ2px — never auto-rounded
+  });
+
+  it('checks emotion css`` tags, css() objects, and sx props with pseudo nesting', () => {
+    const messages = lint(`
+      const a = css\`background: #1d4ed8;\`;
+      const b = css({ '&:hover': { color: '#1d4ed8' } });
+      const c = <div sx={{ padding: '14px' }} />;`);
+    expect(messages.filter((m) => m.message.includes('#1d4ed8'))).toHaveLength(2);
+    expect(messages.some((m) => m.message.includes('14px'))).toBe(true);
+  });
+});
