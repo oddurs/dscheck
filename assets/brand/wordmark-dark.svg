@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 252 56" width="252" height="56" role="img" aria-label="dscheck">
+  <!-- typographic wordmark: real text, geometry pinned via textLength -->
+  <text x="0" y="41" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="40" font-weight="700" fill="oklch(0.74 0.11 152)">❯</text>
+  <text x="38" y="41" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="40" font-weight="600" letter-spacing="0.8" fill="oklch(0.94 0.003 255)" textLength="210" lengthAdjust="spacingAndGlyphs">dscheck</text>
+</svg>

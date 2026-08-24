@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- typographic favicon: the check is the brand -->
+  <rect width="64" height="64" rx="14" fill="oklch(0.47 0.1 255)"/>
+  <text x="32" y="46" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="40" font-weight="700" fill="oklch(0.99 0 0)">✓</text>
+</svg>

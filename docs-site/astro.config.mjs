@@ -8,6 +8,13 @@ export default defineConfig({
       title: 'dscheck',
       description: 'The linter that knows your design system.',
       customCss: ['./src/styles/tokens.css', './src/styles/custom.css'],
+      favicon: '/favicon.svg',
+      logo: {
+        light: './src/assets/wordmark-light.svg',
+        dark: './src/assets/wordmark-dark.svg',
+        replacesTitle: true,
+        alt: 'dscheck',
+      },
       social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/oddurs/dscheck' }],
       sidebar: [
         {

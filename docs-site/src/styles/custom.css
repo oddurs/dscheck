@@ -2,6 +2,11 @@
  * Starlight themed entirely through the dscheck design system: every value
  * here is a token reference — dscheck lints this file in CI and any raw
  * value fails the build. Practice what the linter preaches.
+ *
+ * Typography: a complete system. System faces only (the brand ships as a
+ * font stack, never a font file), 18px base on a 2px leading grid, a fixed
+ * reading measure, and mono reserved for meaning — code, tokens, verdicts,
+ * and the wordmark.
  */
 
 /* ── map Starlight's variables onto the system ──────────────────────── */
@@ -52,35 +57,135 @@
   --sl-text-5xl: var(--text-3xl);
   --sl-line-height: var(--text-base--line-height);
   --sl-line-height-headings: var(--text-2xl--line-height);
+  --sl-content-width: var(--measure);
 
   --sl-shadow-sm: var(--shadow-sm);
   --sl-shadow-md: var(--shadow-md);
   --sl-shadow-lg: var(--shadow-lg);
+
+  /* expressive-code (code blocks) joins the system */
+  --ec-codeFontFml: var(--font-mono);
+  --ec-codeFontSize: var(--text-sm);
+  --ec-codeFontWg: var(--font-weight-normal);
+  --ec-uiFontFml: var(--font-sans);
+  --ec-uiFontSize: var(--text-xs);
+  --ec-brdRad: var(--radius-md);
+  --ec-brdCol: var(--color-border);
 }
 
-/* ── plain, roomy, accessible ───────────────────────────────────────── */
+/* ── base text rendering ────────────────────────────────────────────── */
+body {
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+}
 
+::selection {
+  background-color: var(--color-primary-soft);
+  color: var(--color-ink);
+}
+
+/* focus: unmissable, on-system */
+:focus-visible {
+  outline: var(--spacing-1) solid var(--color-primary);
+  outline-offset: var(--spacing-1);
+}
+
+/* ── body copy ──────────────────────────────────────────────────────── */
 .sl-markdown-content {
   font-size: var(--text-base);
   line-height: var(--text-base--line-height);
   color: var(--color-ink-soft);
 }
 
-.sl-markdown-content h1,
-.sl-markdown-content h2,
-.sl-markdown-content h3,
-.sl-markdown-content h4 {
+.sl-markdown-content p {
+  text-wrap: pretty;
+}
+
+.sl-markdown-content strong {
   color: var(--color-ink);
   font-weight: var(--font-weight-semibold);
 }
 
+/* ── headings: tight tracking, balanced wrap, clear hierarchy ───────── */
+.sl-markdown-content :is(h1, h2, h3, h4, h5, h6),
+.content-panel h1 {
+  color: var(--color-ink);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-tight);
+  text-wrap: balance;
+}
+
 .sl-markdown-content h2 {
+  font-size: var(--text-2xl);
+  line-height: var(--text-2xl--line-height);
   margin-top: var(--spacing-12);
 }
 
-.sl-markdown-content code {
-  border-radius: var(--radius-sm);
+.sl-markdown-content h3 {
+  font-size: var(--text-xl);
+  line-height: var(--text-xl--line-height);
+  margin-top: var(--spacing-8);
+}
+
+.sl-markdown-content h4 {
+  font-size: var(--text-lg);
+  line-height: var(--text-lg--line-height);
+}
+
+.sl-markdown-content :is(h5, h6) {
   font-size: var(--text-sm);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+}
+
+/* headings keep their code at the same optical size */
+.sl-markdown-content :is(h1, h2, h3, h4) code {
+  font-size: var(--text-code-inline);
+  font-weight: inherit;
+}
+
+/* ── links: always underlined (never color-only), calm until touched ── */
+.sl-markdown-content a {
+  color: var(--color-primary);
+  text-decoration-line: underline;
+  text-decoration-color: var(--color-border-strong);
+  text-decoration-thickness: 1px;
+  text-underline-offset: var(--spacing-1);
+  transition: text-decoration-color var(--duration-fast) var(--ease-out);
+}
+
+.sl-markdown-content a:hover {
+  color: var(--color-primary-strong);
+  text-decoration-color: var(--color-primary);
+}
+
+/* ── lists: aligned markers, breathing room ─────────────────────────── */
+.sl-markdown-content :is(ul, ol) {
+  padding-inline-start: var(--spacing-6);
+}
+
+.sl-markdown-content li {
+  margin-block: var(--spacing-2);
+}
+
+.sl-markdown-content li::marker {
+  color: var(--color-ink-faint);
+}
+
+.sl-markdown-content li :is(ul, ol) {
+  margin-block: var(--spacing-2);
+}
+
+/* ── code: mono means machine-checked ───────────────────────────────── */
+.sl-markdown-content code {
+  font-family: var(--font-mono);
+  font-size: var(--text-code-inline);
+  background-color: var(--color-surface-sunken);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding-inline: var(--spacing-1);
+  color: var(--color-ink);
 }
 
 .sl-markdown-content pre {
@@ -88,23 +193,29 @@
   border-color: var(--color-border);
 }
 
-.sl-markdown-content a {
-  color: var(--color-primary);
-  text-underline-offset: var(--spacing-1);
-}
-
-.sl-markdown-content a:hover {
-  color: var(--color-primary-strong);
-}
-
-/* tables: airy rows, quiet chrome */
-.sl-markdown-content table {
+.sl-markdown-content pre code {
+  border: none;
+  background-color: transparent;
   font-size: var(--text-sm);
   line-height: var(--text-sm--line-height);
 }
 
-.sl-markdown-content td,
-.sl-markdown-content th {
+/* expressive-code frames: quiet titles */
+.expressive-code .frame .header,
+.expressive-code figcaption {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-ink-faint);
+}
+
+/* ── tables: hairlines, tabular numbers, airy rows ──────────────────── */
+.sl-markdown-content table {
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  font-variant-numeric: tabular-nums;
+}
+
+.sl-markdown-content :is(td, th) {
   padding: var(--spacing-3) var(--spacing-4);
   border-color: var(--color-border);
 }
@@ -112,9 +223,50 @@
 .sl-markdown-content th {
   color: var(--color-ink);
   font-weight: var(--font-weight-semibold);
+  border-bottom: 1px solid var(--color-border-strong);
+  text-align: start;
 }
 
-/* asides pick up the marks */
+/* ── quotes, rules, keys, details ───────────────────────────────────── */
+.sl-markdown-content blockquote {
+  border-inline-start: var(--spacing-1) solid var(--color-border-strong);
+  padding-inline-start: var(--spacing-4);
+  color: var(--color-ink-soft);
+}
+
+.sl-markdown-content hr {
+  border-color: var(--color-border);
+  margin-block: var(--spacing-12);
+}
+
+.sl-markdown-content kbd {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border-strong);
+  border-bottom-width: var(--spacing-1);
+  border-radius: var(--radius-sm);
+  padding-inline: var(--spacing-2);
+  color: var(--color-ink);
+}
+
+.sl-markdown-content summary {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-ink);
+}
+
+/* ── asides pick up the marks; their type stays quiet ───────────────── */
+.starlight-aside {
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.starlight-aside__title {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
 .starlight-aside--tip {
   border-color: var(--color-success);
   background-color: var(--color-success-soft);
@@ -130,7 +282,7 @@
   background-color: var(--color-danger-soft);
 }
 
-/* cards: raised surfaces, soft corners, room to breathe */
+/* ── cards ──────────────────────────────────────────────────────────── */
 .card {
   border-radius: var(--radius-lg);
   border-color: var(--color-border);
@@ -143,17 +295,31 @@
   color: var(--color-ink);
   font-size: var(--text-lg);
   font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-tight);
 }
 
-/* hero: plain and confident */
+.card .body {
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+/* ── hero: plain and confident; the wordmark rule in the large ──────── */
 [data-has-hero] .hero {
   padding-block: var(--spacing-16);
+}
+
+[data-has-hero] .hero h1 {
+  font-family: var(--font-mono);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-brand);
+  text-transform: lowercase;
 }
 
 [data-has-hero] .hero .tagline {
   color: var(--color-ink-soft);
   font-size: var(--text-xl);
   line-height: var(--text-xl--line-height);
+  text-wrap: balance;
 }
 
 [data-has-hero] .action.primary {
@@ -168,7 +334,12 @@
   background-color: var(--color-primary-strong);
 }
 
-/* sidebar: calm, larger targets */
+/* ── chrome: wordmark, sidebar, toc ─────────────────────────────────── */
+/* the header wordmark is the SVG (typography as artwork-free artwork) */
+.site-title img {
+  height: var(--spacing-6);
+}
+
 nav.sidebar .top-level a {
   font-size: var(--text-sm);
   line-height: var(--text-sm--line-height);
@@ -182,8 +353,41 @@ nav.sidebar .top-level a[aria-current='page'] {
   font-weight: var(--font-weight-medium);
 }
 
-/* focus: unmissable, on-system */
-:focus-visible {
-  outline: var(--spacing-1) solid var(--color-primary);
-  outline-offset: var(--spacing-1);
+/* sidebar group labels: quiet eyebrows */
+nav.sidebar summary .group-label > span {
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+
+/* right-hand toc */
+starlight-toc a {
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+}
+
+starlight-toc a[aria-current='true'] {
+  color: var(--color-primary-strong);
+  font-weight: var(--font-weight-medium);
+}
+
+/* ── print: ink on paper, code wraps ────────────────────────────────── */
+@media print {
+  .sl-markdown-content {
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+  }
+
+  .sl-markdown-content pre,
+  .sl-markdown-content code {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .sl-markdown-content a {
+    color: var(--color-ink);
+    text-decoration-color: var(--color-ink-faint);
+  }
 }
