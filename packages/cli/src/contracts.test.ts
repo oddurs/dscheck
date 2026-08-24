@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { cpSync, mkdtempSync } from 'node:fs';
+import { cpSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -69,5 +69,67 @@ describe('output contracts', () => {
     execFileSync('node', [cli, 'baseline', 'Button.tsx'], { cwd: dir });
     const out = execFileSync('node', [cli, 'check', 'Button.tsx'], { cwd: dir, encoding: 'utf8' });
     expect(out).toContain('baseline');
+  });
+});
+
+/**
+ * W5: the exit-code and failure-mode contract. Frozen per the versioning
+ * policy — a change here is a major, not a refactor.
+ */
+describe('failure modes never look like success (W)', () => {
+  function bare(args: string[], files: Record<string, string> = {}) {
+    const dir = mkdtempSync(join(tmpdir(), 'dscheck-w-'));
+    writeFileSync(join(dir, 'package.json'), '{}');
+    for (const [name, content] of Object.entries(files)) writeFileSync(join(dir, name), content);
+    try {
+      return { out: execFileSync('node', [cli, ...args], { cwd: dir, encoding: 'utf8' }), code: 0 };
+    } catch (error) {
+      const e = error as { stdout?: string; stderr?: string; status?: number };
+      return { out: `${e.stdout ?? ''}${e.stderr ?? ''}`, code: e.status ?? -1 };
+    }
+  }
+
+  it('a project with no design system is not reported as clean', () => {
+    const { out, code } = bare(['check', 'a.css'], { 'a.css': '.a { color: red; }' });
+    expect(code).toBe(2);
+    expect(out).toContain('no design system found');
+    expect(out).toContain('nothing was checked');
+    expect(out).not.toContain('no findings');
+  });
+
+  it('a path with nothing lintable is not reported as clean', () => {
+    const { out, code } = bare(['check', 'nowhere']);
+    expect(code).toBe(2);
+    expect(out).toContain('nothing to check');
+    expect(out).not.toContain('no findings');
+  });
+
+  it('an invalid config is a diagnostic, not a crash', () => {
+    const { out, code } = bare(['check', 'a.css'], {
+      'a.css': '.a { color: red; }',
+      'tokens.css': '@theme { --color-a: #fff; }',
+      'dscheck.config.json': '{"tokens":["tokens.css"],"ignroe":[]}',
+    });
+    expect(code).toBe(2);
+    expect(out).toContain('invalid configuration');
+    expect(out).toContain('did you mean "ignore"');
+    expect(out).not.toContain('    at ');
+  });
+
+  it('unknown flags and commands suggest, never crash', () => {
+    const flag = bare(['check', '--forrmat', 'json']);
+    expect(flag.code).toBe(2);
+    expect(flag.out).toContain('did you mean --format');
+    expect(flag.out).not.toContain('    at ');
+    const command = bare(['chek']);
+    expect(command.code).toBe(2);
+    expect(command.out).toContain('did you mean check');
+    expect(command.out).not.toContain('    at ');
+  });
+
+  it('--version prints the package version', () => {
+    const { out, code } = bare(['--version']);
+    expect(code).toBe(0);
+    expect(out.trim()).toMatch(/^dscheck-cli \d+\.\d+\.\d+$/);
   });
 });

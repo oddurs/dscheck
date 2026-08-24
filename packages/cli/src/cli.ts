@@ -22,6 +22,7 @@ Usage
   dscheck roles --suggest      Propose a roles.json from token names (review, then commit)
 
 Options
+  -v, --version                       Print the version
   --format <pretty|json|agent|sarif>  Output format (default: pretty)
   --since <ref>                       Only lint files changed since a git ref
   --update                            (baseline) prune paid-down entries, never raise counts
@@ -36,25 +37,76 @@ Options
 Findings are also ordinary eslint/stylelint results — in CI, prefer mounting
 eslint-plugin-dscheck and stylelint-dscheck in your existing setup.`;
 
-const { values, positionals } = parseArgs({
-  allowPositionals: true,
-  options: {
-    format: { type: 'string', default: 'pretty' },
-    doctor: { type: 'boolean', default: false },
-    suggest: { type: 'boolean', default: false },
-    json: { type: 'boolean', default: false },
-    category: { type: 'string' },
-    since: { type: 'string' },
-    update: { type: 'boolean', default: false },
-    watch: { type: 'boolean', default: false },
-    write: { type: 'boolean', default: false },
-    'explain-skips': { type: 'boolean', default: false },
-    'no-baseline': { type: 'boolean', default: false },
-    help: { type: 'boolean', short: 'h' },
-  },
-});
+const OPTIONS = {
+  format: { type: 'string', default: 'pretty' },
+  doctor: { type: 'boolean', default: false },
+  suggest: { type: 'boolean', default: false },
+  json: { type: 'boolean', default: false },
+  category: { type: 'string' },
+  since: { type: 'string' },
+  update: { type: 'boolean', default: false },
+  watch: { type: 'boolean', default: false },
+  write: { type: 'boolean', default: false },
+  'explain-skips': { type: 'boolean', default: false },
+  'no-baseline': { type: 'boolean', default: false },
+  help: { type: 'boolean', short: 'h' },
+  version: { type: 'boolean', short: 'v' },
+} as const;
+
+let values: Record<string, string | boolean | undefined>;
+let positionals: string[];
+try {
+  ({ values, positionals } = parseArgs({ allowPositionals: true, options: OPTIONS }) as {
+    values: Record<string, string | boolean | undefined>;
+    positionals: string[];
+  });
+} catch (error) {
+  // W3: an unknown flag is a usage mistake, not a crash — never show a stack.
+  const message = error instanceof Error ? error.message : String(error);
+  const flag = /'([^']+)'/.exec(message)?.[1];
+  const known = Object.keys(OPTIONS);
+  const near = flag && nearest(flag.replace(/^--?/, ''), known);
+  fail(
+    `unknown option ${pc.bold(flag ?? '')}` +
+      (near ? ` — did you mean ${pc.bold(`--${near}`)}?` : '') +
+      `\n\nRun ${pc.bold('dscheck --help')} to see every option.`,
+  );
+}
+
+// W4: config and parse failures are diagnostics, not crashes. Anything that
+// escapes below is a bug in dscheck itself and says so, with a report link.
+process.on('uncaughtException', reportFatal);
+process.on('unhandledRejection', reportFatal);
+
+function reportFatal(error: unknown): never {
+  const message = error instanceof Error ? error.message : String(error);
+  // Errors we raise deliberately read as guidance; everything else is ours.
+  if (/^Invalid .*dscheck\.config\.json/.test(message)) {
+    fail(`${pc.red('invalid configuration')}\n\n  ${message.split('\n').join('\n  ')}`);
+  }
+  if (/ENOENT|EACCES/.test(message)) {
+    fail(`${pc.red('cannot read a file')}\n\n  ${message}`);
+  }
+  console.error(
+    `${pc.red('dscheck crashed')} — this is a bug, and we want it:\n` +
+      '  https://github.com/oddurs/dscheck/issues/new?template=bug.yml\n\n' +
+      `  ${message}\n` +
+      `  ${pc.dim('run with DSCHECK_DEBUG=1 for the full stack')}`,
+  );
+  if (process.env.DSCHECK_DEBUG && error instanceof Error) console.error(error.stack);
+  process.exit(2);
+}
 
 const [command = 'check', ...paths] = positionals;
+
+if (values.version) {
+  const { readFileSync } = fsModule;
+  const manifest = JSON.parse(
+    readFileSync(new URL('../package.json', import.meta.url), 'utf8'),
+  ) as { name: string; version: string };
+  console.log(`${manifest.name} ${manifest.version}`);
+  process.exit(0);
+}
 
 if (values.help || command === 'help') {
   console.log(HELP);
@@ -135,11 +187,38 @@ if (command === 'tokens') {
   process.exit(0);
 }
 
-if (!['check', 'fix', 'baseline', 'report'].includes(command))
-  fail(`Unknown command: ${command}\n\n${HELP}`);
+const COMMANDS = ['check', 'fix', 'baseline', 'report', 'tokens', 'roles', 'init', 'help'];
+if (!['check', 'fix', 'baseline', 'report'].includes(command)) {
+  const near = nearest(command, COMMANDS);
+  fail(
+    `unknown command ${pc.bold(command)}` +
+      (near ? ` — did you mean ${pc.bold(near)}?` : '') +
+      `\n\nRun ${pc.bold('dscheck --help')} to see every command.`,
+  );
+}
 
 let files = expand(paths.length > 0 ? paths : ['.']);
-if (values.since) files = onlyChangedSince(files, values.since);
+if (typeof values.since === 'string') files = onlyChangedSince(files, values.since);
+
+// W1: a run that checked nothing must never read as a clean pass. Silence is
+// only meaningful when it means "checked, and found nothing".
+if (files.length === 0) {
+  const where = paths.length > 0 ? paths.join(', ') : 'the current directory';
+  fail(
+    `${pc.yellow('nothing to check')} — no lintable files under ${where}\n\n` +
+      '  dscheck reads .css, .scss, .jsx, .tsx, .vue, .svelte, .astro and .html\n' +
+      '  Check the path, or pass one explicitly:  dscheck check src',
+  );
+}
+if (!coreModule.indexFor(files[0] as string)) {
+  fail(
+    `${pc.yellow('no design system found')} — ${pc.bold('nothing was checked')}\n\n` +
+      '  dscheck enforces the tokens your project already defines, so it needs a\n' +
+      '  token source: a Tailwind @theme, a :root block, or DTCG JSON.\n\n' +
+      `  Find it automatically:  ${pc.bold('dscheck init')}\n` +
+      '  Or name it yourself:    { "tokens": ["path/to/tokens.css"] }  in dscheck.config.json',
+  );
+}
 const fixing = command === 'fix';
 const findings = fixing
   ? await (await import('./run.js')).lintFiles(files, { fix: true })
@@ -318,7 +397,7 @@ function expand(inputs: string[]): string[] {
         ignore: ['**/node_modules/**', '**/dist/**', '**/.next/**'],
       }))
         out.add(resolve(abs, f));
-    } else {
+    } else if (fsModule.existsSync(abs)) {
       out.add(abs);
     }
   }
@@ -394,6 +473,29 @@ async function render(all: Finding[], format: string): Promise<void> {
       ? pc.green('\n✔ on-system: no findings')
       : `\n${pc.red(`${errors} errors`)}, ${pc.yellow(`${warnings} warnings`)}`,
   );
+}
+
+/** Closest candidate by edit distance, when it is close enough to suggest. */
+function nearest(input: string, candidates: string[]): string | undefined {
+  const distance = (a: string, b: string): number => {
+    let previous = Array.from({ length: b.length + 1 }, (_, j) => j);
+    for (let i = 1; i <= a.length; i++) {
+      const current = [i];
+      for (let j = 1; j <= b.length; j++) {
+        current[j] = Math.min(
+          (previous[j] as number) + 1,
+          (current[j - 1] as number) + 1,
+          (previous[j - 1] as number) + (a[i - 1] === b[j - 1] ? 0 : 1),
+        );
+      }
+      previous = current;
+    }
+    return previous[b.length] as number;
+  };
+  const [best] = candidates
+    .map((candidate) => ({ candidate, d: distance(input, candidate) }))
+    .sort((a, b) => a.d - b.d);
+  return best && best.d <= 3 ? best.candidate : undefined;
 }
 
 function fail(message: string): never {
