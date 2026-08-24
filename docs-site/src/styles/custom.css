@@ -11,8 +11,8 @@
 
 /* ── map Starlight's variables onto the system ──────────────────────── */
 :root,
-[data-theme='light'],
-[data-theme='dark'] {
+[data-theme="light"],
+[data-theme="dark"] {
   --sl-font: var(--font-sans);
   --sl-font-mono: var(--font-mono);
 
@@ -347,7 +347,7 @@ nav.sidebar .top-level a {
   padding-block: var(--spacing-2);
 }
 
-nav.sidebar .top-level a[aria-current='page'] {
+nav.sidebar .top-level a[aria-current="page"] {
   background-color: var(--color-primary-soft);
   color: var(--color-primary-strong);
   font-weight: var(--font-weight-medium);
@@ -368,7 +368,7 @@ starlight-toc a {
   line-height: var(--text-xs--line-height);
 }
 
-starlight-toc a[aria-current='true'] {
+starlight-toc a[aria-current="true"] {
   color: var(--color-primary-strong);
   font-weight: var(--font-weight-medium);
 }
