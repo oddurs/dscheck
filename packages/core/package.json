@@ -1,6 +1,6 @@
 {
   "name": "@dscheck/core",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Design-system token resolver and off-system value matching \u2014 the core of dscheck.",
   "license": "MIT",
   "type": "module",

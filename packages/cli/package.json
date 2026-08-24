@@ -1,6 +1,6 @@
 {
   "name": "dscheck",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "The linter that knows your design system \u2014 check, fix, baseline, and report off-system values.",
   "license": "MIT",
   "type": "module",

@@ -1,6 +1,6 @@
 {
   "name": "@dscheck/eslint-plugin",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "ESLint rules that enforce your design system in JSX, CSS-in-JS, and Tailwind classes.",
   "license": "MIT",
   "type": "module",

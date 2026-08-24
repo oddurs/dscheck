@@ -1,6 +1,6 @@
 {
   "name": "@dscheck/stylelint-plugin",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Stylelint rules that enforce your design system in CSS and SCSS, with exact-match autofix.",
   "license": "MIT",
   "type": "module",
