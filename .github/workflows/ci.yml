@@ -15,7 +15,12 @@ jobs:
       - run: |
           node -e '
             const f = "pnpm-workspace.yaml", fs = require("fs");
-            fs.appendFileSync(f, "\noverrides:\n  eslint: 9.39.0\n  stylelint: 16.25.0\n  tailwindcss: 4.2.0\n  \"@tailwindcss/node\": 4.2.0\n");
+            const pins = "overrides:\n  eslint: 9.39.0\n  stylelint: 16.25.0\n  tailwindcss: 4.2.0\n  \"@tailwindcss/node\": 4.2.0\n";
+            let y = fs.readFileSync(f, "utf8");
+            // merge into an existing overrides block, or append a new one
+            y = y.includes("overrides:\n") ? y.replace("overrides:\n", pins) : y + "\n" + pins;
+            fs.writeFileSync(f, y);
+            console.log(y);
           '
       - run: pnpm install --no-frozen-lockfile
       - run: pnpm build
