@@ -4,7 +4,10 @@ import starlightLinksValidator from 'starlight-links-validator';
 import starlightLlmsTxt from 'starlight-llms-txt';
 
 export default defineConfig({
-  site: 'https://dscheck.dev',
+  // Pages until dscheck.dev is registered — the URL must match reality, or
+  // canonicals, sitemap, and social cards all lie.
+  site: 'https://oddurs.github.io',
+  base: '/dscheck',
   // Q6: inbound links never break — moved pages get a redirect here, forever.
   redirects: {
     '/guides/getting-started/': '/guides/eslint/',

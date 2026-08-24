@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths: ['docs-site/**', 'packages/*/CHANGELOG.md', 'scripts/build-changelog.mjs']
-  workflow_dispatch
+  workflow_dispatch: {}
 permissions:
   contents: read
   pages: write
