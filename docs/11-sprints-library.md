@@ -8,7 +8,7 @@ Correctness gaps first (silent wrongness beats missing features), then the input
 
 ---
 
-## Sprint A — Correctness: the gaps that lie today
+## Sprint A — Correctness — **DONE 2026-08-24** (mode scopes incl. media/:root + themed selectors; clsx/cva/template classes — corpus +44 verified true positives; tolerance/rules plumbing; shorthand named colors; tokens --doctor)
 
 **Goal: no real-world repo shape makes dscheck silently wrong.**
 
@@ -23,7 +23,7 @@ Correctness gaps first (silent wrongness beats missing features), then the input
 
 **Exit:** corpus counts re-pinned with a changelog note per delta; zero known "silently wrong" shapes.
 
-## Sprint B — DTCG & multi-source tokens
+## Sprint B — DTCG & multi-source — **DONE 2026-08-24** (DTCG 2025.10 + legacy dialect, aliases/composites, light+dark mode merge, TS token objects via acorn, roles groundwork; B6 delivered as integration fixtures rather than a corpus repo — no good public DTCG app exists; bonus: tsc --noEmit CI gate, caught 3 latent errors)
 
 **Goal: the concept's promise — "DTCG JSON as a first-class source" — is true.**
 
@@ -38,7 +38,7 @@ Correctness gaps first (silent wrongness beats missing features), then the input
 
 **Exit:** `tokens: ["tokens.json"]` works end-to-end in both plugins and the CLI.
 
-## Sprint C — The `token-role` rule (R7) + role-aware suggestions
+## Sprint C — token-role — **DONE 2026-08-24** (rule + role-aware ranking + `roles --suggest` bootstrap; marketing proposal: 34 tokens)
 
 **Goal: "valid token, wrong job" caught — the family keystone.**
 
@@ -51,7 +51,7 @@ Correctness gaps first (silent wrongness beats missing features), then the input
 
 **Exit:** marketing repo dogfood with roles enabled; at least one real caught misuse.
 
-## Sprint D — Tailwind depth (`@dscheck/tw`)
+## Sprint D — Tailwind depth — **DONE 2026-08-24** (synckit engine bridge, candidate-accurate parsing, no-unknown-class w/ did-you-mean, real autofix p-[12px]→p-3, tw-canary workflow; static regex remains the fallback — corpus repos exercise it since clones have no node_modules)
 
 **Goal: first-class on the stack agents actually use — without owning class parsing.**
 
@@ -65,7 +65,7 @@ Correctness gaps first (silent wrongness beats missing features), then the input
 
 **Exit:** shadcn corpus entry re-run with engine route; findings ≥ as accurate, zero new FPs.
 
-## Sprint E — CSS-in-JS (one flavor, end to end)
+## Sprint E — CSS-in-JS — **DONE 2026-08-24** (styled/emotion tagged templates w/ exact positions + fixes, css() objects, sx props, pseudo nesting, template-local vars; E4 as fixtures — no suitable public styled+css-vars repo found quickly)
 
 **Goal: the styled-components/emotion template literal — the hardest gap the incumbents wontfixed.**
 
@@ -78,7 +78,7 @@ Correctness gaps first (silent wrongness beats missing features), then the input
 
 **Exit:** a styled-components repo lints with accurate positions and the FP budget intact.
 
-## Sprint F — Fix power & daily-driver DX
+## Sprint F — Fix & DX — **DONE 2026-08-24** (dscheck fix: marketing copy 162→64 mechanically; editor suggestions for near-misses; --since; --watch; baseline --update prune-only; tokens query/--json/--category. Deferred: --interactive stepping, disk index cache — revisit on user pull)
 
 **Goal: from detector to eraser of drift.**
 
