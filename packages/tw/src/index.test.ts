@@ -21,7 +21,7 @@ function projectWithTailwind(): string {
   return dir;
 }
 
-describe('@dscheck/tw engine', () => {
+describe('dscheck-tw engine', () => {
   it('parses named, arbitrary, variant-wrapped, and unknown classes', () => {
     resetEngines();
     const dir = projectWithTailwind();
@@ -50,7 +50,7 @@ describe('H3: static parse vs engine differential', () => {
     const dir = projectWithTailwind();
     const parse = engineFor(dir, [join(dir, 'app.css')]);
     expect(parse).toBeDefined();
-    const { loadCssTokens } = await import('@dscheck/core');
+    const { loadCssTokens } = await import('dscheck-core');
     const staticIndex = loadCssTokens([join(dir, 'app.css')]);
     // Our declared tokens must exist in the static index with exact values,
     // and the engine must produce css for utilities derived from them —

@@ -1,4 +1,4 @@
-# @dscheck/sarif
+# dscheck-sarif
 
 ## 0.1.0
 

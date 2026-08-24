@@ -4,7 +4,7 @@ import * as fsModule from 'node:fs';
 import { statSync } from 'node:fs';
 import { relative, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
-import * as coreModule from '@dscheck/core';
+import * as coreModule from 'dscheck-core';
 import pc from 'picocolors';
 import { globSync } from 'tinyglobby';
 import { lintFilesParallel } from './pool.js';
@@ -32,7 +32,7 @@ Options
   -h, --help                          Show help
 
 Findings are also ordinary eslint/stylelint results — in CI, prefer mounting
-@dscheck/eslint-plugin and @dscheck/stylelint-plugin in your existing setup.`;
+eslint-plugin-dscheck and stylelint-dscheck in your existing setup.`;
 
 const { values, positionals } = parseArgs({
   allowPositionals: true,
@@ -59,7 +59,7 @@ if (values.help || command === 'help') {
 }
 
 if (command === 'roles') {
-  const { indexFor } = await import('@dscheck/core');
+  const { indexFor } = await import('dscheck-core');
   const index = indexFor(resolve('.'));
   if (!index) fail('No design system found.');
   const HEURISTICS: Array<[RegExp, string[]]> = [
@@ -89,7 +89,7 @@ if (command === 'roles') {
 }
 
 if (command === 'tokens') {
-  const { indexFor } = await import('@dscheck/core');
+  const { indexFor } = await import('dscheck-core');
   const index = indexFor(resolve('.'));
   if (!index) fail('No design system found (no dscheck.config.json or @theme/:root css).');
   if (values.doctor) {
@@ -190,7 +190,7 @@ function explainSkips(linted: string[]): void {
   row(mathLiterals, 'calc()/clamp()/min()/max() occurrences (fluid values are a design decision)');
 }
 
-function coreSync(): typeof import('@dscheck/core') {
+function coreSync(): typeof import('dscheck-core') {
   return coreModule;
 }
 
@@ -345,7 +345,7 @@ function isDir(path: string): boolean {
 
 async function render(all: Finding[], format: string): Promise<void> {
   if (format === 'sarif') {
-    const { toSarif } = await import('@dscheck/sarif'); // deferred: keeps the hook path light
+    const { toSarif } = await import('dscheck-sarif'); // deferred: keeps the hook path light
     console.log(JSON.stringify(toSarif(all), null, 2));
     return;
   }

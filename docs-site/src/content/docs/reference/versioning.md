@@ -28,7 +28,7 @@ versions accordingly.
   with `dscheckFingerprint`, exit codes (`0` clean / `1` errors / `2` usage)
 - `.dscheck-baseline.json`: per-file/per-rule counts, count-rise-reports-all semantics,
   `--update` prune-only monotonicity
-- The public exports of `@dscheck/core` (snapshot-tested)
+- The public exports of `dscheck-core` (snapshot-tested)
 
 All of the above are enforced by contract tests in CI — a violation cannot ship
 accidentally; it has to arrive as a reviewed, versioned decision.

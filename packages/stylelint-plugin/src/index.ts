@@ -8,7 +8,7 @@ import {
   type RuleId,
   toleranceFor,
   type Violation,
-} from '@dscheck/core';
+} from 'dscheck-core';
 import type { Declaration, Root } from 'postcss';
 import stylelint, { type PostcssResult, type Rule } from 'stylelint';
 
@@ -113,7 +113,7 @@ export default rules;
 /** Everything on, error severity — the strict starting point. */
 export const configs = {
   recommended: {
-    plugins: ['@dscheck/stylelint-plugin'],
+    plugins: ['stylelint-dscheck'],
     rules: {
       'dscheck/no-raw-color': true,
       'dscheck/no-unknown-token': true,

@@ -1,11 +1,11 @@
-# @dscheck/stylelint-plugin
+# stylelint-dscheck
 
 Stylelint rules that enforce **your** design system in CSS and SCSS.
 
 ```js
 // stylelint.config.js
 export default {
-  plugins: ['@dscheck/stylelint-plugin'],
+  plugins: ['stylelint-dscheck'],
   rules: {
     'dscheck/no-raw-color': true,
     'dscheck/no-unknown-token': true,

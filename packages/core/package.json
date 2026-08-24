@@ -1,5 +1,5 @@
 {
-  "name": "@dscheck/core",
+  "name": "dscheck-core",
   "version": "0.1.0",
   "description": "Design-system token resolver and off-system value matching \u2014 the core of dscheck.",
   "license": "MIT",
@@ -55,7 +55,6 @@
     "url": "https://github.com/oddurs/dscheck/issues"
   },
   "publishConfig": {
-    "access": "public",
-    "provenance": true
+    "access": "public"
   }
 }

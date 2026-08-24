@@ -10,11 +10,11 @@ Open-source excellence for a linter is **trust**, earned four ways: it installs 
 
 ## Sprint 1 — Installable excellence — **PREP DONE 2026-08-24** (metadata + per-package READMEs/LICENSE on all six, publint clean, changesets + OIDC release workflow armed behind RELEASES_ENABLED, install smoke-matrix packing real tarballs, dscheck GitHub Action published in-repo). 🔒 Remaining: `npm login` → claim, trusted-publisher setup, first release — see RUNBOOK 'First release'
 
-**Goal: `pnpm add -D @dscheck/eslint-plugin` is flawless on every runtime we claim.**
+**Goal: `pnpm add -D eslint-plugin-dscheck` is flawless on every runtime we claim.**
 
 | # | ticket | verify |
 |---|---|---|
-| 1.1 | Claim `dscheck` + `@dscheck/*`; npm **trusted publishing (OIDC) + provenance**, no long-lived tokens | provenance badge on package page |
+| 1.1 | Claim the unscoped names (`dscheck`, `eslint-plugin-dscheck`, `stylelint-dscheck`, `dscheck-core`, `dscheck-sarif`, `dscheck-tw`); npm **trusted publishing (OIDC) + provenance**, no long-lived tokens | provenance badge on package page |
 | 1.2 | Package metadata: description, keywords, `repository`/`homepage`/`bugs`, `funding`, exports maps | `publint` + `arethetypeswrong` clean on all 5 packages |
 | 1.3 | changesets release flow: release PR → tag → publish → GitHub Release notes | one dry-run + one real 0.1.0 release |
 | 1.4 | Install smoke-test in CI: npm/pnpm/yarn/bun × node 20/22/24 — fresh project, install, first finding | matrix green; M2 (<5 min to first finding) timed in CI |

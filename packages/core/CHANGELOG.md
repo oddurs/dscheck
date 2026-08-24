@@ -1,4 +1,4 @@
-# @dscheck/core
+# dscheck-core
 
 ## 0.1.0
 

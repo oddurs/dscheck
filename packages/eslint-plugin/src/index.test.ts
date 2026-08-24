@@ -31,7 +31,7 @@ function lint(code: string) {
   );
 }
 
-describe('@dscheck/eslint-plugin', () => {
+describe('eslint-plugin-dscheck', () => {
   it('flags raw colors and numeric px lengths in style objects', () => {
     const messages = lint('const a = <div style={{ color: "#1d4ed8", padding: 14 }} />;');
     expect(messages.map((m) => m.ruleId).sort()).toEqual([
@@ -252,12 +252,12 @@ describe('engine-loss fallback guarantee (L2)', () => {
 describe('engine failure degrades, never crashes (review hardening)', () => {
   it('an engine that dies mid-run falls back to the static path', async () => {
     const { checkClassString } = await import('../dist/index.js');
-    const { indexFor } = await import('@dscheck/core');
+    const { indexFor } = await import('dscheck-core');
     const index = indexFor(join(dir, 'component.tsx'));
     if (!index) throw new Error('no index');
     const ctx = { index };
 
-    // engine retired (returns undefined, as @dscheck/tw does after a throw)
+    // engine retired (returns undefined, as dscheck-tw does after a throw)
     const degraded = checkClassString('p-[13px] bg-brnad', ctx, () => undefined);
     // arbitrary values still caught by the regex path…
     expect(degraded.some((v) => v.value === '13px')).toBe(true);

@@ -26,12 +26,12 @@
 ```
 dscheck/                      (github: dscheck-dev — or org-claim outcome)
 ├─ packages/
-│  ├─ core/                     @dscheck/core        resolver, value index, matchers, IR, finding type
-│  ├─ eslint-plugin/            @dscheck/eslint-plugin
-│  ├─ stylelint-plugin/         @dscheck/stylelint-plugin
+│  ├─ core/                     dscheck-core        resolver, value index, matchers, IR, finding type
+│  ├─ eslint-plugin/            eslint-plugin-dscheck
+│  ├─ stylelint-plugin/         stylelint-dscheck
 │  ├─ cli/                      dscheck              check / baseline / report / init / (mcp P3)
-│  ├─ sarif/                    @dscheck/sarif       SARIF builder + the standalone stylelint SARIF formatter
-│  └─ tw/                       @dscheck/tw          Tailwind theme loading + candidate parsing isolation layer
+│  ├─ sarif/                    dscheck-sarif       SARIF builder + the standalone stylelint SARIF formatter
+│  └─ tw/                       dscheck-tw          Tailwind theme loading + candidate parsing isolation layer
 ├─ action/                      dscheck/action       composite GitHub Action (marketplace)
 ├─ integrations/                hook + recipe snippets: claude-code/, cursor/, lint-staged/, pre-commit/, reviewdog/
 ├─ fixtures/                    token sets + code samples (rule snapshot corpus)
@@ -60,14 +60,14 @@ Isolation rules: only `tw/` imports Tailwind internals; only adapters import hos
 
 | concern | solution | cost |
 |---|---|---|
-| Registries | npm `dscheck` + `@dscheck/*` (claim in Phase 0); GitHub org per name-claim outcome | $0 |
+| Registries | npm: unscoped conventional names (`dscheck`, `eslint-plugin-dscheck`, `stylelint-dscheck`, `dscheck-core`, `dscheck-sarif`, `dscheck-tw`) — the `dscheck` org name was taken, and unscoped matches ESLint/stylelint plugin convention anyway | $0 |
 | Publishing | GitHub Actions + npm **trusted publishing (OIDC) + provenance**; no long-lived tokens; changesets release PR flow | $0 |
 | CI | GitHub Actions (free, public repo). Matrix: Node 20/22/24 × ubuntu/macos/windows; peer matrix: eslint 9/10, stylelint 16/17, TW v4 minors pinned+latest | $0 |
 | **Corpus CI** (the important one) | nightly job lints ~10 pinned real-world OSS Tailwind/DTCG repos; diffs finding-counts against committed expectations; any jump = FP regression, fails the job. This is how the N2 <5% FP budget is *enforced*, not hoped | $0 |
 | Perf gate | vitest bench on fixture repo in CI; budget N1 asserted, not eyeballed | $0 |
 | Docs | Starlight → Cloudflare Pages (or GH Pages) | $0 |
 | Domain | dscheck.dev via Cloudflare Registrar | ~$12/yr |
-| Playground (P3) | static page, `@dscheck/core` in-browser (paste tokens + code → findings); no backend | $0 |
+| Playground (P3) | static page, `dscheck-core` in-browser (paste tokens + code → findings); no backend | $0 |
 | Telemetry / analytics | **none** in the tool (N4). Docs site: Cloudflare's aggregate analytics only | $0 |
 | Security | Dependabot/Renovate, `pnpm audit` in CI, 2FA everywhere, SECURITY.md | $0 |
 | Support | GitHub issues + discussions; FP report template auto-asks for token source + snippet → becomes a corpus case | $0 |

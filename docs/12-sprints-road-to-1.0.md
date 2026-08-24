@@ -66,7 +66,7 @@
 | J2 | **Output contracts**: JSON + agent-NDJSON schemas published and schema-validated in tests; SARIF snapshot; exit codes specified; `--format` outputs never write to stderr noise | contract test suite |
 | J3 | **Baseline invariants as property tests**: absorb ≤ accepted, count-rise reports all, `--update` monotonically non-increasing, stable across file renames (documented behavior) and git merges (counts, no lines — test the merge story) | fast-check suite |
 | J4 | **Semver policy finalized** (new findings = minor, changed defaults/messages-shape = major, message *text* = patch), deprecation policy, and the freeze list (rule ids, config keys, formats) on one docs page | policy page live; CHANGELOG template references it |
-| J5 | **Public API snapshot**: exported surface of `@dscheck/core` and both plugins snapshot-tested — accidental API change fails CI | api snapshot committed |
+| J5 | **Public API snapshot**: exported surface of `dscheck-core` and both plugins snapshot-tested — accidental API change fails CI | api snapshot committed |
 
 **Exit:** a script written against 0.x output/config keeps working, verifiably, through 1.0.
 

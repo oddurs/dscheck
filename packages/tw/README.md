@@ -1,4 +1,4 @@
-# @dscheck/tw
+# dscheck-tw
 
 Tailwind engine bridge for [dscheck](https://dscheck.dev). Loads the *target repository's*
 own Tailwind installation to parse class candidates exactly as Tailwind does — variants,

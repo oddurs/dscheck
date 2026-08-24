@@ -1,5 +1,5 @@
 {
-  "name": "@dscheck/tw",
+  "name": "dscheck-tw",
   "version": "0.1.0",
   "description": "Tailwind engine bridge for dscheck \u2014 candidate parsing and theme via Tailwind itself.",
   "license": "MIT",
@@ -20,7 +20,7 @@
     "synckit": "^0.11.0"
   },
   "devDependencies": {
-    "@dscheck/core": "workspace:*",
+    "dscheck-core": "workspace:*",
     "tailwindcss": "^4.2.0",
     "tsdown": "^0.15.0"
   },
@@ -48,7 +48,6 @@
     "url": "https://github.com/oddurs/dscheck/issues"
   },
   "publishConfig": {
-    "access": "public",
-    "provenance": true
+    "access": "public"
   }
 }

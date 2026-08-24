@@ -16,8 +16,8 @@ npx dscheck check src
 
 - `dscheck check` · `fix` · `baseline` · `report` · `tokens` · `roles --suggest`
 - `--format pretty|json|agent|sarif` — `agent` is NDJSON built for coding-agent loops
-- Prefer the editor/CI path? Mount [`@dscheck/eslint-plugin`](https://www.npmjs.com/package/@dscheck/eslint-plugin)
-  and [`@dscheck/stylelint-plugin`](https://www.npmjs.com/package/@dscheck/stylelint-plugin)
+- Prefer the editor/CI path? Mount [`eslint-plugin-dscheck`](https://www.npmjs.com/package/eslint-plugin-dscheck)
+  and [`stylelint-dscheck`](https://www.npmjs.com/package/stylelint-dscheck)
   in the linters you already run.
 
 Full documentation: **https://dscheck.dev** · MIT licensed.

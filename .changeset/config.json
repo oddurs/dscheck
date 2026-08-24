@@ -5,5 +5,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["@dscheck/docs", "dscheck-monorepo"]
+  "ignore": ["dscheck-docs", "dscheck-monorepo"]
 }

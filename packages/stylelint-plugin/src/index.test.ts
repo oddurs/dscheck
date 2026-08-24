@@ -26,7 +26,7 @@ async function lint(css: string) {
   return result.results[0]?.warnings ?? [];
 }
 
-describe('@dscheck/stylelint-plugin', () => {
+describe('stylelint-dscheck', () => {
   it('reports raw colors with the nearest token', async () => {
     const warnings = await lint('.a { color: #1d4ed8; }');
     expect(warnings).toHaveLength(1);

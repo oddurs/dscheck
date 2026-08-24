@@ -82,7 +82,7 @@ function checkFile(file) {
       }
     }
     // every rule reference is a real rule
-    // rule references only — not package names (@dscheck/core) or repo paths
+    // rule references only — not package names (dscheck-core) or repo paths
     // (oddurs/dscheck/action)
     for (const rule of body.matchAll(/(?<![@/\w])dscheck\/([\w-]+)/g)) {
       checkedBlocks++;

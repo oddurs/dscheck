@@ -1,5 +1,5 @@
 # Tracks Tailwind API churn (loadDesignSystem/parseCandidate are unstable APIs).
-# Allowed to fail — failure means "adapt @dscheck/tw before the next TW release".
+# Allowed to fail — failure means "adapt dscheck-tw before the next TW release".
 name: tw-canary
 on:
   schedule: [{ cron: '45 4 * * 1' }]
@@ -14,6 +14,6 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with: { node-version: 22, cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @dscheck/tw add tailwindcss@next @tailwindcss/node@next
+      - run: pnpm --filter dscheck-tw add tailwindcss@next @tailwindcss/node@next
       - run: pnpm build
       - run: pnpm exec vitest run packages/tw packages/eslint-plugin

@@ -1,5 +1,5 @@
 import { createRequire } from 'node:module';
-import { findConfig } from '@dscheck/core';
+import { findConfig } from 'dscheck-core';
 
 export interface Finding {
   file: string;
@@ -81,7 +81,7 @@ async function lintCssWith(
     files: files.map((f) => f.replaceAll('\\', '/')), // stylelint globs; windows backslashes would escape
     fix,
     config: {
-      plugins: [require.resolve('@dscheck/stylelint-plugin')],
+      plugins: [require.resolve('stylelint-dscheck')],
       rules,
       ...(customSyntax ? { customSyntax: require.resolve(customSyntax) } : {}),
     },
@@ -108,7 +108,7 @@ async function lintCssWith(
 async function lintJsx(files: string[], fix: boolean): Promise<Finding[]> {
   const { Linter } = await import('eslint');
   const { readFileSync } = await import('node:fs');
-  const { default: plugin } = await import('@dscheck/eslint-plugin');
+  const { default: plugin } = await import('eslint-plugin-dscheck');
   const { default: tsParser } = await import('@typescript-eslint/parser');
   const linter = new Linter({ cwd: '/' });
   const severities = severitiesFor(files[0]);

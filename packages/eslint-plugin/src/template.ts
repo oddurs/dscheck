@@ -1,4 +1,4 @@
-import { type CheckContext, checkDeclaration, type Violation } from '@dscheck/core';
+import { type CheckContext, checkDeclaration, type Violation } from 'dscheck-core';
 
 export interface TemplateViolation extends Violation {
   /** Absolute source offset where the offending value starts. */

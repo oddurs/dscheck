@@ -16,11 +16,11 @@ Every existing "use a token" linter either accepts *any* `var()` without knowing
 
 | package | what |
 |---|---|
-| `@dscheck/core` | token resolver (`@theme`, `:root`, alias chains, Tailwind default theme) + matchers (ΔEOK color distance, scale steps, name edit-distance) |
-| `@dscheck/eslint-plugin` | JSX `style={{}}`, referenced style maps, palette-const folding, Tailwind arbitrary values (`p-[13px]` → *class: p-3*) |
-| `@dscheck/stylelint-plugin` | CSS/SCSS declarations, exact-match autofix |
+| `dscheck-core` | token resolver (`@theme`, `:root`, alias chains, Tailwind default theme) + matchers (ΔEOK color distance, scale steps, name edit-distance) |
+| `eslint-plugin-dscheck` | JSX `style={{}}`, referenced style maps, palette-const folding, Tailwind arbitrary values (`p-[13px]` → *class: p-3*) |
+| `stylelint-dscheck` | CSS/SCSS declarations, exact-match autofix |
 | `dscheck` (CLI) | `check` / `baseline` / `report` / `tokens`; `--format pretty|json|agent|sarif` |
-| `@dscheck/sarif` | SARIF 2.1.0 with stable fingerprints; standalone stylelint SARIF formatter |
+| `dscheck-sarif` | SARIF 2.1.0 with stable fingerprints; standalone stylelint SARIF formatter |
 
 ## Rules
 

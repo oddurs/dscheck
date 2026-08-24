@@ -1,4 +1,4 @@
-# @dscheck/stylelint-plugin
+# stylelint-dscheck
 
 ## 0.1.0
 
@@ -23,4 +23,4 @@
 ### Patch Changes
 
 - Updated dependencies
-  - @dscheck/core@0.1.0
+  - dscheck-core@0.1.0

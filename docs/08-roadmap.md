@@ -13,9 +13,9 @@
 
 Scope = the demo, nothing else (FR1 minus roles, R1–R3, MVP surfaces, agent format, hook).
 
-1. `@dscheck/core`: resolver (@theme via TW engine + static fallback, DTCG, :root) → value index; matchers (ΔEOK via culori, scale steps, Levenshtein). → verify: unit tests on fixture token sets incl. alias cycles, mode flattening.
-2. `@dscheck/stylelint-plugin`: R1–R3 on CSS/SCSS declarations. → verify: fixture snapshots + run on dogfood repo.
-3. `@dscheck/eslint-plugin`: R1–R3 on JSX `style={{}}`; Tailwind classname strings for R1/R2 literals only (arbitrary-class waits for P2). → verify: same.
+1. `dscheck-core`: resolver (@theme via TW engine + static fallback, DTCG, :root) → value index; matchers (ΔEOK via culori, scale steps, Levenshtein). → verify: unit tests on fixture token sets incl. alias cycles, mode flattening.
+2. `stylelint-dscheck`: R1–R3 on CSS/SCSS declarations. → verify: fixture snapshots + run on dogfood repo.
+3. `eslint-plugin-dscheck`: R1–R3 on JSX `style={{}}`; Tailwind classname strings for R1/R2 literals only (arbitrary-class waits for P2). → verify: same.
 4. `dscheck` CLI: `check` (drives the hosts), `--format pretty|json|agent`. → verify: NDJSON schema test.
 5. Claude Code `PostToolUse` hook + docs snippet. → verify: **M1 demo run** — record the with/without numbers.
 - ✅ Exit: M1 achieved (0 vs N≥10) on a real repo; M2 rehearsed on a second repo; FP eyeball-pass on both.

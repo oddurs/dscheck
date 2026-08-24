@@ -3,7 +3,7 @@
 *O2: every runtime dependency justified, reviewed yearly (RUNBOOK ritual). Criteria for
 vendoring a dep: single-maintainer AND tiny AND stable. Last review: 2026-08-24.*
 
-## Runtime (`@dscheck/core`)
+## Runtime (`dscheck-core`)
 
 | dep | why | posture |
 |---|---|---|
@@ -19,8 +19,8 @@ vendoring a dep: single-maintainer AND tiny AND stable. Last review: 2026-08-24.
 
 | dep | why | posture |
 |---|---|---|
-| `synckit` (`@dscheck/tw`) | sync bridge over Tailwind's async engine for eslint rules | the standard for this problem (prettier plugins use it) |
-| `@tailwindcss/node` (`@dscheck/tw`) | the engine itself — candidate parsing via Tailwind's own code, never reimplemented | isolated to `packages/tw`; static fallback removes hard dependence |
+| `synckit` (`dscheck-tw`) | sync bridge over Tailwind's async engine for eslint rules | the standard for this problem (prettier plugins use it) |
+| `@tailwindcss/node` (`dscheck-tw`) | the engine itself — candidate parsing via Tailwind's own code, never reimplemented | isolated to `packages/tw`; static fallback removes hard dependence |
 | `eslint` / `stylelint` / `@typescript-eslint/parser` (CLI) | the CLI drives the real hosts so findings match editors exactly | by design |
 | `picocolors` | terminal color | trivial; vendor candidate |
 | `postcss-scss` (CLI) | scss customSyntax for the stylelint run | as above |

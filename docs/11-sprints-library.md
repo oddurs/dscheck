@@ -57,7 +57,7 @@ Correctness gaps first (silent wrongness beats missing features), then the input
 
 | # | ticket | verify |
 |---|---|---|
-| D1 | `@dscheck/tw` package: `loadDesignSystem` from the *target repo's* Tailwind install (isolation layer per 09; static parse remains the fallback) | works in a repo with TW plugins/custom utilities |
+| D1 | `dscheck-tw` package: `loadDesignSystem` from the *target repo's* Tailwind install (isolation layer per 09; static parse remains the fallback) | works in a repo with TW plugins/custom utilities |
 | D2 | Candidate-accurate arbitrary parsing via TW's own `parseCandidate` (replaces the regex): variants, modifiers, negative values, `text-[…]` type disambiguation | regex parser deleted; tests ported |
 | D3 | **Real autofix** `p-[12px]` → `p-3` (eslint fixer inside the string literal), exact matches only | fix-applied snapshots |
 | D4 | Unknown-utility detection (`bg-primry` → did you mean `bg-primary`) when the engine is available | test + corpus check for FP noise |

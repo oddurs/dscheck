@@ -1,10 +1,10 @@
-# @dscheck/eslint-plugin
+# eslint-plugin-dscheck
 
 ESLint rules that enforce **your** design system — not just "use a variable".
 
 ```js
 // eslint.config.js
-import dscheck from '@dscheck/eslint-plugin';
+import dscheck from 'eslint-plugin-dscheck';
 
 export default [dscheck.configs.recommended];
 ```

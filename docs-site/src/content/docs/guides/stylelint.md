@@ -5,14 +5,14 @@ sidebar: { order: 3 }
 ---
 
 ```bash
-pnpm add -D @dscheck/stylelint-plugin
+pnpm add -D stylelint-dscheck
 ```
 
 ```js
 // stylelint.config.js (stylelint ≥ 16)
 export default {
   extends: [],
-  plugins: ['@dscheck/stylelint-plugin'],
+  plugins: ['stylelint-dscheck'],
   rules: {
     'dscheck/no-raw-color': true,
     'dscheck/no-unknown-token': true,

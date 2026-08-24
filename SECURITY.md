@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-The latest published minor of every `@dscheck/*` package and the `dscheck` CLI.
+The latest published minor of every published `dscheck-*` package (`dscheck`, `dscheck-core`, `eslint-plugin-dscheck`, `stylelint-dscheck`, `dscheck-sarif`, `dscheck-tw`).
 
 ## Reporting a vulnerability
 
@@ -24,7 +24,7 @@ which shapes what counts as a vulnerability:
 - **It never executes your code.** TypeScript token objects are *statically evaluated*
   (parsed with acorn, literals read from the AST) — never imported or run.
 - **The one exception is deliberate**: when your project has Tailwind installed,
-  `@dscheck/tw` loads Tailwind's own design system in a worker, which executes your
+  `dscheck-tw` loads Tailwind's own design system in a worker, which executes your
   Tailwind config and its plugins — the same code your build already runs. Engine
   failures are contained and degrade to the static path.
 

@@ -23,7 +23,7 @@
 ### Patch Changes
 
 - Updated dependencies
-  - @dscheck/core@0.1.0
-  - @dscheck/eslint-plugin@0.1.0
-  - @dscheck/stylelint-plugin@0.1.0
-  - @dscheck/sarif@0.1.0
+  - dscheck-core@0.1.0
+  - eslint-plugin-dscheck@0.1.0
+  - stylelint-dscheck@0.1.0
+  - dscheck-sarif@0.1.0

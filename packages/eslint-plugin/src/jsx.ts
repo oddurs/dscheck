@@ -1,4 +1,4 @@
-import { type CheckContext, checkDeclaration, nearestName, type Violation } from '@dscheck/core';
+import { type CheckContext, checkDeclaration, nearestName, type Violation } from 'dscheck-core';
 
 /** camelCase style-object key → CSS property. */
 export function toCssProperty(key: string): string {

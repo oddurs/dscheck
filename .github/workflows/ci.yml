@@ -40,7 +40,7 @@ jobs:
       - run: node scripts/docs-snippets.mjs
       - run: node scripts/prose-lint.mjs
       - run: node scripts/contrast-audit.mjs
-      - run: pnpm --filter @dscheck/docs build
+      - run: pnpm --filter dscheck-docs build
   test:
     strategy:
       matrix:

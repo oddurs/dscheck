@@ -4,16 +4,16 @@ description: Where things live and where a new rule goes.
 ---
 
 ```text
-@dscheck/core          resolver + matchers + checker  (host-agnostic, browser-safe)
+dscheck-core          resolver + matchers + checker  (host-agnostic, browser-safe)
 ├─ css-source.ts       @theme/:root loader, var() alias chains, TW default theme merge
 ├─ config.ts           config discovery, ignore/allow globs, mtime-cached index
 ├─ match.ts            ΔEOK color distance (alpha-aware), scale steps, edit distance
 └─ check.ts            checkDeclaration(prop, value, ctx) → Violation[]   ← rules live here
 
-@dscheck/eslint-plugin     thin adapter: JSX walk → checkDeclaration, host reporting/fixing
-@dscheck/stylelint-plugin  thin adapter: decl walk → checkDeclaration, host reporting/fixing
+eslint-plugin-dscheck     thin adapter: JSX walk → checkDeclaration, host reporting/fixing
+stylelint-dscheck  thin adapter: decl walk → checkDeclaration, host reporting/fixing
 dscheck (CLI)              drives the hosts; adds baseline/report/SARIF/agent + worker pool
-@dscheck/sarif             SARIF builder + standalone stylelint formatter
+dscheck-sarif             SARIF builder + standalone stylelint formatter
 ```
 
 **Adding a rule:** implement it in `core/check.ts` (add the `RuleId`, return `Violation`s

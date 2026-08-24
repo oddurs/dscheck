@@ -1,5 +1,5 @@
 {
-  "name": "@dscheck/docs",
+  "name": "dscheck-docs",
   "private": true,
   "type": "module",
   "scripts": {

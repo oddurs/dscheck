@@ -1,4 +1,4 @@
-# @dscheck/eslint-plugin
+# eslint-plugin-dscheck
 
 ## 0.1.0
 
@@ -23,5 +23,5 @@
 ### Patch Changes
 
 - Updated dependencies
-  - @dscheck/core@0.1.0
-  - @dscheck/tw@0.1.0
+  - dscheck-core@0.1.0
+  - dscheck-tw@0.1.0

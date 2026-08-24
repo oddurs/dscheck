@@ -5,12 +5,12 @@ sidebar: { order: 2 }
 ---
 
 ```bash
-pnpm add -D @dscheck/eslint-plugin
+pnpm add -D eslint-plugin-dscheck
 ```
 
 ```js
 // eslint.config.js (flat config, eslint ≥ 9)
-import dscheck from '@dscheck/eslint-plugin';
+import dscheck from 'eslint-plugin-dscheck';
 
 export default [
   // …your existing config

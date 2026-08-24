@@ -1,4 +1,4 @@
-# @dscheck/tw
+# dscheck-tw
 
 ## 0.1.0
 

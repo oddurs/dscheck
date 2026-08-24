@@ -8,8 +8,8 @@ import {
   type RuleId,
   tokenFilesFor,
   toleranceFor,
-} from '@dscheck/core';
-import { engineFor } from '@dscheck/tw';
+} from 'dscheck-core';
+import { engineFor } from 'dscheck-tw';
 import type { Rule } from 'eslint';
 import { checkClassString, checkStyleEntry } from './jsx.js';
 import { checkTemplate } from './template.js';
@@ -369,7 +369,7 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
 }
 
 const plugin = {
-  meta: { name: '@dscheck/eslint-plugin', version: '0.0.0' },
+  meta: { name: 'eslint-plugin-dscheck', version: '0.0.0' },
   rules: Object.fromEntries(RULES.map((id) => [id, createRule(id)])),
   /** Filled below — flat-config presets reference the plugin object itself. */
   configs: {} as Record<string, unknown>,
@@ -377,7 +377,7 @@ const plugin = {
 
 export default plugin;
 
-/** Flat-config preset: `import dscheck from '@dscheck/eslint-plugin'` → `dscheck.configs.recommended`. */
+/** Flat-config preset: `import dscheck from 'eslint-plugin-dscheck'` → `dscheck.configs.recommended`. */
 export const configs = plugin.configs as unknown as Record<string, unknown> & {
   recommended: unknown;
 };

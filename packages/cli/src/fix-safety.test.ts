@@ -75,7 +75,7 @@ describe('suggestion honesty (I2)', () => {
   it('every emitted fix token exists in the allowed set', async () => {
     const dir = copyProject();
     const findings = await lintFiles([join(dir, 'Button.tsx')]);
-    const { indexFor } = await import('@dscheck/core');
+    const { indexFor } = await import('dscheck-core');
     const index = indexFor(join(dir, 'Button.tsx'));
     if (!index) throw new Error('no index');
     for (const f of findings) {

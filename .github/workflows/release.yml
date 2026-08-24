@@ -30,6 +30,8 @@ jobs:
           publish: pnpm changeset publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # provenance needs the OIDC attestation only CI can produce
+          NPM_CONFIG_PROVENANCE: 'true'
       - uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1
         if: vars.RELEASES_ENABLED != 'true'
         env:

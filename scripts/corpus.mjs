@@ -108,7 +108,13 @@ for (const repo of corpus.repos) {
     .map((h) => h.msPerFile)
     .sort((a, b) => a - b);
   const median = trailing.length >= 3 ? trailing[Math.floor(trailing.length / 2)] : undefined;
-  const trendOk = median === undefined || msPerFile <= Math.max(median * 2, 1);
+  // Below ~2ms/file the measurement is dominated by machine noise (other work
+  // on the box moves it several-fold), so the trend gate would cry wolf. The
+  // absolute budget still applies everywhere; the trend only judges runs big
+  // enough to mean something.
+  const NOISE_FLOOR_MS = 2;
+  const trendApplies = median !== undefined && median >= NOISE_FLOOR_MS && files >= 100;
+  const trendOk = !trendApplies || msPerFile <= median * 2;
   if (!countsOk || !budgetOk || !trendOk) regression = true;
 
   const byRule = {};

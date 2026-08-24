@@ -1,5 +1,5 @@
 {
-  "name": "@dscheck/stylelint-plugin",
+  "name": "stylelint-dscheck",
   "version": "0.1.0",
   "description": "Stylelint rules that enforce your design system in CSS and SCSS, with exact-match autofix.",
   "license": "MIT",
@@ -16,7 +16,7 @@
     "build": "tsdown src/index.ts --dts"
   },
   "dependencies": {
-    "@dscheck/core": "workspace:*"
+    "dscheck-core": "workspace:*"
   },
   "peerDependencies": {
     "stylelint": ">=16"
@@ -51,7 +51,6 @@
     "url": "https://github.com/oddurs/dscheck/issues"
   },
   "publishConfig": {
-    "access": "public",
-    "provenance": true
+    "access": "public"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "@dscheck/sarif",
+  "name": "dscheck-sarif",
   "version": "0.1.0",
   "description": "SARIF 2.1.0 output for dscheck, plus a standalone stylelint SARIF formatter.",
   "license": "MIT",
@@ -45,7 +45,6 @@
     "url": "https://github.com/oddurs/dscheck/issues"
   },
   "publishConfig": {
-    "access": "public",
-    "provenance": true
+    "access": "public"
   }
 }
