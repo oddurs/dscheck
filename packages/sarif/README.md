@@ -11,3 +11,5 @@ stylelint <files> --custom-formatter dscheck-sarif/stylelint-formatter
 ```
 
 MIT licensed.
+
+Changelog: https://dscheck.dev/reference/changelog/

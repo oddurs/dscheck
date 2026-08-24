@@ -19,3 +19,5 @@ that aren't from them, naming the nearest token. `--fix` rewrites only provably-
 matches — `14px` is never rounded to `12px`.
 
 Full documentation: **https://dscheck.dev** · MIT licensed.
+
+Changelog: https://dscheck.dev/reference/changelog/

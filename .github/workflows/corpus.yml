@@ -22,3 +22,7 @@ jobs:
           fi
           exit $ec
       - run: node scripts/audit.mjs
+      # S3: the published packages, not just this checkout — a broken publish
+      # surfaces within a day instead of via a user.
+      - run: node scripts/install-smoke.mjs --registry
+        continue-on-error: false

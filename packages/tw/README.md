@@ -8,3 +8,5 @@ Engine failures are contained: callers degrade to dscheck's static parser rather
 reporting anything approximate.
 
 MIT licensed.
+
+Changelog: https://dscheck.dev/reference/changelog/

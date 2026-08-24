@@ -15,3 +15,5 @@ already defines. Every finding names the nearest on-system token with its distan
 exact matches autofix, near misses become editor suggestions.
 
 Full documentation: **https://dscheck.dev** · MIT licensed.
+
+Changelog: https://dscheck.dev/reference/changelog/

@@ -22,3 +22,5 @@ npx dscheck-cli check src
   in the linters you already run.
 
 Full documentation: **https://dscheck.dev** · MIT licensed.
+
+Changelog: https://dscheck.dev/reference/changelog/

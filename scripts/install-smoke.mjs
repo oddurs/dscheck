@@ -1,6 +1,11 @@
-// Packs the real tarballs, installs them into a throwaway project exactly as a
-// new user would, and asserts the documented first run yields a real finding.
-// Catches what unit tests can't: files/exports/deps wrong in the published shape.
+// Proves delivery, not just behaviour.
+//
+//   default          pack the local tarballs and install them — pre-publish gate
+//   --registry [ver] install the PUBLISHED packages from npm — post-publish watch
+//
+// Either way it asserts the documented first run yields real findings with a real
+// token suggestion. Catches what unit tests can't: files/exports/deps wrong in the
+// published shape, or a publish that shipped something broken.
 import { execSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -8,6 +13,12 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+const registryMode = process.argv.includes('--registry');
+const registryVersion =
+  process.argv[process.argv.indexOf('--registry') + 1]?.startsWith('-') ||
+  !process.argv[process.argv.indexOf('--registry') + 1]
+    ? 'latest'
+    : process.argv[process.argv.indexOf('--registry') + 1];
 const staging = mkdtempSync(join(tmpdir(), 'dscheck-tarballs-'));
 const PACKAGES = ['core', 'tw', 'sarif', 'eslint-plugin', 'stylelint-plugin', 'cli'];
 
@@ -15,13 +26,13 @@ const PACKAGES = ['core', 'tw', 'sarif', 'eslint-plugin', 'stylelint-plugin', 'c
 // extracted tree is exactly the published file set, so `files`, `exports`, and
 // dependency declarations are all under test.
 const unpacked = new Map();
-for (const pkg of PACKAGES) {
+for (const pkg of registryMode ? [] : PACKAGES) {
   execSync(`npm pack --pack-destination "${staging}"`, {
     cwd: join(root, 'packages', pkg),
     stdio: 'pipe',
   });
 }
-for (const tarball of readdirSync(staging).filter((f) => f.endsWith('.tgz'))) {
+for (const tarball of registryMode ? [] : readdirSync(staging).filter((f) => f.endsWith('.tgz'))) {
   const dir = join(staging, tarball.replace(/\.tgz$/, ''));
   mkdirSync(dir, { recursive: true });
   execSync(`tar -xzf "${join(staging, tarball)}" -C "${dir}"`, { stdio: 'pipe' });
@@ -63,15 +74,23 @@ writeFileSync(
 
 // Install every package explicitly: npm links directory deps rather than
 // resolving them transitively, so each must be present in the consumer.
-// --install-links copies file: deps into node_modules instead of symlinking,
-// so module resolution happens from the consumer's tree — exactly how a
-// registry install behaves.
-execSync(
-  `npm install --no-audit --no-fund --install-links ${[...unpacked.values()]
-    .map((d) => `"${d}"`)
-    .join(' ')}`,
-  { cwd: project, stdio: 'inherit' },
-);
+if (registryMode) {
+  console.log(`installing dscheck-cli@${registryVersion} from the registry`);
+  execSync(`npm install --no-audit --no-fund dscheck-cli@${registryVersion}`, {
+    cwd: project,
+    stdio: 'inherit',
+  });
+} else {
+  // --install-links copies file: deps into node_modules instead of symlinking,
+  // so module resolution happens from the consumer's tree — exactly how a
+  // registry install behaves.
+  execSync(
+    `npm install --no-audit --no-fund --install-links ${[...unpacked.values()]
+      .map((d) => `"${d}"`)
+      .join(' ')}`,
+    { cwd: project, stdio: 'inherit' },
+  );
+}
 
 const cliBin = join(project, 'node_modules', '.bin', 'dscheck');
 const out = execSync(`"${cliBin}" check component.css --format json || true`, {
@@ -102,4 +121,8 @@ if (suggestion !== 'var(--color-primary)') {
   console.error(`✖ expected var(--color-primary), got ${suggestion}`);
   process.exit(1);
 }
-console.log('✔ install smoke: a fresh project gets correct findings from the packed tarballs');
+console.log(
+  registryMode
+    ? `✔ registry smoke: dscheck-cli@${registryVersion} installs from npm and reports correctly`
+    : '✔ install smoke: a fresh project gets correct findings from the packed tarballs',
+);

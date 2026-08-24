@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node ../scripts/docs-postbuild.mjs",
+    "build": "node ../scripts/build-changelog.mjs && astro build && node ../scripts/docs-postbuild.mjs",
     "preview": "astro preview"
   },
   "dependencies": {

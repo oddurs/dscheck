@@ -10,9 +10,11 @@ inputs:
     required: false
     default: '.'
   version:
-    description: Version of the dscheck CLI to run.
+    description: >-
+      Version of the dscheck CLI to run. Pinned by default — a floating `latest`
+      in CI is a supply-chain smell. Set explicitly to upgrade, or 'latest' to float.
     required: false
-    default: 'latest'
+    default: '0.1.0'
   sarif:
     description: Upload findings to GitHub code scanning (needs security-events:write).
     required: false
