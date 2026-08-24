@@ -43,6 +43,7 @@ export default defineConfig({
           label: 'Start here',
           items: [
             { slug: 'guides/why' },
+            { slug: 'guides/adoption' },
             { slug: 'guides/agent-guardrail' },
             { slug: 'guides/eslint' },
             { slug: 'guides/stylelint' },

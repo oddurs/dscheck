@@ -13,6 +13,7 @@ import type { Finding } from './run.js';
 const HELP = `dscheck — the linter that knows your design system
 
 Usage
+  dscheck init                 Detect the token source and propose a config
   dscheck check [paths...]     Lint files (default: cwd) against the token set
   dscheck fix [paths...]       Apply every exact-match fix, report what remains
   dscheck baseline [paths...]  Record current findings as accepted debt
@@ -26,6 +27,7 @@ Options
   --update                            (baseline) prune paid-down entries, never raise counts
   --category <name>                   (tokens) filter by category
   --json                              (tokens) JSON output
+  --write                             (init) write dscheck.config.json
   --watch                             Re-lint files as they change
   --explain-skips                     Show what was deliberately not checked, and why
   --no-baseline                       Ignore .dscheck-baseline.json
@@ -45,6 +47,7 @@ const { values, positionals } = parseArgs({
     since: { type: 'string' },
     update: { type: 'boolean', default: false },
     watch: { type: 'boolean', default: false },
+    write: { type: 'boolean', default: false },
     'explain-skips': { type: 'boolean', default: false },
     'no-baseline': { type: 'boolean', default: false },
     help: { type: 'boolean', short: 'h' },
@@ -56,6 +59,11 @@ const [command = 'check', ...paths] = positionals;
 if (values.help || command === 'help') {
   console.log(HELP);
   process.exit(0);
+}
+
+if (command === 'init') {
+  const { runInit } = await import('./init.js');
+  process.exit(runInit(resolve('.'), values.write === true));
 }
 
 if (command === 'roles') {

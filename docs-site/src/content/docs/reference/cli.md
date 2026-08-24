@@ -4,6 +4,7 @@ description: check, baseline, report, tokens.
 ---
 
 ```text
+dscheck init                 Detect the token source and propose a config (--write to save)
 dscheck check [paths...]     Lint files (default: cwd) against the token set
 dscheck fix [paths...]       Apply every exact-match fix, report what remains
 dscheck baseline [paths...]  Record current findings as accepted debt (--update: prune-only)
