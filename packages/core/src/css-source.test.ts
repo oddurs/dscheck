@@ -163,3 +163,12 @@ describe('diagnostics (A6)', () => {
     expect(loadCssTokens([file]).diagnostics?.conflicts).toHaveLength(0);
   });
 });
+
+describe('non-spacing length namespaces', () => {
+  it('never offers blur tokens as spacing', () => {
+    const file = fixture('@theme { --blur-md: 12px; --spacing-3: 12px; }');
+    const index = loadCssTokens([file]);
+    expect(index.tokens.get('--blur-md')?.category).toBe('other');
+    expect(index.byCategory('length').map((t) => t.name)).toEqual(['--spacing-3']);
+  });
+});

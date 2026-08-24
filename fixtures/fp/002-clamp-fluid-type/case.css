@@ -1,0 +1,2 @@
+@theme { --text-sm: 14px; }
+.a { font-size: clamp(1rem, 2vw, 1.5rem); }

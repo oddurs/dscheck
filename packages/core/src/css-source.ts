@@ -218,6 +218,8 @@ const NAMESPACES: ReadonlyArray<readonly [RegExp, Category]> = [
   [/^--tracking-/, 'letter-spacing'],
   [/^--(?:inset-)?shadow(-|$)|^--drop-shadow(-|$)/, 'shadow'],
   [/^--ease-/, 'easing'],
+  // blur/perspective are lengths in css terms but never spacing suggestions
+  [/^--blur(-|$)|^--perspective(-|$)/, 'other'],
   [/^--animate-|^--duration-/, 'duration'],
 ];
 

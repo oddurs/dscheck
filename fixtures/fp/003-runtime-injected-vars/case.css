@@ -1,0 +1,2 @@
+/* config allow: --shiki-* */
+.a { color: var(--shiki-light); }

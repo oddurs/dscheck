@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import * as childProcess from 'node:child_process';
 import * as fsModule from 'node:fs';
+import * as coreModule from '@dscheck/core';
 import { statSync } from 'node:fs';
 import { relative, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
@@ -26,6 +27,7 @@ Options
   --category <name>                   (tokens) filter by category
   --json                              (tokens) JSON output
   --watch                             Re-lint files as they change
+  --explain-skips                     Show what was deliberately not checked, and why
   --no-baseline                       Ignore .dscheck-baseline.json
   -h, --help                          Show help
 
@@ -43,6 +45,7 @@ const { values, positionals } = parseArgs({
     since: { type: 'string' },
     update: { type: 'boolean', default: false },
     watch: { type: 'boolean', default: false },
+    'explain-skips': { type: 'boolean', default: false },
     'no-baseline': { type: 'boolean', default: false },
     help: { type: 'boolean', short: 'h' },
   },
@@ -141,7 +144,48 @@ if (fixing) {
   process.exitCode = findings.some((f) => f.severity === 'error') ? 1 : 0;
 } else {
   await runCheckOrBaselineOrReport();
+  if (values['explain-skips'] && command === 'check') explainSkips(files);
   if (values.watch && command === 'check') watchAndRelint(paths.length > 0 ? paths : ['.']);
+}
+
+/**
+ * Make silence visible: an inventory of what this run deliberately did not
+ * check. Counts are per-construct occurrences, matched to the supported-
+ * surfaces contract (dscheck.dev → reference → supported surfaces).
+ */
+function explainSkips(linted: string[]): void {
+  const { findConfig, isIgnored } = coreSync();
+  let ignoredFiles = 0;
+  let interpolatedDecls = 0;
+  let dynamicClassExprs = 0;
+  let mathLiterals = 0;
+  const allInputs = expand(paths.length > 0 ? paths : ['.']);
+  for (const file of allInputs) {
+    const config = findConfig(file);
+    if (config && isIgnored(file, config)) {
+      ignoredFiles++;
+      continue;
+    }
+    if (!linted.includes(file)) continue;
+    const source = fsModule.readFileSync(file, 'utf8');
+    if (/\.(jsx|tsx)$/.test(file)) {
+      for (const template of source.matchAll(/(?:styled[.(]|css`|keyframes`)[^`]*`([^`]*)`/g)) {
+        interpolatedDecls += (template[1]?.match(/\$\{[^}]*\}/g) ?? []).length;
+      }
+      dynamicClassExprs += (source.match(/className=\{(?![`'"])/g) ?? []).length;
+    }
+    mathLiterals += (source.match(/\b(?:calc|clamp|min|max)\(/g) ?? []).length;
+  }
+  console.log(`\n${pc.bold('deliberately not checked')} ${pc.dim('(see docs: supported surfaces)')}`);
+  const row = (n: number, label: string) => console.log(`  ${String(n).padStart(5)}  ${label}`);
+  row(ignoredFiles, 'files exempted by config `ignore` globs');
+  row(interpolatedDecls, 'interpolated css-in-js expressions (dynamic — never guessed)');
+  row(dynamicClassExprs, 'dynamic className expressions (only static strings inside are read)');
+  row(mathLiterals, 'calc()/clamp()/min()/max() occurrences (fluid values are a design decision)');
+}
+
+function coreSync(): typeof import('@dscheck/core') {
+  return coreModule;
 }
 
 /** Minimal watch loop: re-lint just the file that changed, instantly. */

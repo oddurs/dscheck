@@ -13,3 +13,4 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
       - run: node scripts/corpus.mjs
+      - run: node scripts/audit.mjs

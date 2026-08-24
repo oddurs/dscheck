@@ -1,0 +1,2 @@
+@import "tailwindcss";
+.a { color: var(--color-gray-800); box-shadow: var(--tw-ring-shadow); }
