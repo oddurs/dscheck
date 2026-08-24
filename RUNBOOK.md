@@ -15,6 +15,42 @@ If you find yourself doing something not in here twice, add it.
 3. After publish: update `RELEASES.md` (scoreboard row), verify the npm provenance badge.
 4. Dry-run at any time: `pnpm changeset status` and `pnpm changeset version` on a branch.
 
+## First release (K1) — everything is staged behind two commands
+
+Prepared and verified already: all six packages publint-clean with complete metadata,
+per-package READMEs and LICENSE, the changesets + OIDC workflow, and an install
+smoke-matrix that packs the real tarballs and asserts a fresh project gets correct
+findings. What's left needs credentials:
+
+1. `npm login` (once, on any machine).
+2. Claim the names — they were verified free on 2026-08-24, so this is also the check
+   that they still are:
+   ```bash
+   npm access list packages 2>/dev/null | grep dscheck   # expect nothing yet
+   pnpm -r --filter "./packages/*" publish --dry-run      # last look at what ships
+   ```
+3. On npmjs.com, for each package: **Settings → Trusted publisher →** GitHub Actions,
+   repo `oddurs/dscheck`, workflow `release.yml`. (This is what makes step 5 credential-free.)
+4. Arm the workflow: `gh variable set RELEASES_ENABLED -b true`
+5. Merge the "Version Packages" pull request. It publishes with provenance.
+6. Add the release row to `RELEASES.md`, verify the provenance badge on npm, and run
+   `node scripts/install-smoke.mjs` once more against the *published* versions.
+
+## Going public (K2)
+
+1. `gh repo edit --visibility public --accept-visibility-change-consequences`
+2. Turn on what only works in public: `publish_results: true` in `scorecard.yml`, and run
+   the `docs-deploy` workflow (`gh workflow run docs-deploy.yml`) to put the docs on Pages.
+3. Point the domain at Pages if `dscheck.dev` is registered; otherwise change the
+   `site` in `docs-site/astro.config.mjs` to the Pages URL first.
+4. Seed good-first-issues from the labels already created (`good first issue`, `docs`,
+   `surface`), and pin a roadmap discussion.
+5. Start the stranger tests (K3): three outsiders, README only, audit their first ten
+   findings. Log each in `fixtures/drills/`.
+
+Repo metadata (description, topics, issues, discussions, labels, CODEOWNERS, security
+policy) is already set — it doesn't depend on visibility.
+
 ## Upgrade playbooks (L4)
 
 ### tw-canary is red (Tailwind `next` broke the engine bridge)

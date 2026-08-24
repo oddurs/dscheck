@@ -8,7 +8,7 @@ Open-source excellence for a linter is **trust**, earned four ways: it installs 
 
 ---
 
-## Sprint 1 — Installable excellence (packaging & releases) 🔒 gated: npm login
+## Sprint 1 — Installable excellence — **PREP DONE 2026-08-24** (metadata + per-package READMEs/LICENSE on all six, publint clean, changesets + OIDC release workflow armed behind RELEASES_ENABLED, install smoke-matrix packing real tarballs, dscheck GitHub Action published in-repo). 🔒 Remaining: `npm login` → claim, trusted-publisher setup, first release — see RUNBOOK 'First release'
 
 **Goal: `pnpm add -D @dscheck/eslint-plugin` is flawless on every runtime we claim.**
 
@@ -38,7 +38,7 @@ Open-source excellence for a linter is **trust**, earned four ways: it installs 
 
 **Exit:** docs site live; every rule documented; the agent-guardrail guide is the best page on the site.
 
-## Sprint 3 — Community health & going public 🔒 go-live gated: user decision
+## Sprint 3 — Community health — **PREP DONE 2026-08-24** (LICENSE, CONTRIBUTING, SECURITY w/ threat model, CODE_OF_CONDUCT, CODEOWNERS, FP-first issue templates + PR template, labels, repo description/topics/discussions). 🔒 Remaining: flip visibility, scorecard publish, Pages deploy, good-first-issues, stranger tests — see RUNBOOK 'Going public'
 
 **Goal: the repo looks — and is — safe to depend on and easy to contribute to.**
 
