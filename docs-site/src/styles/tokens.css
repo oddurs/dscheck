@@ -76,6 +76,10 @@
   --text-2xl--line-height: 2.5rem;
   --text-3xl: 2.375rem;
   --text-3xl--line-height: 2.875rem;
+  /* unitless leading ratios: some consumers multiply these by a length
+     (Starlight's step bullets do), so they must not carry units themselves */
+  --leading-body: 1.667;
+  --leading-heading: 1.25;
   --tracking-tight: -0.015em;
   --tracking-normal: 0em;
   --tracking-wide: 0.06em;

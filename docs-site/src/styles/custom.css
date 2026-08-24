@@ -55,8 +55,9 @@
   --sl-text-3xl: var(--text-3xl);
   --sl-text-4xl: var(--text-3xl);
   --sl-text-5xl: var(--text-3xl);
-  --sl-line-height: var(--text-base--line-height);
-  --sl-line-height-headings: var(--text-2xl--line-height);
+  /* must stay unitless — see --leading-* in tokens.css */
+  --sl-line-height: var(--leading-body);
+  --sl-line-height-headings: var(--leading-heading);
   --sl-content-width: var(--measure);
 
   --sl-shadow-sm: var(--shadow-sm);
@@ -161,8 +162,8 @@ body {
 }
 
 /* ── lists: aligned markers, breathing room ─────────────────────────── */
-/* (Starlight's Steps component manages its own counters and gutters) */
-.sl-markdown-content :is(ul, ol):not(.sl-steps, .sl-steps *) {
+/* Steps keeps its own gutter (it positions counters there) — leave it alone */
+.sl-markdown-content :is(ul, ol):not(.sl-steps) {
   padding-inline-start: var(--spacing-6);
 }
 
@@ -200,9 +201,13 @@ body {
   border-color: var(--color-border);
 }
 
+/* block code is not a chip: undo every inline-code affordance, including the
+   padding — leaking it here makes the code wider than its frame and produces
+   a permanent scrollbar */
 .sl-markdown-content pre code {
   border: none;
   background-color: transparent;
+  padding-inline: 0;
   font-size: var(--text-sm);
   line-height: var(--text-sm--line-height);
 }

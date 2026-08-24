@@ -9,7 +9,10 @@ export function remarkBaseLinks({ base = '' } = {}) {
   return (tree) => {
     if (!prefix) return;
     const walk = (node) => {
-      if ((node.type === 'link' || node.type === 'definition') && typeof node.url === 'string') {
+      if (
+        (node.type === 'link' || node.type === 'definition' || node.type === 'image') &&
+        typeof node.url === 'string'
+      ) {
         if (
           node.url.startsWith('/') &&
           !node.url.startsWith(`${prefix}/`) &&
