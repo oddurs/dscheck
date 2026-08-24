@@ -208,12 +208,19 @@ body {
 }
 
 /* ── expressive-code frames: plain, seamless, no skeuomorphism ──────── */
-/* untitled terminal frames: no fake chrome at all — one clean block */
+/* untitled terminal frames: no fake chrome at all — one clean block.
+   EC expects the header to supply the top border and to offset the copy
+   button; with it hidden, both come back here. */
+.expressive-code .frame.is-terminal:not(.has-title) {
+  --button-spacing: var(--spacing-2);
+}
+
 .expressive-code .frame.is-terminal:not(.has-title) .header {
   display: none;
 }
 
 .expressive-code .frame.is-terminal:not(.has-title) pre {
+  border-top: 1px solid var(--color-border);
   border-radius: var(--radius-md);
 }
 

@@ -21,7 +21,6 @@ export default defineConfig({
       title: 'dscheck',
       description: 'The linter that knows your design system.',
       lastUpdated: true,
-      editLink: { baseUrl: 'https://github.com/oddurs/dscheck/edit/main/docs-site/' },
       head: [
         { tag: 'meta', attrs: { property: 'og:image', content: 'https://dscheck.dev/social.png' } },
         { tag: 'meta', attrs: { name: 'twitter:card', content: 'summary_large_image' } },
