@@ -24,7 +24,7 @@ repos:
     hooks:
       - id: dscheck
         name: dscheck
-        entry: npx dscheck check
+        entry: npx dscheck-cli check
         language: system
         files: \.(css|scss|tsx|jsx)$
 ```

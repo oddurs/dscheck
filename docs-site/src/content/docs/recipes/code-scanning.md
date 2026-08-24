@@ -26,7 +26,7 @@ fails on error-severity findings (`fail-on: any | never` to change that). Prefer
 by hand? That works too:
 
 ```yaml
-      - run: npx dscheck check src --format sarif > dscheck.sarif || true
+      - run: npx dscheck-cli check src --format sarif > dscheck.sarif || true
       - uses: github/codeql-action/upload-sarif@v3
         with: { sarif_file: dscheck.sarif }
 ```

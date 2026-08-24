@@ -39,7 +39,7 @@ runs:
       shell: bash
       run: |
         set -o pipefail
-        npx --yes dscheck@${{ inputs.version }} check ${{ inputs.paths }} --format json > dscheck.json || true
+        npx --yes dscheck-cli@${{ inputs.version }} check ${{ inputs.paths }} --format json > dscheck.json || true
         errors=$(node -e "const f=require('./dscheck.json');console.log(f.filter(x=>x.severity==='error').length)")
         warnings=$(node -e "const f=require('./dscheck.json');console.log(f.filter(x=>x.severity!=='error').length)")
         echo "errors=$errors" >> "$GITHUB_OUTPUT"
@@ -60,7 +60,7 @@ runs:
         } >> "$GITHUB_STEP_SUMMARY"
     - if: inputs.sarif == 'true'
       shell: bash
-      run: npx --yes dscheck@${{ inputs.version }} check ${{ inputs.paths }} --format sarif > dscheck.sarif || true
+      run: npx --yes dscheck-cli@${{ inputs.version }} check ${{ inputs.paths }} --format sarif > dscheck.sarif || true
     - if: inputs.sarif == 'true'
       uses: github/codeql-action/upload-sarif@df559355d593797519d70b90fc8edd5db049e7a2 # v3.29.9
       with:

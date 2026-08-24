@@ -5,7 +5,8 @@ Tailwind v4 `@theme`, DTCG JSON, or `:root` custom properties — and flags ever
 off-system value in your code, with the nearest on-system token attached.
 
 ```bash
-npx dscheck check src
+npm i -D dscheck-cli    # the command it installs is `dscheck`
+npx dscheck-cli check src
 ```
 
 ```text
