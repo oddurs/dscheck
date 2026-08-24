@@ -1,0 +1,82 @@
+name: dscheck
+description: Lint a codebase against its own design system — off-system values, with the nearest token named.
+author: Oddur Sigurdsson
+branding:
+  icon: check-square
+  color: blue
+inputs:
+  paths:
+    description: Paths to lint (space-separated).
+    required: false
+    default: '.'
+  version:
+    description: Version of the dscheck CLI to run.
+    required: false
+    default: 'latest'
+  sarif:
+    description: Upload findings to GitHub code scanning (needs security-events:write).
+    required: false
+    default: 'true'
+  comment:
+    description: Post a sticky pull-request comment with the debt trend.
+    required: false
+    default: 'false'
+  fail-on:
+    description: '"error" fails only on error-severity findings; "any" fails on warnings too; "never" never fails.'
+    required: false
+    default: 'error'
+outputs:
+  errors:
+    description: Number of error-severity findings.
+    value: ${{ steps.run.outputs.errors }}
+  warnings:
+    description: Number of warning-severity findings.
+    value: ${{ steps.run.outputs.warnings }}
+runs:
+  using: composite
+  steps:
+    - id: run
+      shell: bash
+      run: |
+        set -o pipefail
+        npx --yes dscheck@${{ inputs.version }} check ${{ inputs.paths }} --format json > dscheck.json || true
+        errors=$(node -e "const f=require('./dscheck.json');console.log(f.filter(x=>x.severity==='error').length)")
+        warnings=$(node -e "const f=require('./dscheck.json');console.log(f.filter(x=>x.severity!=='error').length)")
+        echo "errors=$errors" >> "$GITHUB_OUTPUT"
+        echo "warnings=$warnings" >> "$GITHUB_OUTPUT"
+        {
+          echo "### dscheck"
+          echo ""
+          echo "$errors errors · $warnings warnings"
+          echo ""
+          node -e "
+            const f=require('./dscheck.json');
+            if(!f.length){console.log('✔ on-system: no findings');process.exit(0)}
+            console.log('| | file | finding |');console.log('|---|---|---|');
+            for(const x of f.slice(0,20))
+              console.log(\`| \${x.severity==='error'?'✖':'⚠'} | \\\`\${x.file}:\${x.line}\\\` | \${x.message.replace(/\\|/g,'\\\\|')} |\`);
+            if(f.length>20) console.log(\`\nand \${f.length-20} more.\`);
+          "
+        } >> "$GITHUB_STEP_SUMMARY"
+    - if: inputs.sarif == 'true'
+      shell: bash
+      run: npx --yes dscheck@${{ inputs.version }} check ${{ inputs.paths }} --format sarif > dscheck.sarif || true
+    - if: inputs.sarif == 'true'
+      uses: github/codeql-action/upload-sarif@df559355d593797519d70b90fc8edd5db049e7a2 # v3.29.9
+      with:
+        sarif_file: dscheck.sarif
+    - if: inputs.comment == 'true'
+      uses: marocchino/sticky-pull-request-comment@d2ad0de260ae8b0235ce059e63f2949ba9e05943 # v2.9.3
+      with:
+        header: dscheck
+        message: |
+          **dscheck** — ${{ steps.run.outputs.errors }} errors · ${{ steps.run.outputs.warnings }} warnings
+
+          <sub>Off-system values, with the nearest on-system token named. See the job summary for the list.</sub>
+    - shell: bash
+      run: |
+        case "${{ inputs.fail-on }}" in
+          never) exit 0 ;;
+          any) [ "${{ steps.run.outputs.errors }}" = "0" ] && [ "${{ steps.run.outputs.warnings }}" = "0" ] || exit 1 ;;
+          *) [ "${{ steps.run.outputs.errors }}" = "0" ] || exit 1 ;;
+        esac

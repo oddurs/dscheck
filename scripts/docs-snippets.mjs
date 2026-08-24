@@ -82,7 +82,9 @@ function checkFile(file) {
       }
     }
     // every rule reference is a real rule
-    for (const rule of body.matchAll(/(?<!@)dscheck\/([\w-]+)/g)) {
+    // rule references only — not package names (@dscheck/core) or repo paths
+    // (oddurs/dscheck/action)
+    for (const rule of body.matchAll(/(?<![@/\w])dscheck\/([\w-]+)/g)) {
       checkedBlocks++;
       if (!RULES.has(rule[1])) problems.push(`${rel}: unknown rule "dscheck/${rule[1]}"`);
     }
