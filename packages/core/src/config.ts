@@ -22,6 +22,8 @@ export interface DscheckConfig {
   rules?: Record<string, 'off' | 'warn' | 'error'>;
   /** Path (relative to root) of a roles sidecar: { "name-glob": ["bg", "fg"] }. */
   rolesFile?: string;
+  /** Selectors treated as the system root besides :root — for scoped systems (.excalidraw). */
+  rootSelectors?: string[];
   /** Directory the config was found in. */
   root: string;
 }
@@ -35,6 +37,18 @@ const configCache = new Map<string, DscheckConfig | undefined>();
 export function findConfig(from: string): DscheckConfig | undefined {
   let dir = resolve(from);
   if (existsSync(dir) && !statSync(dir).isDirectory()) dir = dirname(dir);
+  const cached = configCache.get(dir);
+  if (cached !== undefined || configCache.has(dir)) return cached;
+  const found = findConfigWalk(dir);
+  configCache.set(dir, found);
+  return found;
+}
+
+function findConfigWalk(start: string): DscheckConfig | undefined {
+  // An explicit config anywhere up to the repo root beats zero-config
+  // discovery at a package boundary — monorepos configure at the root.
+  let firstBoundary: string | undefined;
+  let dir = start;
   for (; ; dir = dirname(dir)) {
     const candidate = join(dir, CONFIG_NAME);
     if (existsSync(candidate)) {
@@ -45,6 +59,7 @@ export function findConfig(from: string): DscheckConfig | undefined {
         tolerance?: { colorExact?: number; colorClose?: number };
         rules?: Record<string, 'off' | 'warn' | 'error'>;
         roles?: string;
+        rootSelectors?: string[];
       };
       return {
         tokens: parsed.tokens ?? [],
@@ -53,13 +68,17 @@ export function findConfig(from: string): DscheckConfig | undefined {
         ...(parsed.tolerance ? { tolerance: parsed.tolerance } : {}),
         ...(parsed.rules ? { rules: parsed.rules } : {}),
         ...(parsed.roles ? { rolesFile: parsed.roles } : {}),
+        ...(parsed.rootSelectors ? { rootSelectors: parsed.rootSelectors } : {}),
         root: dir,
       };
     }
-    if (existsSync(join(dir, 'package.json')) || existsSync(join(dir, '.git'))) {
-      return discover(dir);
+    if (!firstBoundary && existsSync(join(dir, 'package.json'))) firstBoundary = dir;
+    if (existsSync(join(dir, '.git'))) {
+      return discover(firstBoundary ?? dir);
     }
-    if (dirname(dir) === dir) return undefined;
+    if (dirname(dir) === dir) {
+      return firstBoundary ? discover(firstBoundary) : undefined;
+    }
   }
 }
 
@@ -111,7 +130,10 @@ export function loadIndex(config: DscheckConfig): ValueIndex {
   const jsonFiles = files.filter((f) => /\.json$/.test(f) && !/\$(themes|metadata)\.json$/.test(f));
   const tsFiles = files.filter((f) => /\.(ts|mts|js|mjs)$/.test(f));
 
-  const cssIndex = cssFiles.length > 0 ? loadCssTokens(cssFiles) : undefined;
+  const cssIndex =
+    cssFiles.length > 0
+      ? loadCssTokens(cssFiles, { rootSelectors: config.rootSelectors ?? [] })
+      : undefined;
   const extra = [
     ...(jsonFiles.length > 0 ? loadDtcgTokens(jsonFiles) : []),
     ...(tsFiles.length > 0 ? loadTsTokens(tsFiles).map(classifyToken) : []),
@@ -138,8 +160,35 @@ export function loadIndex(config: DscheckConfig): ValueIndex {
 
   const index = createIndex(merged.values());
   if (cssIndex?.diagnostics) index.diagnostics = cssIndex.diagnostics;
+  index.knownNames = declaredNamesIn(config.root);
   cache.set(config.root, { key, index });
   return index;
+}
+
+const knownNamesCache = new Map<string, ReadonlySet<string>>();
+
+/**
+ * Name-only inventory of every custom property declared in the project's
+ * stylesheets. Over-collection is safe: it only prevents "unknown token"
+ * claims about vars that do exist somewhere; typo'd *usages* stay flagged.
+ */
+function declaredNamesIn(root: string): ReadonlySet<string> {
+  const cached = knownNamesCache.get(root);
+  if (cached) return cached;
+  const names = new Set<string>();
+  for (const file of globSync('**/*.{css,scss}', {
+    cwd: root,
+    ignore: ['**/node_modules/**', '**/dist/**', '**/.next/**'],
+  })) {
+    try {
+      const css = readFileSync(join(root, file), 'utf8');
+      for (const match of css.matchAll(/(--[\w-]+)\s*:/g)) names.add(match[1] as string);
+    } catch {
+      // unreadable file: skip; the lint pass will surface it
+    }
+  }
+  knownNamesCache.set(root, names);
+  return names;
 }
 
 /** `roles` config: a JSON file of { "name-glob": ["bg", "fg", …] }. */

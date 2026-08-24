@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 
 import postcss, { type Declaration } from 'postcss';
+import * as scss from 'postcss-scss';
 import valueParser from 'postcss-value-parser';
 import { safeParseColor } from './match.js';
 import { tailwindDefaultTheme } from './tailwind-theme.js';
@@ -15,7 +16,12 @@ import { type Category, createIndex, type Token, type ValueIndex } from './types
  * and no network, and handles the common real-world shape where `@theme
  * inline` aliases point at `:root` values.
  */
-export function loadCssTokens(files: string[]): ValueIndex {
+export interface CssLoadOptions {
+  /** Selectors treated as the system root besides :root/html — e.g. ['.excalidraw']. */
+  rootSelectors?: string[];
+}
+
+export function loadCssTokens(files: string[], options: CssLoadOptions = {}): ValueIndex {
   const declared = new Map<string, { raw: string; source: string; fromTheme: boolean }>();
   /** raw values declared in mode scopes (`.dark`, `[data-theme=…]`, media-wrapped :root). */
   const modeDeclared = new Map<string, Set<string>>();
@@ -26,10 +32,10 @@ export function loadCssTokens(files: string[]): ValueIndex {
   for (const file of files) {
     const css = readFileSync(file, 'utf8');
     importsTailwind ||= /@import\s+['"]tailwindcss/.test(css);
-    const root = postcss.parse(css, { from: file });
+    const root = parseCss(css, file);
     root.walkDecls(/^--/, (decl: Declaration) => {
       const inTheme = isInTheme(decl);
-      const inRoot = isInRoot(decl);
+      const inRoot = isInRoot(decl, options.rootSelectors);
       if (inTheme || inRoot) {
         // Last declaration wins, but a @theme declaration marks the name as
         // part of the design-system API even if :root re-declares the value.
@@ -50,7 +56,7 @@ export function loadCssTokens(files: string[]): ValueIndex {
         });
         return;
       }
-      const scope = modeScopeKind(decl);
+      const scope = modeScopeKind(decl, options.rootSelectors);
       if (scope !== 'none') {
         modeCandidates.push({
           name: decl.prop,
@@ -120,10 +126,15 @@ function stripVar(raw: string): string {
  * 'themed' scopes (recognisably theme-flavoured selectors) may introduce new
  * token names; other bare custom-prop-only rules may only re-value known ones.
  */
-function modeScopeKind(decl: Declaration): 'themed' | 'bare' | 'none' {
+function modeScopeKind(
+  decl: Declaration,
+  rootSelectors: string[] = [],
+): 'themed' | 'bare' | 'none' {
   const parent = decl.parent;
   if (parent?.type !== 'rule') return 'none';
   const selector = (parent as postcss.Rule).selector;
+  // configured root selectors with modifiers (.excalidraw.theme--dark) are themed scopes
+  if (rootSelectors.some((r) => selector.includes(r))) return 'themed';
   if (/(:root|\bhtml\b)/.test(selector)) return 'themed'; // compound/media-nested root
   if (
     /^\s*(\.(dark|light|theme-[\w-]+)|\[data-(theme|mode|color-scheme)[^\]]*\])\s*$/.test(selector)
@@ -146,10 +157,18 @@ function isInTheme(decl: Declaration): boolean {
   return false;
 }
 
-function isInRoot(decl: Declaration): boolean {
+/** SCSS files parse with postcss-scss so @use/#{interpolation} don't crash the loader. */
+function parseCss(css: string, file: string): postcss.Root {
+  if (/\.scss$/.test(file)) return scss.parse(css, { from: file }) as postcss.Root;
+  return postcss.parse(css, { from: file });
+}
+
+function isInRoot(decl: Declaration, rootSelectors: string[] = []): boolean {
   const parent = decl.parent;
   if (parent?.type !== 'rule') return false;
-  if (!/(^|,)\s*(:root|html)\s*(,|$)/.test((parent as postcss.Rule).selector)) return false;
+  const selector = (parent as postcss.Rule).selector;
+  if (rootSelectors.some((r) => selector.split(',').some((part) => part.trim() === r))) return true;
+  if (!/(^|,)\s*(:root|html)\s*(,|$)/.test(selector)) return false;
   // `:root` inside @media/@supports/@container holds *mode* values, not the primary.
   for (let node = parent.parent; node; node = node.parent as typeof node) {
     if (

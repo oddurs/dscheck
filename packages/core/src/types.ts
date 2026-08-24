@@ -45,6 +45,9 @@ export interface ValueIndex {
   tokens: ReadonlyMap<string, Token>;
   byCategory(category: Category): Token[];
   diagnostics?: IndexDiagnostics;
+  /** Every custom-property name declared anywhere in the project's stylesheets.
+   * A var defined in another file is component API, not a fabricated token. */
+  knownNames?: ReadonlySet<string>;
 }
 
 export function createIndex(

@@ -109,3 +109,48 @@ describe('tolerance & rules config (A4)', () => {
     expect(v?.matches[0]?.kind).toBe('close');
   });
 });
+
+describe('monorepo config precedence (root-to-1.0)', () => {
+  it('explicit root config beats package-boundary discovery', () => {
+    const dir = project({
+      '.git/HEAD': 'ref: refs/heads/main',
+      'dscheck.config.json': '{"tokens":["tokens.css"]}',
+      'tokens.css': '@theme { --color-a: #fff; }',
+      'packages/widget/package.json': '{}',
+      'packages/widget/src/a.css': '.a{}',
+    });
+    const config = findConfig(join(dir, 'packages/widget/src/a.css'));
+    expect(config?.root).toBe(dir);
+    expect(config?.tokens).toEqual(['tokens.css']);
+  });
+
+  it('nearer explicit config still wins over a farther one', () => {
+    const dir = project({
+      '.git/HEAD': 'ref: refs/heads/main',
+      'dscheck.config.json': '{"tokens":["root.css"]}',
+      'root.css': ':root { --a: 1px; }',
+      'packages/app/dscheck.config.json': '{"tokens":["theme.css"]}',
+      'packages/app/theme.css': '@theme { --color-b: #000; }',
+      'packages/app/src/x.css': '.a{}',
+    });
+    const config = findConfig(join(dir, 'packages/app/src/x.css'));
+    expect(config?.tokens).toEqual(['theme.css']);
+  });
+});
+
+describe('cross-file component vars (contract #1)', () => {
+  it('a var declared in another project file is never "unknown"', async () => {
+    const { checkDeclaration } = await import('./check.js');
+    const dir = project({
+      'package.json': '{}',
+      'dscheck.config.json': '{"tokens":["tokens.css"]}',
+      'tokens.css': '@theme { --color-a: #fff; }',
+      'components/button.css': '.button { --button-color: red; }',
+    });
+    const config = findConfig(dir);
+    if (!config) throw new Error('no config');
+    const ctx = { index: loadIndex(config) };
+    expect(checkDeclaration('color', 'var(--button-color)', ctx)).toHaveLength(0);
+    expect(checkDeclaration('color', 'var(--butotn-color)', ctx)).toHaveLength(1); // typo still caught
+  });
+});

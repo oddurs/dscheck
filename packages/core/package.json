@@ -20,6 +20,7 @@
     "culori": "^4.0.0",
     "picomatch": "^4.0.5",
     "postcss": "^8.5.0",
+    "postcss-scss": "^4.0.9",
     "postcss-value-parser": "^4.2.0",
     "tinyglobby": "^0.2.17"
   },

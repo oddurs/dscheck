@@ -54,6 +54,19 @@ export async function lintFiles(
 }
 
 async function lintCss(files: string[], fix: boolean): Promise<Finding[]> {
+  const plain = files.filter((f) => !f.endsWith('.scss'));
+  const scssFiles = files.filter((f) => f.endsWith('.scss'));
+  return [
+    ...(plain.length > 0 ? await lintCssWith(plain, fix, undefined) : []),
+    ...(scssFiles.length > 0 ? await lintCssWith(scssFiles, fix, 'postcss-scss') : []),
+  ];
+}
+
+async function lintCssWith(
+  files: string[],
+  fix: boolean,
+  customSyntax: string | undefined,
+): Promise<Finding[]> {
   const { default: stylelint } = await import('stylelint');
   const severities = severitiesFor(files[0]);
   const rules = Object.fromEntries(
@@ -67,12 +80,28 @@ async function lintCss(files: string[], fix: boolean): Promise<Finding[]> {
   const result = await stylelint.lint({
     files: files.map((f) => f.replaceAll('\\', '/')), // stylelint globs; windows backslashes would escape
     fix,
-    config: { plugins: [require.resolve('@dscheck/stylelint-plugin')], rules },
+    config: {
+      plugins: [require.resolve('@dscheck/stylelint-plugin')],
+      rules,
+      ...(customSyntax ? { customSyntax: require.resolve(customSyntax) } : {}),
+    },
   });
   return result.results.flatMap((r) =>
     r.warnings
-      .filter((w) => w.rule?.startsWith('dscheck/'))
-      .map((w) => toFinding(r.source ?? '', w.line, w.column, w.rule ?? '', w.severity, w.text)),
+      // "didn't check" must never look like "passed": parse failures surface
+      .filter((w) => w.rule?.startsWith('dscheck/') || w.rule === 'CssSyntaxError')
+      .map((w) =>
+        toFinding(
+          r.source ?? '',
+          w.line,
+          w.column,
+          w.rule === 'CssSyntaxError' ? 'dscheck/unparsed' : (w.rule ?? ''),
+          w.rule === 'CssSyntaxError' ? 'warning' : w.severity,
+          w.rule === 'CssSyntaxError'
+            ? `File could not be parsed and was NOT checked: ${w.text}`
+            : w.text,
+        ),
+      ),
   );
 }
 

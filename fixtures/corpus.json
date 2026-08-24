@@ -6,10 +6,16 @@
       "sha": "bd868a3",
       "configDir": ".",
       "config": {
-        "tokens": ["src/app/globals.css"],
-        "ignore": ["src/components/blog/**"]
+        "tokens": [
+          "src/app/globals.css"
+        ],
+        "ignore": [
+          "src/components/blog/**"
+        ]
       },
-      "paths": ["src"],
+      "paths": [
+        "src"
+      ],
       "expected": {
         "errors": 13,
         "warnings": 88
@@ -21,9 +27,13 @@
       "sha": "c2f8235",
       "configDir": ".",
       "config": {
-        "tokens": ["app/globals.css"]
+        "tokens": [
+          "app/globals.css"
+        ]
       },
-      "paths": ["."],
+      "paths": [
+        "."
+      ],
       "expected": {
         "errors": 12,
         "warnings": 56
@@ -35,13 +45,71 @@
       "sha": "ac60ef5",
       "configDir": "apps/v4",
       "config": {
-        "tokens": ["app/globals.css"],
-        "allow": ["--shiki-*", "--header-height", "--font-ar", "--font-he"]
+        "tokens": [
+          "app/globals.css"
+        ],
+        "allow": [
+          "--shiki-*",
+          "--header-height",
+          "--font-ar",
+          "--font-he"
+        ]
       },
-      "paths": ["apps/v4"],
+      "paths": [
+        "apps/v4"
+      ],
       "expected": {
         "errors": 1,
         "warnings": 200
+      }
+    },
+    {
+      "name": "excalidraw",
+      "url": "https://github.com/excalidraw/excalidraw",
+      "sha": "e160ff7",
+      "configDir": ".",
+      "config": {
+        "tokens": [
+          "packages/excalidraw/css/theme.scss",
+          "packages/excalidraw/css/variables.module.scss"
+        ],
+        "rootSelectors": [
+          ".excalidraw"
+        ],
+        "allow": [
+          "--ui-*",
+          "--button-selected-*",
+          "--embeddable-radius",
+          "--avatar-size"
+        ]
+      },
+      "paths": [
+        "packages/excalidraw/css"
+      ],
+      "expected": {
+        "errors": 28,
+        "warnings": 38
+      }
+    },
+    {
+      "name": "openstatus/web",
+      "url": "https://github.com/openstatusHQ/openstatus",
+      "sha": "22df52e",
+      "configDir": ".",
+      "config": {
+        "tokens": [
+          "packages/ui/src/globals.css"
+        ],
+        "ignore": [
+          "**/content/**"
+        ]
+      },
+      "paths": [
+        "apps/web/src"
+      ],
+      "expected": {
+        "errors": 3,
+        "warnings": 14
       }
     }
   ],

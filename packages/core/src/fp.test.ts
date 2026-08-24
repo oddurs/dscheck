@@ -1,7 +1,7 @@
-import { readFileSync, readdirSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
 import postcss from 'postcss';
+import { describe, expect, it } from 'vitest';
 import { checkDeclaration } from './check.js';
 import { loadCssTokens } from './css-source.js';
 

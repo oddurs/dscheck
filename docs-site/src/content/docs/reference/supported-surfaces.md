@@ -30,7 +30,7 @@ and skipped alike — is enforced by a fixture test; a change here is a semver e
 | `text-shadow` | box-shadow tokens are a different geometry |
 | Named colors outside color properties/shorthands | `red` in `font-family` is a font name |
 | `0`, `auto`, `100%`, `1px`, `currentColor`, `transparent`, keywords | never violations, any property |
-| `--tw-*` references | Tailwind internals |
+| `--tw-*`, `--radix-*`, `--reach-*`, `--headlessui-*` references | vendor runtime-injected variables |
 | Component-local custom properties (defined in the same file/template) | local API, not system drift |
 | Names matched by config `allow` globs | declared runtime-injected vars (`--shiki-*`, `next/font`) |
 | Files matched by config `ignore` globs | content surfaces exempted by decision |

@@ -23,7 +23,12 @@ for (const repo of corpus.repos) {
   writeFileSync(join(dir, repo.configDir, 'dscheck.config.json'), JSON.stringify(repo.config));
   const out = execSync(
     `node ${cli} check ${repo.paths.map((p) => join(dir, p)).join(' ')} --format json || true`,
-    { cwd: join(dir, repo.configDir), encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, shell: '/bin/bash' },
+    {
+      cwd: join(dir, repo.configDir),
+      encoding: 'utf8',
+      maxBuffer: 64 * 1024 * 1024,
+      shell: '/bin/bash',
+    },
   );
   const findings = JSON.parse(out);
   const byRule = new Map();
@@ -45,7 +50,9 @@ for (const repo of corpus.repos) {
 writeFileSync(AUDIT_FILE, `${JSON.stringify(audit, null, 2)}\n`);
 const total = Object.keys(audit).length;
 const trueCount = Object.values(audit).filter((v) => v === 'true').length;
-console.log(`audit: ${total} sampled findings — ${trueCount} true, ${falseCount} FALSE, ${unreviewed} unreviewed`);
+console.log(
+  `audit: ${total} sampled findings — ${trueCount} true, ${falseCount} FALSE, ${unreviewed} unreviewed`,
+);
 if (unreviewed > 0) {
   console.log('unreviewed entries (classify in fixtures/audit.json):');
   for (const [id, v] of Object.entries(audit)) if (v === 'unreviewed') console.log(`  ${id}`);

@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import * as childProcess from 'node:child_process';
 import * as fsModule from 'node:fs';
-import * as coreModule from '@dscheck/core';
 import { statSync } from 'node:fs';
 import { relative, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
+import * as coreModule from '@dscheck/core';
 import pc from 'picocolors';
 import { globSync } from 'tinyglobby';
 import { lintFilesParallel } from './pool.js';
@@ -176,7 +176,9 @@ function explainSkips(linted: string[]): void {
     }
     mathLiterals += (source.match(/\b(?:calc|clamp|min|max)\(/g) ?? []).length;
   }
-  console.log(`\n${pc.bold('deliberately not checked')} ${pc.dim('(see docs: supported surfaces)')}`);
+  console.log(
+    `\n${pc.bold('deliberately not checked')} ${pc.dim('(see docs: supported surfaces)')}`,
+  );
   const row = (n: number, label: string) => console.log(`  ${String(n).padStart(5)}  ${label}`);
   row(ignoredFiles, 'files exempted by config `ignore` globs');
   row(interpolatedDecls, 'interpolated css-in-js expressions (dynamic — never guessed)');

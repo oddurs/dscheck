@@ -38,7 +38,8 @@ for (const repo of corpus.repos) {
       { encoding: 'utf8', shell: '/bin/bash' },
     ),
   );
-  const msPerFile = files > 0 ? elapsed / files : 0;
+  // Amortize the ~0.5s node/host startup so tiny file sets aren't judged on it.
+  const msPerFile = files > 0 ? Math.max(0, elapsed - 500) / files : 0;
 
   const countsOk = errors === repo.expected.errors && warnings === repo.expected.warnings;
   const perfOk = msPerFile <= corpus.perfBudgetMsPerFile;

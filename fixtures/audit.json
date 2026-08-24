@@ -23,5 +23,19 @@
   "shadcn-ui/apps/v4::dscheck/no-raw-font::apps/v4/app/(app)/(typeset)/typeset.css::Raw font-weight 600 — use var(--font-weight-semibold) (identical)": "true",
   "shadcn-ui/apps/v4::dscheck/no-raw-font::apps/v4/app/(app)/(typeset)/typeset.css::Raw font-weight 500 — use var(--font-weight-medium) (identical)": "true",
   "shadcn-ui/apps/v4::dscheck/no-raw-font::apps/v4/app/og/route.tsx::Raw font-weight 500 — use var(--font-weight-medium) (identical)": "true",
-  "shadcn-ui/apps/v4::dscheck/no-raw-color::apps/v4/app/(app)/(typeset)/typeset.css::Raw color oklch(0.86 0.17 95) — use var(--color-amber-300) (ΔEOK 0.022)": "true"
+  "shadcn-ui/apps/v4::dscheck/no-raw-color::apps/v4/app/(app)/(typeset)/typeset.css::Raw color oklch(0.86 0.17 95) — use var(--color-amber-300) (ΔEOK 0.022)": "true",
+  "excalidraw::dscheck/no-raw-length::packages/excalidraw/css/app.scss::Raw length 1em in margin-top — use var(--default-icon-size) (1rem)": "true",
+  "excalidraw::dscheck/no-raw-length::packages/excalidraw/css/styles.scss::Raw length 0.4em in gap — use var(--border-radius-md) (0.375rem, Δ0.40000000000000036px)": "true",
+  "excalidraw::dscheck/no-raw-length::packages/excalidraw/css/variables.module.scss::Raw length -3px in left — use var(--space-factor) (0.25rem, Δ7px)": "true",
+  "excalidraw::dscheck/no-raw-color::packages/excalidraw/css/app.scss::Raw color #121212 — use var(--color-gray-100) (ΔEOK 0.000)": "true",
+  "excalidraw::dscheck/no-raw-color::packages/excalidraw/css/variables.module.scss::Raw color #868e96 — use var(--color-gray-50) (ΔEOK 0.043)": "true",
+  "excalidraw::dscheck/no-raw-color::packages/excalidraw/css/variables.module.scss::Raw color #1971c2 — use var(--color-primary-darker) (ΔEOK 0.088)": "true",
+  "openstatus/web::dscheck/no-raw-length::apps/web/src/app/(landing)/play/checker/[slug]/chart.tsx::Raw length 10px in font-size — use var(--text-xs) (0.75rem, Δ2px)": "true",
+  "openstatus/web::dscheck/no-raw-length::apps/web/src/app/(landing)/status/service-search.tsx::Raw length 10px in font-size — use var(--text-xs) (0.75rem, Δ2px)": "true",
+  "openstatus/web::dscheck/no-raw-length::apps/web/src/styles/globals.css::Raw length 0.5em in padding-right — use var(--spacing) (0.25rem, Δ4px)": "true",
+  "openstatus/web::dscheck/no-raw-color::apps/web/src/app/api/og/_components/background.tsx::Raw color #cbd5e1 — use var(--color-slate-300) (ΔEOK 0.002)": "true",
+  "openstatus/web::dscheck/no-raw-color::apps/web/src/app/api/og/_components/background.tsx::Raw color white — use var(--color-white) (ΔEOK 0.000)": "true",
+  "openstatus/web::dscheck/no-raw-font::apps/web/src/app/api/og/_components/basic-layout.tsx::Raw font stack in font-family — use var(--font-sans)": "true",
+  "openstatus/web::dscheck/no-raw-font::apps/web/src/app/api/og/external-service/route.tsx::Raw font stack in font-family — use var(--font-sans)": "true",
+  "openstatus/web::dscheck/no-raw-font::apps/web/src/app/api/og/status/route.tsx::Raw font stack in font-family — use var(--font-sans)": "true"
 }

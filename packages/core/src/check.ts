@@ -59,6 +59,12 @@ const ALWAYS_ALLOWED = new Set([
 
 const MATH_FUNCTIONS = new Set(['calc', 'clamp', 'min', 'max']);
 
+/** Well-known runtime-injected vendor variables — never "unknown". */
+const VENDOR_PREFIXES = ['--tw-', '--radix-', '--reach-', '--headlessui-', '--rt-'];
+function isVendorVar(name: string): boolean {
+  return VENDOR_PREFIXES.some((prefix) => name.startsWith(prefix));
+}
+
 /** The semantic role a color-bearing property expects. */
 const PROPERTY_ROLE: ReadonlyMap<string, string> = new Map([
   ['color', 'fg'],
@@ -214,9 +220,11 @@ export function checkDeclaration(property: string, value: string, ctx: CheckCont
       }
       if (
         name &&
-        !name.startsWith('--tw-') &&
+        !isVendorVar(name) &&
         !ctx.index.tokens.has(name) &&
         !ctx.localVars?.has(name) &&
+        !ctx.index.knownNames?.has(name) &&
+        !ctx.index.knownNames?.has(name) &&
         !ctx.isAllowedName?.(name)
       ) {
         violations.push({
@@ -293,7 +301,7 @@ function walkVarsOnly(
     const name = node.nodes[0]?.value;
     if (
       name &&
-      !name.startsWith('--tw-') &&
+      !isVendorVar(name) &&
       !ctx.index.tokens.has(name) &&
       !ctx.localVars?.has(name) &&
       !ctx.isAllowedName?.(name)
