@@ -14,13 +14,34 @@ hero:
       variant: minimal
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { Card, CardGrid, Steps } from '@astrojs/starlight/components';
 
-```text
-✖ 48:13  Raw color #2a2520 — use var(--color-cedar-700) (ΔEOK 0.040)    dscheck/no-raw-color
-⚠ 19:16  Raw length 14px in padding — use var(--spacing-3) (12px, Δ2px)  dscheck/no-raw-length
-✖ 12:9   Unknown token --color-primry — did you mean --color-primary?    dscheck/no-unknown-token
-```
+![dscheck finding off-system values in a React component and naming the exact token to use instead](/demo.gif)
+
+<Steps>
+
+1. **Install** — one plugin line in the linter you already run:
+
+   ```js
+   // eslint.config.js
+   import dscheck from '@dscheck/eslint-plugin';
+   export default [dscheck.configs.recommended];
+   ```
+
+2. **Check** — dscheck reads your tokens (Tailwind `@theme`, DTCG JSON, `:root`)
+   and flags every value that isn't from them, with the nearest token attached:
+
+   ```text
+   ✖ 6:21  Raw color oklch(0.55 0.2 260) — use var(--color-primary) (ΔEOK 0.000)
+   ⚠ 9:14  Raw length 14px in gap — use var(--spacing-3) (12px, Δ2px)
+   ✖ 11:17 Unknown token --color-primry — did you mean --color-primary?
+   ```
+
+3. **Fix** — `dscheck fix` applies every provably-identical replacement;
+   near-misses become one-click editor suggestions. Agents fix themselves via
+   the [guardrail hook](/guides/agent-guardrail/).
+
+</Steps>
 
 <CardGrid stagger>
   <Card title="Knows your tokens" icon="approve-check">
@@ -28,8 +49,8 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
     properties — and enforces membership, not just "use a variable".
   </Card>
   <Card title="Built for agent-written UI" icon="rocket">
-    Coding agents hallucinate plausible off-system values. In one test, an agent
-    produced **19 off-system values** on a component task — and **0** with the
+    Coding agents hallucinate plausible off-system values. Measured on an identical
+    component task: **19 off-system values** without the guardrail, **0** with the
     dscheck hook feeding fixes back.
   </Card>
   <Card title="Rides your existing linters" icon="puzzle">
