@@ -1,7 +1,7 @@
 {
   "name": "@dscheck/sarif",
   "version": "0.0.0",
-  "description": "SARIF 2.1.0 output for dscheck \u2014 plus a standalone stylelint SARIF formatter",
+  "description": "SARIF 2.1.0 output for dscheck, plus a standalone stylelint SARIF formatter.",
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -9,6 +9,8 @@
     "./stylelint-formatter": "./dist/stylelint-formatter.js"
   },
   "files": [
+    "LICENSE",
+    "README.md",
     "dist"
   ],
   "scripts": {
@@ -20,5 +22,30 @@
   },
   "engines": {
     "node": ">=20.19"
+  },
+  "keywords": [
+    "design-system",
+    "design-tokens",
+    "linter",
+    "tokens",
+    "dscheck",
+    "sarif",
+    "code-scanning",
+    "stylelint",
+    "ci"
+  ],
+  "author": "Oddur Sigurdsson",
+  "homepage": "https://dscheck.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oddurs/dscheck.git",
+    "directory": "packages/sarif"
+  },
+  "bugs": {
+    "url": "https://github.com/oddurs/dscheck/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }

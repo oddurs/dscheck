@@ -1,7 +1,7 @@
 {
   "name": "dscheck",
   "version": "0.0.0",
-  "description": "The linter that knows your design system",
+  "description": "The linter that knows your design system \u2014 check, fix, baseline, and report off-system values.",
   "license": "MIT",
   "type": "module",
   "bin": {
@@ -11,6 +11,8 @@
     ".": "./dist/cli.js"
   },
   "files": [
+    "LICENSE",
+    "README.md",
     "dist"
   ],
   "scripts": {
@@ -33,5 +35,31 @@
   },
   "engines": {
     "node": ">=20.19"
+  },
+  "keywords": [
+    "design-system",
+    "design-tokens",
+    "linter",
+    "tokens",
+    "dscheck",
+    "cli",
+    "lint",
+    "tailwindcss",
+    "ai-agents",
+    "sarif"
+  ],
+  "author": "Oddur Sigurdsson",
+  "homepage": "https://dscheck.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oddurs/dscheck.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/oddurs/dscheck/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }

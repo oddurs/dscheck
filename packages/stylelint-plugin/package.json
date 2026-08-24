@@ -1,13 +1,15 @@
 {
   "name": "@dscheck/stylelint-plugin",
   "version": "0.0.0",
-  "description": "Stylelint rules that enforce your design system's token set",
+  "description": "Stylelint rules that enforce your design system in CSS and SCSS, with exact-match autofix.",
   "license": "MIT",
   "type": "module",
   "exports": {
     ".": "./dist/index.js"
   },
   "files": [
+    "LICENSE",
+    "README.md",
     "dist"
   ],
   "scripts": {
@@ -26,5 +28,30 @@
   },
   "engines": {
     "node": ">=20.19"
+  },
+  "keywords": [
+    "design-system",
+    "design-tokens",
+    "linter",
+    "tokens",
+    "dscheck",
+    "stylelint",
+    "stylelint-plugin",
+    "css",
+    "scss"
+  ],
+  "author": "Oddur Sigurdsson",
+  "homepage": "https://dscheck.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oddurs/dscheck.git",
+    "directory": "packages/stylelint-plugin"
+  },
+  "bugs": {
+    "url": "https://github.com/oddurs/dscheck/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }

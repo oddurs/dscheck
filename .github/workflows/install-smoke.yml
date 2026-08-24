@@ -1,0 +1,26 @@
+# Sprint 1 / M2: proves a stranger's install works — packs the real tarballs and
+# installs them into a fresh project with each package manager, then checks that
+# the documented first-run produces a real finding. Runs on release PRs and weekly.
+name: install-smoke
+on:
+  pull_request:
+    paths: ['packages/**', '.changeset/**']
+  schedule: [{ cron: '40 5 * * 3' }]
+  workflow_dispatch:
+jobs:
+  smoke:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [20, 22, 24]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with: { node-version: '${{ matrix.node }}', cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: node scripts/install-smoke.mjs
+        shell: bash

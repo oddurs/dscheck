@@ -1,13 +1,15 @@
 {
   "name": "@dscheck/eslint-plugin",
   "version": "0.0.0",
-  "description": "ESLint rules that enforce your design system's token set in JSX and Tailwind classes",
+  "description": "ESLint rules that enforce your design system in JSX, CSS-in-JS, and Tailwind classes.",
   "license": "MIT",
   "type": "module",
   "exports": {
     ".": "./dist/index.js"
   },
   "files": [
+    "LICENSE",
+    "README.md",
     "dist"
   ],
   "scripts": {
@@ -27,5 +29,31 @@
   },
   "engines": {
     "node": ">=20.19"
+  },
+  "keywords": [
+    "design-system",
+    "design-tokens",
+    "linter",
+    "tokens",
+    "dscheck",
+    "eslint",
+    "eslintplugin",
+    "eslint-plugin",
+    "tailwindcss",
+    "css-in-js"
+  ],
+  "author": "Oddur Sigurdsson",
+  "homepage": "https://dscheck.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oddurs/dscheck.git",
+    "directory": "packages/eslint-plugin"
+  },
+  "bugs": {
+    "url": "https://github.com/oddurs/dscheck/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }

@@ -1,13 +1,15 @@
 {
   "name": "@dscheck/tw",
   "version": "0.0.0",
-  "description": "Tailwind engine bridge for dscheck \u2014 candidate parsing and theme via Tailwind itself",
+  "description": "Tailwind engine bridge for dscheck \u2014 candidate parsing and theme via Tailwind itself.",
   "license": "MIT",
   "type": "module",
   "exports": {
     ".": "./dist/index.js"
   },
   "files": [
+    "LICENSE",
+    "README.md",
     "dist"
   ],
   "scripts": {
@@ -24,5 +26,29 @@
   },
   "engines": {
     "node": ">=20.19"
+  },
+  "keywords": [
+    "design-system",
+    "design-tokens",
+    "linter",
+    "tokens",
+    "dscheck",
+    "tailwindcss",
+    "tailwind",
+    "design-tokens"
+  ],
+  "author": "Oddur Sigurdsson",
+  "homepage": "https://dscheck.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oddurs/dscheck.git",
+    "directory": "packages/tw"
+  },
+  "bugs": {
+    "url": "https://github.com/oddurs/dscheck/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }
