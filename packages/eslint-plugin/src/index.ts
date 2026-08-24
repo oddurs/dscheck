@@ -45,7 +45,7 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
     create(context) {
       const filename = resolve(context.cwd, context.filename);
       const index = indexFor(filename);
-      if (!index) return {};
+      if (!index) return {} as Rule.RuleListener;
       const config = findConfig(filename);
       const ctx: CheckContext = {
         index,
@@ -265,7 +265,7 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
             if (obj) checkStyleObject(obj);
           }
         },
-      };
+      } as unknown as Rule.RuleListener;
     },
   };
 }

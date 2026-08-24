@@ -10,7 +10,8 @@
     "build": "pnpm -r build",
     "test": "vitest run",
     "lint": "biome check .",
-    "format": "biome check --write ."
+    "format": "biome check --write .",
+    "typecheck": "pnpm -r --filter \"./packages/*\" exec tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.0",

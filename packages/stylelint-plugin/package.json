@@ -14,7 +14,8 @@
     "build": "tsdown src/index.ts --dts"
   },
   "dependencies": {
-    "@dscheck/core": "workspace:*"
+    "@dscheck/core": "workspace:*",
+    "postcss": "^8.5.26"
   },
   "peerDependencies": {
     "stylelint": ">=16"

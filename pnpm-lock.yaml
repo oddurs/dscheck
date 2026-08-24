@@ -75,6 +75,9 @@ importers:
       '@types/picomatch':
         specifier: ^4.0.3
         version: 4.0.3
+      acorn:
+        specifier: ^8.18.0
+        version: 8.18.0
       culori:
         specifier: ^4.0.0
         version: 4.0.2
@@ -125,6 +128,9 @@ importers:
       '@dscheck/core':
         specifier: workspace:*
         version: link:../core
+      postcss:
+        specifier: ^8.5.26
+        version: 8.5.26
     devDependencies:
       stylelint:
         specifier: ^16.25.0

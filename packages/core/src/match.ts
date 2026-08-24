@@ -32,8 +32,8 @@ const deltaEOKBase = differenceEuclidean('oklab');
 
 /** ΔEOK plus an alpha term — a translucent value must not "match" its opaque twin. */
 function deltaEOK(
-  a: NonNullable<ReturnType<typeof parseColor>>,
-  b: NonNullable<ReturnType<typeof parseColor>>,
+  a: NonNullable<ReturnType<typeof parse>>,
+  b: NonNullable<ReturnType<typeof parse>>,
 ): number {
   return deltaEOKBase(a, b) + Math.abs((a.alpha ?? 1) - (b.alpha ?? 1));
 }

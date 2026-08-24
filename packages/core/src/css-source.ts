@@ -221,6 +221,13 @@ const NAMESPACES: ReadonlyArray<readonly [RegExp, Category]> = [
   [/^--animate-|^--duration-/, 'duration'],
 ];
 
+/** Re-classify a token whose category is unknown (TS-object sources). */
+export function classifyToken(token: Token): Token {
+  return token.category === 'other'
+    ? { ...token, category: classify(token.name, token.value) }
+    : token;
+}
+
 function classify(name: string, value: string): Category {
   for (const [pattern, category] of NAMESPACES) {
     if (pattern.test(name)) return category;

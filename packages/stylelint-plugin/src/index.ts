@@ -29,10 +29,10 @@ const RULES: RuleId[] = [
 function createRule(ruleId: RuleId): Rule {
   const ruleName = `${NAMESPACE}/${ruleId}`;
   const messages = stylelint.utils.ruleMessages(ruleName, {
-    rejected: (violation: Violation) => formatViolation(violation),
+    rejected: (text: string) => text,
   });
 
-  const rule: Rule = ((enabled: unknown) => {
+  const rule = ((enabled: unknown) => {
     return (root: Root, result: PostcssResult) => {
       if (!enabled) return;
       const file = root.source?.input.file;
@@ -41,7 +41,9 @@ function createRule(ruleId: RuleId): Rule {
       if (!index) return; // no design system found — nothing to enforce
 
       const localVars = new Set<string>();
-      root.walkDecls(/^--/, (decl) => localVars.add(decl.prop));
+      root.walkDecls(/^--/, (decl: Declaration) => {
+        localVars.add(decl.prop);
+      });
       const config = findConfig(file);
       const ctx: CheckContext = {
         index,
@@ -56,7 +58,7 @@ function createRule(ruleId: RuleId): Rule {
           const best = violation.matches[0];
           const fixable = best?.kind === 'exact';
           stylelint.utils.report({
-            message: messages.rejected(violation),
+            message: messages.rejected(formatViolation(violation)),
             node: decl,
             index: declarationValueIndex(decl) + violation.index,
             endIndex: declarationValueIndex(decl) + violation.index + violation.value.length,
@@ -76,7 +78,7 @@ function createRule(ruleId: RuleId): Rule {
         }
       });
     };
-  }) as Rule;
+  }) as unknown as Rule;
 
   rule.ruleName = ruleName;
   rule.messages = messages;

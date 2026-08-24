@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@types/picomatch": "^4.0.3",
+    "acorn": "^8.18.0",
     "culori": "^4.0.0",
     "picomatch": "^4.0.5",
     "postcss": "^8.5.0",

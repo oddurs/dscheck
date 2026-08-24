@@ -2,9 +2,12 @@ import { existsSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import picomatch from 'picomatch';
 import { globSync } from 'tinyglobby';
-import { loadCssTokens } from './css-source.js';
+import { classifyToken, loadCssTokens } from './css-source.js';
+import { loadDtcgTokens } from './dtcg-source.js';
 import { defaultTolerance, type Tolerance } from './match.js';
+import { loadTsTokens } from './ts-source.js';
 import type { ValueIndex } from './types.js';
+import { createIndex, type Token } from './types.js';
 
 export interface DscheckConfig {
   /** Token source globs, relative to the config file (or discovery root). */
@@ -17,6 +20,8 @@ export interface DscheckConfig {
   tolerance?: { colorExact?: number; colorClose?: number };
   /** CLI-side severity overrides: { "no-raw-length": "off" | "warn" | "error" }. */
   rules?: Record<string, 'off' | 'warn' | 'error'>;
+  /** Path (relative to root) of a roles sidecar: { "name-glob": ["bg", "fg"] }. */
+  rolesFile?: string;
   /** Directory the config was found in. */
   root: string;
 }
@@ -24,7 +29,7 @@ export interface DscheckConfig {
 const CONFIG_NAME = 'dscheck.config.json';
 
 /** Per-directory config resolution cache — hot path for editors and large runs. */
-const configCache = new Map<string, OffsystemConfig | undefined>();
+const configCache = new Map<string, DscheckConfig | undefined>();
 
 /** Find dscheck.config.json walking up from `from`; falls back to zero-config discovery. */
 export function findConfig(from: string): DscheckConfig | undefined {
@@ -39,6 +44,7 @@ export function findConfig(from: string): DscheckConfig | undefined {
         allow?: string[];
         tolerance?: { colorExact?: number; colorClose?: number };
         rules?: Record<string, 'off' | 'warn' | 'error'>;
+        roles?: string;
       };
       return {
         tokens: parsed.tokens ?? [],
@@ -46,6 +52,7 @@ export function findConfig(from: string): DscheckConfig | undefined {
         allow: parsed.allow ?? [],
         ...(parsed.tolerance ? { tolerance: parsed.tolerance } : {}),
         ...(parsed.rules ? { rules: parsed.rules } : {}),
+        ...(parsed.roles ? { rolesFile: parsed.roles } : {}),
         root: dir,
       };
     }
@@ -76,29 +83,89 @@ interface CacheEntry {
 }
 const cache = new Map<string, CacheEntry>();
 
+const fileListCache = new Map<string, string[]>();
+
 /** Resolve the allowed set for a config, cached by token-file mtimes. */
 export function loadIndex(config: DscheckConfig): ValueIndex {
-  const files = globSync(config.tokens, {
-    cwd: config.root,
-    ignore: ['**/node_modules/**'],
-  })
-    .map((f) => join(config.root, f))
-    .sort();
+  // Config order is meaning: the first source of a token wins the primary
+  // value (light before dark). Sort only within each pattern's expansion.
+  const listKey = `${config.root}|${config.tokens.join(',')}`;
+  let files = fileListCache.get(listKey);
+  if (!files || !files.every((f) => existsSync(f))) {
+    files = [
+      ...new Set(
+        config.tokens.flatMap((pattern) =>
+          globSync(pattern, { cwd: config.root, ignore: ['**/node_modules/**'] })
+            .sort()
+            .map((f) => join(config.root, f)),
+        ),
+      ),
+    ];
+    fileListCache.set(listKey, files);
+  }
   const key = files.map((f) => `${f}:${statSync(f).mtimeMs}`).join('|');
   const cached = cache.get(config.root);
   if (cached?.key === key) return cached.index;
-  const index = loadCssTokens(files);
+
+  const cssFiles = files.filter((f) => /\.(css|scss)$/.test(f));
+  const jsonFiles = files.filter((f) => /\.json$/.test(f) && !/\$(themes|metadata)\.json$/.test(f));
+  const tsFiles = files.filter((f) => /\.(ts|mts|js|mjs)$/.test(f));
+
+  const cssIndex = cssFiles.length > 0 ? loadCssTokens(cssFiles) : undefined;
+  const extra = [
+    ...(jsonFiles.length > 0 ? loadDtcgTokens(jsonFiles) : []),
+    ...(tsFiles.length > 0 ? loadTsTokens(tsFiles).map(classifyToken) : []),
+  ];
+
+  // Merge: first source of a name wins the primary value; a different value
+  // from another source becomes a mode value (light.json + dark.json pattern).
+  const merged = new Map<string, Token>();
+  for (const token of [...(cssIndex ? cssIndex.tokens.values() : []), ...extra]) {
+    const existing = merged.get(token.name);
+    if (!existing) {
+      merged.set(token.name, { ...token });
+    } else if (token.value !== existing.value) {
+      existing.modeValues = [
+        ...new Set([...(existing.modeValues ?? []), token.value, ...(token.modeValues ?? [])]),
+      ];
+    }
+    if (token.roles && !merged.get(token.name)?.roles) {
+      const target = merged.get(token.name);
+      if (target) target.roles = token.roles;
+    }
+  }
+  applyRolesSidecar(config, merged);
+
+  const index = createIndex(merged.values());
+  if (cssIndex?.diagnostics) index.diagnostics = cssIndex.diagnostics;
   cache.set(config.root, { key, index });
   return index;
 }
 
+/** `roles` config: a JSON file of { "name-glob": ["bg", "fg", …] }. */
+function applyRolesSidecar(config: DscheckConfig, tokens: Map<string, Token>): void {
+  if (!config.rolesFile) return;
+  const path = join(config.root, config.rolesFile);
+  if (!existsSync(path)) return;
+  const mapping = JSON.parse(readFileSync(path, 'utf8')) as Record<string, string[]>;
+  const matchers = Object.entries(mapping).map(([glob, roles]) => ({
+    match: picomatch(glob),
+    roles,
+  }));
+  for (const token of tokens.values()) {
+    for (const { match, roles } of matchers) {
+      if (match(token.name)) token.roles = [...new Set([...(token.roles ?? []), ...roles])];
+    }
+  }
+}
+
 /** Resolved tolerance for a config, defaults filled. */
-export function toleranceFor(config: OffsystemConfig | undefined): Tolerance {
+export function toleranceFor(config: DscheckConfig | undefined): Tolerance {
   return { ...defaultTolerance, ...config?.tolerance };
 }
 
 /** Predicate over config.allow globs, memoized per config. */
-export function allowedNameMatcher(config: OffsystemConfig): (name: string) => boolean {
+export function allowedNameMatcher(config: DscheckConfig): (name: string) => boolean {
   if (config.allow.length === 0) return () => false;
   const matcher = picomatch(config.allow);
   return (name) => matcher(name);
