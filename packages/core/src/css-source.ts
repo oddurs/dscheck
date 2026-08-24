@@ -93,7 +93,11 @@ export function loadCssTokens(files: string[], options: CssLoadOptions = {}): Va
   for (const [name, { raw, source }] of declared) {
     const { value, unresolved } = resolveValue(raw, declared);
     const aliasOf = immediateAlias(raw);
-    const modeValues = [...(modeDeclared.get(name) ?? [])]
+    // A pure alias is the semantic face of its target: it carries the
+    // target's mode values too, so dark-mode literals match semantic tokens.
+    const ownModes = modeDeclared.get(name) ?? new Set<string>();
+    const aliasModes = aliasOf ? (modeDeclared.get(aliasOf) ?? new Set<string>()) : new Set<string>();
+    const modeValues = [...new Set([...ownModes, ...aliasModes])]
       .map((modeRaw) => resolveValue(modeRaw, declared).value)
       .filter((v) => v !== value);
     tokens.push({
@@ -209,7 +213,10 @@ function resolveValue(
     }
     return false;
   });
-  return { value: parsed.toString().trim(), unresolved };
+  const value = parsed.toString().trim();
+  // SCSS interpolation survives parsing as literal text — it has no static value.
+  if (value.includes('#{')) return { value, unresolved: true };
+  return { value, unresolved };
 }
 
 function replaceNode(node: valueParser.FunctionNode, replacement: string): void {
@@ -228,7 +235,7 @@ function immediateAlias(raw: string): string | undefined {
 const NAMESPACES: ReadonlyArray<readonly [RegExp, Category]> = [
   [/^--color-/, 'color'],
   [/^--spacing(-|$)/, 'length'],
-  [/^--radius(-|$)/, 'radius'],
+  [/^--radius(-|$)|-radius(es)?$/, 'radius'],
   [/^--text-[\w-]+--line-height$/, 'line-height'],
   [/^--text-/, 'font-size'],
   [/^--font-weight-/, 'font-weight'],
