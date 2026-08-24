@@ -1,10 +1,23 @@
 import starlight from '@astrojs/starlight';
 import { defineConfig } from 'astro/config';
+import starlightLinksValidator from 'starlight-links-validator';
+import starlightLlmsTxt from 'starlight-llms-txt';
 
 export default defineConfig({
   site: 'https://dscheck.dev',
+  // Q6: inbound links never break — moved pages get a redirect here, forever.
+  redirects: {
+    '/guides/getting-started/': '/guides/eslint/',
+  },
   integrations: [
     starlight({
+      plugins: [
+        starlightLinksValidator({ errorOnInvalidHashes: true }),
+        starlightLlmsTxt({
+          projectName: 'dscheck',
+          description: 'The linter that knows your design system.',
+        }),
+      ],
       title: 'dscheck',
       description: 'The linter that knows your design system.',
       lastUpdated: true,

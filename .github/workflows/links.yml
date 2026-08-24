@@ -1,0 +1,14 @@
+# Q1: external links checked weekly — availability-style, never a build blocker.
+name: links
+on:
+  schedule: [{ cron: '20 5 * * 2' }]
+  workflow_dispatch:
+jobs:
+  external:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: lycheeverse/lychee-action@82202e5e9c2f4ef1a55a3d02563e1cb6041e5332 # v2.4.1
+        with:
+          args: --no-progress --max-retries 2 --exclude 'localhost|dscheck\.dev|linear\.app' 'docs-site/src/content/docs/**/*.md' 'README.md' 'RUNBOOK.md'
+          fail: true
