@@ -43,3 +43,24 @@ describe('@dscheck/tw engine', () => {
     expect(engineFor(dir, [])).toBeUndefined();
   });
 });
+
+describe('H3: static parse vs engine differential', () => {
+  it('static loader and Tailwind engine agree on theme tokens', async () => {
+    resetEngines();
+    const dir = projectWithTailwind();
+    const parse = engineFor(dir, [join(dir, 'app.css')]);
+    expect(parse).toBeDefined();
+    const { loadCssTokens } = await import('@dscheck/core');
+    const staticIndex = loadCssTokens([join(dir, 'app.css')]);
+    // Our declared tokens must exist in the static index with exact values,
+    // and the engine must produce css for utilities derived from them —
+    // proof both sides read the same theme.
+    expect(staticIndex.tokens.get('--color-brand')?.value).toBe('#1d4ed8');
+    expect(staticIndex.tokens.get('--spacing-huge')?.value).toBe('100px');
+    const [brand, huge, defaultRed] = parse?.(['bg-brand', 'p-huge', 'bg-red-500']) ?? [];
+    expect(brand?.inert).toBe(false);
+    expect(huge?.inert).toBe(false);
+    expect(defaultRed?.inert).toBe(false); // default theme present in both
+    expect(staticIndex.tokens.has('--color-red-500')).toBe(true);
+  });
+});

@@ -18,6 +18,7 @@
     "synckit": "^0.11.0"
   },
   "devDependencies": {
+    "@dscheck/core": "workspace:*",
     "tailwindcss": "^4.2.0",
     "tsdown": "^0.15.0"
   },

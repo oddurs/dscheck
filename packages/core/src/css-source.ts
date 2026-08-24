@@ -96,7 +96,9 @@ export function loadCssTokens(files: string[], options: CssLoadOptions = {}): Va
     // A pure alias is the semantic face of its target: it carries the
     // target's mode values too, so dark-mode literals match semantic tokens.
     const ownModes = modeDeclared.get(name) ?? new Set<string>();
-    const aliasModes = aliasOf ? (modeDeclared.get(aliasOf) ?? new Set<string>()) : new Set<string>();
+    const aliasModes = aliasOf
+      ? (modeDeclared.get(aliasOf) ?? new Set<string>())
+      : new Set<string>();
     const modeValues = [...new Set([...ownModes, ...aliasModes])]
       .map((modeRaw) => resolveValue(modeRaw, declared).value)
       .filter((v) => v !== value);
