@@ -12,5 +12,13 @@ jobs:
         with: { node-version: 22, cache: pnpm }
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
-      - run: node scripts/corpus.mjs
+      - run: |
+          set +e
+          node scripts/corpus.mjs
+          ec=$?
+          if [ $ec -eq 3 ]; then
+            echo "::warning::corpus upstream(s) unavailable — ran from committed bundles (RUNBOOK: CI health)"
+            exit 0
+          fi
+          exit $ec
       - run: node scripts/audit.mjs
