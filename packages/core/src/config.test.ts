@@ -189,7 +189,7 @@ describe('config forward-compat (M3)', () => {
     const dir = project({
       'package.json': '{}',
       'dscheck.config.json':
-        '{"$schema":"https://dscheck.dev/config.schema.v9.json","tokens":["t.css"],"futureKey":true}',
+        '{"$schema":"https://oddurs.github.io/dscheck/config.schema.v9.json","tokens":["t.css"],"futureKey":true}',
       't.css': '@theme { --color-a: #fff; }',
     });
     expect(() => findConfig(dir)).not.toThrow();

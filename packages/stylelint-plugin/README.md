@@ -18,6 +18,6 @@ Reads your Tailwind `@theme`, DTCG JSON, or `:root` custom properties and flags 
 that aren't from them, naming the nearest token. `--fix` rewrites only provably-identical
 matches — `14px` is never rounded to `12px`.
 
-Full documentation: **https://dscheck.dev** · MIT licensed.
+Full documentation: **https://oddurs.github.io/dscheck** · MIT licensed.
 
-Changelog: https://dscheck.dev/reference/changelog/
+Changelog: https://oddurs.github.io/dscheck/reference/changelog/

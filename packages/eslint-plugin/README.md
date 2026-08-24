@@ -14,6 +14,6 @@ Checks JSX inline styles, referenced style objects, Tailwind class strings (incl
 already defines. Every finding names the nearest on-system token with its distance;
 exact matches autofix, near misses become editor suggestions.
 
-Full documentation: **https://dscheck.dev** · MIT licensed.
+Full documentation: **https://oddurs.github.io/dscheck** · MIT licensed.
 
-Changelog: https://dscheck.dev/reference/changelog/
+Changelog: https://oddurs.github.io/dscheck/reference/changelog/

@@ -105,7 +105,8 @@ function validateConfig(raw: Record<string, unknown>, file: string): void {
   // not die — a foreign/newer $schema turns unknown-key errors into warnings,
   // and x-* keys are reserved extension space, always ignored.
   const knownSchema =
-    raw.$schema === undefined || raw.$schema === 'https://dscheck.dev/config.schema.json';
+    raw.$schema === undefined ||
+    raw.$schema === 'https://oddurs.github.io/dscheck/config.schema.json';
   const unknownKeyProblems: string[] = [];
   for (const key of Object.keys(raw)) {
     if (key.startsWith('x-')) continue;

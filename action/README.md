@@ -13,4 +13,4 @@ and optionally as a sticky pull-request comment (`comment: true`). Control the g
 Adopting on an existing codebase? Record a baseline first (`npx dscheck-cli baseline src`,
 commit `.dscheck-baseline.json`) — the action then fails only on new findings.
 
-Full documentation: **https://dscheck.dev**
+Full documentation: **https://oddurs.github.io/dscheck**

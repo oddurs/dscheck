@@ -29,11 +29,14 @@ export default defineConfig({
       description: 'The linter that knows your design system.',
       lastUpdated: true,
       head: [
-        { tag: 'meta', attrs: { property: 'og:image', content: 'https://dscheck.dev/social.png' } },
+        {
+          tag: 'meta',
+          attrs: { property: 'og:image', content: 'https://oddurs.github.io/dscheck/social.png' },
+        },
         { tag: 'meta', attrs: { name: 'twitter:card', content: 'summary_large_image' } },
         {
           tag: 'meta',
-          attrs: { name: 'twitter:image', content: 'https://dscheck.dev/social.png' },
+          attrs: { name: 'twitter:image', content: 'https://oddurs.github.io/dscheck/social.png' },
         },
       ],
       customCss: ['./src/styles/tokens.css', './src/styles/custom.css'],

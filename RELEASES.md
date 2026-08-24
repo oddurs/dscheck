@@ -27,4 +27,12 @@ conventional unscoped names. The installed **command is still `dscheck`**.
 | [`dscheck-sarif`](https://www.npmjs.com/package/dscheck-sarif) | SARIF output + stylelint formatter |
 | [`dscheck-tw`](https://www.npmjs.com/package/dscheck-tw) | Tailwind engine bridge |
 
-Stranger tests: 0 / 3 (begins at go-public).
+Stranger tests: 0 / 3 — the repository went public 2026-08-24; docs live at
+<https://oddurs.github.io/dscheck>.
+
+## Publishing note
+
+0.1.0 was published from a laptop and therefore carries **no provenance attestation** —
+npm can only generate one from a CI OIDC environment. The release workflow sets
+`NPM_CONFIG_PROVENANCE`, so 0.1.1 onward will be signed. That gap is recorded here rather
+than glossed over.

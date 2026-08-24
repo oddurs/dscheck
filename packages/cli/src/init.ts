@@ -157,7 +157,7 @@ export function runInit(root: string, write: boolean): number {
   }
 
   const config = {
-    $schema: 'https://dscheck.dev/config.schema.json',
+    $schema: 'https://oddurs.github.io/dscheck/config.schema.json',
     tokens: plan.tokenFiles,
     ...(plan.rootSelectors.length > 0 ? { rootSelectors: plan.rootSelectors } : {}),
     ...(plan.allow.length > 0 ? { allow: plan.allow } : {}),

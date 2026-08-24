@@ -21,6 +21,6 @@ npx dscheck-cli check src
   and [`stylelint-dscheck`](https://www.npmjs.com/package/stylelint-dscheck)
   in the linters you already run.
 
-Full documentation: **https://dscheck.dev** · MIT licensed.
+Full documentation: **https://oddurs.github.io/dscheck** · MIT licensed.
 
-Changelog: https://dscheck.dev/reference/changelog/
+Changelog: https://oddurs.github.io/dscheck/reference/changelog/

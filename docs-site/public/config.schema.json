@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://dscheck.dev/config.schema.json",
+  "$id": "https://oddurs.github.io/dscheck/config.schema.json",
   "title": "dscheck.config.json",
   "type": "object",
   "additionalProperties": false,

@@ -10,7 +10,11 @@ export function remarkBaseLinks({ base = '' } = {}) {
     if (!prefix) return;
     const walk = (node) => {
       if ((node.type === 'link' || node.type === 'definition') && typeof node.url === 'string') {
-        if (node.url.startsWith('/') && !node.url.startsWith(`${prefix}/`) && !node.url.startsWith('//')) {
+        if (
+          node.url.startsWith('/') &&
+          !node.url.startsWith(`${prefix}/`) &&
+          !node.url.startsWith('//')
+        ) {
           node.url = `${prefix}${node.url}`;
         }
       }

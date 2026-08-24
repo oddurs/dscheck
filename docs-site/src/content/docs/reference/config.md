@@ -5,7 +5,7 @@ description: One config file, read by the CLI and both plugins.
 
 Zero-config works when your repo has an `@theme` CSS entry or a `tokens.css`/`:root`
 block. The config file makes it explicit — a [JSON Schema](/config.schema.json) is
-published for editor validation (`"$schema": "https://dscheck.dev/config.schema.json"`),
+published for editor validation (`"$schema": "https://oddurs.github.io/dscheck/config.schema.json"`),
 and unknown keys **fail fast** with a did-you-mean rather than being silently ignored:
 
 ```jsonc
