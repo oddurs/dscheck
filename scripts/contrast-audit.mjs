@@ -4,7 +4,8 @@ import { writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { loadCssTokens } from '../packages/core/dist/index.js';
 
-const require = createRequire(import.meta.url);
+// culori belongs to @dscheck/core — resolve it from there, not from scripts/
+const require = createRequire(new URL('../packages/core/package.json', import.meta.url));
 const { wcagContrast } = require('culori');
 
 const index = loadCssTokens(['docs-site/src/styles/tokens.css']);
