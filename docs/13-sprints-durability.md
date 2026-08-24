@@ -12,7 +12,7 @@
 
 ---
 
-## Sprint L — Ecosystem churn armor
+## Sprint L — Ecosystem churn armor — **DONE 2026-08-24** (eslint 10 + stylelint 17 primary, suite unchanged; oldest-peers CI job; engine-loss fallback test; theme-freshness gate; compat policy; playbooks in RUNBOOK)
 
 **Goal: a host or Tailwind release never breaks users before it breaks CI, and never breaks CI without a playbook.**
 
@@ -26,7 +26,7 @@
 
 **Exit:** every supported combination tested; every foreseeable churn event has a playbook.
 
-## Sprint M — External-state & data durability
+## Sprint M — External-state & data durability — **DONE 2026-08-24** (corpus bundles 4.9MB — offline drill 5/5 exact + exit-3 availability; drill caught knownNames needing the full stylesheet sweep; clone retry; x-*/newer-$schema forward-compat; baseline $version + tolerant reader)
 
 **Goal: nothing outside the repo can break the build; nothing written today becomes unreadable tomorrow.**
 
@@ -40,7 +40,7 @@
 
 **Exit:** `git clone` + `pnpm install` + `pnpm test` passes on a machine with the corpus upstreams firewalled.
 
-## Sprint N — Maintainer-absence resilience
+## Sprint N — Maintainer-absence resilience — **DONE 2026-08-24** (RUNBOOK; changesets + OIDC release workflow, zero local credentials; availability warns not fails; flaky quarantine policy; absence drill from fresh clone: zero undocumented steps, log committed)
 
 **Goal: every recurring duty is either automated or written down well enough that a stranger could do it this afternoon.**
 
@@ -54,7 +54,7 @@
 
 **Exit:** the drill passes, performed strictly by-the-book.
 
-## Sprint O — Slow-decay countermeasures
+## Sprint O — Slow-decay countermeasures — **DONE 2026-08-24** (perf trend vs trailing median in corpus gate, history seeded; dependency register; April/monthly/yearly rituals in RUNBOOK; health script + first report committed)
 
 **Goal: decay is measured, so it gets noticed while it's still cheap.**
 
