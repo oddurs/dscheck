@@ -45,9 +45,10 @@ Never decorate with them — a mark appears only where its meaning applies.
 
 ## The wordmark as a file
 
-For places that need a file, the wordmark ships as **typographic SVG** — real text with
-the system mono stack and pinned geometry (`textLength`), not outlines. It weighs under
-a kilobyte and always matches the reader's platform:
+For places that need a file, the wordmark ships as **typographic SVG** — real text in
+the system sans, at the face's natural width, never stretched or outlined. It weighs
+under a kilobyte and always matches the reader's platform (minor per-platform width
+variance is accepted — that's what typographic-only means):
 
 - [`wordmark-light.svg`](https://github.com/oddurs/dscheck/blob/main/assets/brand/wordmark-light.svg) · [`wordmark-dark.svg`](https://github.com/oddurs/dscheck/blob/main/assets/brand/wordmark-dark.svg)
 - The docs header uses exactly these files (Starlight `logo`, light/dark variants).
