@@ -207,12 +207,62 @@ body {
   line-height: var(--text-sm--line-height);
 }
 
-/* expressive-code frames: quiet titles */
-.expressive-code .frame .header,
+/* ── expressive-code frames: plain, seamless, no skeuomorphism ──────── */
+/* untitled terminal frames: no fake chrome at all — one clean block */
+.expressive-code .frame.is-terminal:not(.has-title) .header {
+  display: none;
+}
+
+.expressive-code .frame.is-terminal:not(.has-title) pre {
+  border-radius: var(--radius-md);
+}
+
+/* titled frames: one quiet bar, corners shared with the body */
+.expressive-code .frame .header {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-ink-faint);
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-border);
+  border-bottom: none;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+/* no traffic-light dots — the terminal is not a mac window */
+.expressive-code .frame.is-terminal .header::before {
+  display: none;
+}
+
+.expressive-code .frame:is(.has-title, .is-terminal) pre {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
 .expressive-code figcaption {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--color-ink-faint);
+}
+
+/* scrollbars: thin, quiet, on-system */
+.expressive-code pre {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) transparent;
+}
+
+.expressive-code pre::-webkit-scrollbar {
+  height: var(--spacing-2);
+}
+
+.expressive-code pre::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: var(--radius-full);
+  border: var(--spacing-1) solid transparent;
+  background-clip: padding-box;
+}
+
+.expressive-code pre::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 /* ── tables: hairlines, tabular numbers, airy rows ──────────────────── */
@@ -355,7 +405,7 @@ body {
 /* ── chrome: wordmark, sidebar, toc ─────────────────────────────────── */
 /* the header wordmark is the SVG (typography as artwork-free artwork) */
 .site-title img {
-  height: var(--spacing-6);
+  height: var(--spacing-8);
 }
 
 nav.sidebar .top-level a {
@@ -466,6 +516,68 @@ dialog[aria-label="Search"] {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
+}
+
+/* ── pagination: quiet, compact, clearly interactive ────────────────── */
+.pagination-links {
+  gap: var(--spacing-4);
+}
+
+.pagination-links a {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: none;
+  padding: var(--spacing-4);
+  gap: var(--spacing-2);
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.pagination-links a:hover {
+  border-color: var(--color-primary);
+  background-color: var(--color-surface-raised);
+}
+
+/* the Previous/Next eyebrow */
+.pagination-links a > span {
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+
+.pagination-links .link-title {
+  font-size: var(--text-base);
+  line-height: var(--text-base--line-height);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-normal);
+  color: var(--color-ink);
+  text-transform: none;
+}
+
+.pagination-links svg {
+  font-size: var(--text-lg);
+  color: var(--color-ink-faint);
+}
+
+/* ── heading anchors: present, never shouting ───────────────────────── */
+.sl-anchor-link {
+  color: var(--color-ink-faint);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.sl-anchor-link svg {
+  width: var(--spacing-4);
+  height: var(--spacing-4);
+}
+
+.sl-markdown-content :is(h1, h2, h3, h4, h5, h6):hover .sl-anchor-link,
+.sl-anchor-link:focus-visible {
+  opacity: 1;
+}
+
+.sl-anchor-link:hover {
+  color: var(--color-primary);
 }
 
 /* ── print: ink on paper, code wraps ────────────────────────────────── */

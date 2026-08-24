@@ -2,5 +2,5 @@
   <!-- the wordmark is the name, set like a heading: system sans, semibold,
        tight tracking, ink — rendered at the face's natural width, never
        stretched. Minor per-platform width variance is the point. -->
-  <text x="0" y="33" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="32" font-weight="600" letter-spacing="-0.5" fill="oklch(0.18 0.005 255)">dscheck</text>
+  <text x="0" y="33" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="32" font-weight="600" letter-spacing="-0.5" fill="oklch(0.47 0.1 255)">dscheck</text>
 </svg>
