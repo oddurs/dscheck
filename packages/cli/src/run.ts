@@ -39,17 +39,21 @@ function severitiesFor(anchor: string | undefined): Record<string, Severity> {
 }
 
 /** Lint by driving the real hosts with our plugins — findings match editor/CI output exactly. */
-export async function lintFiles(files: string[]): Promise<Finding[]> {
+export async function lintFiles(
+  files: string[],
+  options: { fix?: boolean } = {},
+): Promise<Finding[]> {
   const css = files.filter((f) => /\.(css|scss)$/.test(f));
   const jsx = files.filter((f) => /\.(jsx|tsx)$/.test(f));
+  const fix = options.fix ?? false;
   const findings = [
-    ...(css.length > 0 ? await lintCss(css) : []),
-    ...(jsx.length > 0 ? await lintJsx(jsx) : []),
+    ...(css.length > 0 ? await lintCss(css, fix) : []),
+    ...(jsx.length > 0 ? await lintJsx(jsx, fix) : []),
   ];
   return findings.sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line || a.col - b.col);
 }
 
-async function lintCss(files: string[]): Promise<Finding[]> {
+async function lintCss(files: string[], fix: boolean): Promise<Finding[]> {
   const { default: stylelint } = await import('stylelint');
   const severities = severitiesFor(files[0]);
   const rules = Object.fromEntries(
@@ -62,6 +66,7 @@ async function lintCss(files: string[]): Promise<Finding[]> {
   );
   const result = await stylelint.lint({
     files: files.map((f) => f.replaceAll('\\', '/')), // stylelint globs; windows backslashes would escape
+    fix,
     config: { plugins: [require.resolve('@dscheck/stylelint-plugin')], rules },
   });
   return result.results.flatMap((r) =>
@@ -71,7 +76,7 @@ async function lintCss(files: string[]): Promise<Finding[]> {
   );
 }
 
-async function lintJsx(files: string[]): Promise<Finding[]> {
+async function lintJsx(files: string[], fix: boolean): Promise<Finding[]> {
   const { Linter } = await import('eslint');
   const { readFileSync } = await import('node:fs');
   const { default: plugin } = await import('@dscheck/eslint-plugin');
@@ -84,20 +89,26 @@ async function lintJsx(files: string[]): Promise<Finding[]> {
       .map(([rule, s]) => [`dscheck/${rule}`, s]),
   );
   const findings: Finding[] = [];
+  const config = {
+    files: ['**/*.{jsx,tsx}'],
+    plugins: { dscheck: plugin as never },
+    languageOptions: {
+      parser: tsParser as never,
+      parserOptions: { ecmaFeatures: { jsx: true } },
+    },
+    rules: eslintRules,
+  } as never;
+  const { writeFileSync } = await import('node:fs');
   for (const file of files) {
-    const messages = linter.verify(
-      readFileSync(file, 'utf8'),
-      {
-        files: ['**/*.{jsx,tsx}'],
-        plugins: { dscheck: plugin as never },
-        languageOptions: {
-          parser: tsParser as never,
-          parserOptions: { ecmaFeatures: { jsx: true } },
-        },
-        rules: eslintRules,
-      },
-      file,
-    );
+    let messages: ReturnType<InstanceType<typeof Linter>['verify']>;
+    if (fix) {
+      const source = readFileSync(file, 'utf8');
+      const result = linter.verifyAndFix(source, config, file);
+      if (result.fixed && result.output !== source) writeFileSync(file, result.output);
+      messages = result.messages;
+    } else {
+      messages = linter.verify(readFileSync(file, 'utf8'), config, file);
+    }
     for (const m of messages) {
       if (!m.ruleId?.startsWith('dscheck/')) continue;
       findings.push(

@@ -8,6 +8,6 @@ description: Turn dscheck on today without fixing 400 findings first.
 3. **Gate the new:** add `dscheck check src` to CI. It fails only on findings beyond the
    baseline; the run header shows how much debt the baseline is absorbing.
 4. **Pay down deliberately:** `dscheck report` shows the delta; when you clean a file,
-   re-run `dscheck baseline` to prune its entries and lock in the progress.
+   run `dscheck baseline --update` — prune-only, so counts can fall but never rise.
 5. **Exempt what's exempt:** content surfaces via `ignore` globs, runtime-injected
    variables via `allow` globs — visible in config, not scattered in disable comments.

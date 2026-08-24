@@ -225,3 +225,12 @@ describe('css-in-js (E1–E3)', () => {
     expect(messages.some((m) => m.message.includes('14px'))).toBe(true);
   });
 });
+
+describe('editor suggestions (F2)', () => {
+  it('offers near-miss tokens as suggestions without autofixing', () => {
+    const messages = lint('const a = <div style={{ padding: "14px" }} />;');
+    const suggestion = messages[0]?.suggestions?.[0];
+    expect(suggestion?.desc).toBe('Use var(--spacing-3) (12px)');
+    expect(suggestion?.fix.text).toBe("'var(--spacing-3)'");
+  });
+});

@@ -46,6 +46,7 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
         url: `https://github.com/oddurs/dscheck/blob/main/docs-site/src/content/docs/rules/${ruleId}.md`,
       },
       fixable: 'code',
+      hasSuggestions: true,
       schema: [],
       messages: { violation: '{{ text }}' },
     },
@@ -87,6 +88,17 @@ function createRule(ruleId: RuleId): Rule.RuleModule {
               messageId: 'violation',
               data: { text: formatViolation(violation) },
               fix: (fixer) => fixer.replaceText(node as never, `'var(${best.token.name})'`),
+            });
+          } else if (wholeLiteral && violation.matches.length > 0) {
+            // Near-misses become one-click editor suggestions — never auto-applied.
+            context.report({
+              node: node as never,
+              messageId: 'violation',
+              data: { text: formatViolation(violation) },
+              suggest: violation.matches.slice(0, 3).map((m) => ({
+                desc: `Use var(${m.token.name}) (${m.token.value})`,
+                fix: (fixer) => fixer.replaceText(node as never, `'var(${m.token.name})'`),
+              })),
             });
           } else {
             report(node, formatViolation(violation));

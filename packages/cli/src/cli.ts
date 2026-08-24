@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import * as childProcess from 'node:child_process';
+import * as fsModule from 'node:fs';
 import { statSync } from 'node:fs';
 import { relative, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
@@ -11,12 +13,19 @@ const HELP = `dscheck — the linter that knows your design system
 
 Usage
   dscheck check [paths...]     Lint files (default: cwd) against the token set
+  dscheck fix [paths...]       Apply every exact-match fix, report what remains
   dscheck baseline [paths...]  Record current findings as accepted debt
   dscheck report [paths...]    Debt overview: counts by rule and worst files, vs baseline
-  dscheck tokens               Print the resolved allowed set
+  dscheck tokens [query]       Print the allowed set (--json, --category, --doctor)
+  dscheck roles --suggest      Propose a roles.json from token names (review, then commit)
 
 Options
   --format <pretty|json|agent|sarif>  Output format (default: pretty)
+  --since <ref>                       Only lint files changed since a git ref
+  --update                            (baseline) prune paid-down entries, never raise counts
+  --category <name>                   (tokens) filter by category
+  --json                              (tokens) JSON output
+  --watch                             Re-lint files as they change
   --no-baseline                       Ignore .dscheck-baseline.json
   -h, --help                          Show help
 
@@ -29,6 +38,11 @@ const { values, positionals } = parseArgs({
     format: { type: 'string', default: 'pretty' },
     doctor: { type: 'boolean', default: false },
     suggest: { type: 'boolean', default: false },
+    json: { type: 'boolean', default: false },
+    category: { type: 'string' },
+    since: { type: 'string' },
+    update: { type: 'boolean', default: false },
+    watch: { type: 'boolean', default: false },
     'no-baseline': { type: 'boolean', default: false },
     help: { type: 'boolean', short: 'h' },
   },
@@ -94,77 +108,147 @@ if (command === 'tokens') {
       console.log(`${pc.red('dangling')}   ${name} → missing target`);
     process.exit(1);
   }
-  for (const token of [...index.tokens.values()].sort((a, b) => a.name.localeCompare(b.name))) {
-    console.log(`${token.name}\t${token.category}\t${token.value}`);
+  let list = [...index.tokens.values()].sort((a, b) => a.name.localeCompare(b.name));
+  if (values.category) list = list.filter((t) => t.category === values.category);
+  const query = paths[0];
+  if (query) list = list.filter((t) => t.name.includes(query) || t.value.includes(query));
+  if (values.json) {
+    console.log(JSON.stringify(list, null, 2));
+  } else {
+    for (const token of list) console.log(`${token.name}\t${token.category}\t${token.value}`);
   }
   process.exit(0);
 }
 
-if (!['check', 'baseline', 'report'].includes(command))
+if (!['check', 'fix', 'baseline', 'report'].includes(command))
   fail(`Unknown command: ${command}\n\n${HELP}`);
 
-const files = expand(paths.length > 0 ? paths : ['.']);
-const findings = await lintFilesParallel(files);
+let files = expand(paths.length > 0 ? paths : ['.']);
+if (values.since) files = onlyChangedSince(files, values.since);
+const fixing = command === 'fix';
+const findings = fixing
+  ? await (await import('./run.js')).lintFiles(files, { fix: true })
+  : await lintFilesParallel(files);
 const root = process.cwd();
 
-if (command === 'baseline') {
-  const { writeBaseline, BASELINE_FILE } = await import('./baseline.js');
-  writeBaseline(findings, root);
-  console.log(`${findings.length} findings recorded in ${BASELINE_FILE}`);
-  process.exit(0);
-}
-
-if (command === 'report') {
-  const { readBaseline } = await import('./baseline.js');
-  const known = readBaseline(root);
-  const baselined = known
-    ? Object.values(known).reduce(
-        (n, rules) => n + Object.values(rules).reduce((m, r) => m + r.count, 0),
-        0,
-      )
-    : undefined;
-  const byRule = new Map<string, number>();
-  const byFile = new Map<string, number>();
-  for (const f of findings) {
-    byRule.set(f.rule, (byRule.get(f.rule) ?? 0) + 1);
-    byFile.set(f.file, (byFile.get(f.file) ?? 0) + 1);
-  }
+if (fixing) {
+  await render(findings, values.format as string);
   console.log(
-    pc.bold(`off-system findings: ${findings.length}`) +
-      (baselined !== undefined
-        ? pc.dim(
-            `  (baseline: ${baselined}, delta ${findings.length - baselined >= 0 ? '+' : ''}${findings.length - baselined})`,
-          )
-        : ''),
+    pc.dim(
+      '\nExact-match fixes applied. Remaining findings need judgment — apply suggestions by hand or via editor.',
+    ),
   );
-  console.log(`\n${pc.bold('by rule')}`);
-  for (const [rule, n] of [...byRule].sort((a, b) => b[1] - a[1]))
-    console.log(`  ${String(n).padStart(5)}  ${rule}`);
-  console.log(`\n${pc.bold('worst files')}`);
-  for (const [file, n] of [...byFile].sort((a, b) => b[1] - a[1]).slice(0, 10))
-    console.log(`  ${String(n).padStart(5)}  ${file}`);
-  process.exit(0);
+  process.exitCode = findings.some((f) => f.severity === 'error') ? 1 : 0;
+} else {
+  await runCheckOrBaselineOrReport();
+  if (values.watch && command === 'check') watchAndRelint(paths.length > 0 ? paths : ['.']);
 }
 
-const { readBaseline, applyBaseline } = await import('./baseline.js');
-const baseline = values['no-baseline'] ? undefined : readBaseline(root);
-let reportable = findings;
-if (baseline) {
-  const { fresh, absorbed, stale } = applyBaseline(findings, baseline, root);
-  reportable = fresh;
-  if (values.format === 'pretty' && (absorbed > 0 || stale > 0)) {
-    console.log(
-      pc.dim(
-        `baseline: ${absorbed} known finding${absorbed === 1 ? '' : 's'} absorbed` +
-          (stale > 0
-            ? `, ${stale} entr${stale === 1 ? 'y' : 'ies'} paid down (re-run \`dscheck baseline\` to prune)`
-            : ''),
-      ),
-    );
+/** Minimal watch loop: re-lint just the file that changed, instantly. */
+function watchAndRelint(roots: string[]): void {
+  console.log(pc.dim('\nwatching for changes… (ctrl-c to stop)'));
+  const seenAt = new Map<string, number>();
+  for (const root of roots) {
+    fsModule.watch(resolve(root), { recursive: true }, (_event, name) => {
+      if (!name || !/\.(css|scss|jsx|tsx)$/.test(name)) return;
+      const file = resolve(root, name);
+      const now = Date.now();
+      if ((seenAt.get(file) ?? 0) > now - 150) return; // debounce editor double-writes
+      seenAt.set(file, now);
+      void (async () => {
+        const { lintFiles } = await import('./run.js');
+        const findings = await lintFiles([file]);
+        const time = new Date().toLocaleTimeString();
+        if (findings.length === 0) {
+          console.log(pc.dim(`${time} `) + pc.green('✔') + pc.dim(` ${name}`));
+        } else {
+          for (const f of findings)
+            console.log(
+              pc.dim(`${time} `) +
+                (f.severity === 'error' ? pc.red('✖') : pc.yellow('⚠')) +
+                ` ${name}:${f.line} ${f.message}`,
+            );
+        }
+      })();
+    });
   }
+  process.exitCode = 0;
 }
-await render(reportable, values.format as string);
-process.exitCode = reportable.some((f) => f.severity === 'error') ? 1 : 0;
+
+async function runCheckOrBaselineOrReport(): Promise<void> {
+  if (command === 'baseline') {
+    const { writeBaseline, readBaseline, BASELINE_FILE } = await import('./baseline.js');
+    const existing = values.update ? (readBaseline(root) ?? {}) : undefined;
+    const written = writeBaseline(findings, root);
+    if (existing) {
+      // prune-only: --update never raises a count above what was accepted
+      for (const [file, rules] of Object.entries(written)) {
+        for (const [rule, entry] of Object.entries(rules)) {
+          const accepted = existing[file]?.[rule]?.count;
+          if (accepted !== undefined && accepted < entry.count) entry.count = accepted;
+        }
+      }
+      const { writeFileSync } = await import('node:fs');
+      writeFileSync(`${root}/${BASELINE_FILE}`, `${JSON.stringify(written, null, 2)}\n`);
+      console.log(`baseline updated (prune-only) in ${BASELINE_FILE}`);
+    } else {
+      console.log(`${findings.length} findings recorded in ${BASELINE_FILE}`);
+    }
+    process.exit(0);
+  }
+
+  if (command === 'report') {
+    const { readBaseline } = await import('./baseline.js');
+    const known = readBaseline(root);
+    const baselined = known
+      ? Object.values(known).reduce(
+          (n, rules) => n + Object.values(rules).reduce((m, r) => m + r.count, 0),
+          0,
+        )
+      : undefined;
+    const byRule = new Map<string, number>();
+    const byFile = new Map<string, number>();
+    for (const f of findings) {
+      byRule.set(f.rule, (byRule.get(f.rule) ?? 0) + 1);
+      byFile.set(f.file, (byFile.get(f.file) ?? 0) + 1);
+    }
+    console.log(
+      pc.bold(`off-system findings: ${findings.length}`) +
+        (baselined !== undefined
+          ? pc.dim(
+              `  (baseline: ${baselined}, delta ${findings.length - baselined >= 0 ? '+' : ''}${findings.length - baselined})`,
+            )
+          : ''),
+    );
+    console.log(`\n${pc.bold('by rule')}`);
+    for (const [rule, n] of [...byRule].sort((a, b) => b[1] - a[1]))
+      console.log(`  ${String(n).padStart(5)}  ${rule}`);
+    console.log(`\n${pc.bold('worst files')}`);
+    for (const [file, n] of [...byFile].sort((a, b) => b[1] - a[1]).slice(0, 10))
+      console.log(`  ${String(n).padStart(5)}  ${file}`);
+    process.exit(0);
+  }
+
+  const { readBaseline, applyBaseline } = await import('./baseline.js');
+  const baseline = values['no-baseline'] ? undefined : readBaseline(root);
+  let reportable = findings;
+  if (baseline) {
+    const { fresh, absorbed, stale } = applyBaseline(findings, baseline, root);
+    reportable = fresh;
+    if (values.format === 'pretty' && (absorbed > 0 || stale > 0)) {
+      console.log(
+        pc.dim(
+          `baseline: ${absorbed} known finding${absorbed === 1 ? '' : 's'} absorbed` +
+            (stale > 0
+              ? `, ${stale} entr${stale === 1 ? 'y' : 'ies'} paid down (re-run \`dscheck baseline\` to prune)`
+              : ''),
+        ),
+      );
+    }
+  }
+  await render(reportable, values.format as string);
+  process.exitCode = reportable.some((f) => f.severity === 'error') ? 1 : 0;
+}
 
 function expand(inputs: string[]): string[] {
   const out = new Set<string>();
@@ -181,6 +265,24 @@ function expand(inputs: string[]): string[] {
     }
   }
   return [...out].sort();
+}
+
+/** Intersect the file list with git-changed files since a ref. */
+function onlyChangedSince(files: string[], ref: string): string[] {
+  const { execSync } = childProcess;
+  const changed = new Set(
+    execSync(
+      `git diff --name-only --diff-filter=ACMR ${ref} -- . && git ls-files --others --exclude-standard`,
+      {
+        encoding: 'utf8',
+        shell: '/bin/bash',
+      },
+    )
+      .split('\n')
+      .filter(Boolean)
+      .map((f) => resolve(f)),
+  );
+  return files.filter((f) => changed.has(f));
 }
 
 function isDir(path: string): boolean {
