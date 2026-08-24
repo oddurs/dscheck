@@ -2,12 +2,16 @@ import starlight from '@astrojs/starlight';
 import { defineConfig } from 'astro/config';
 import starlightLinksValidator from 'starlight-links-validator';
 import starlightLlmsTxt from 'starlight-llms-txt';
+import { remarkBaseLinks } from './remark-base-links.mjs';
+
+const BASE = '/dscheck';
 
 export default defineConfig({
   // Pages until dscheck.dev is registered — the URL must match reality, or
   // canonicals, sitemap, and social cards all lie.
   site: 'https://oddurs.github.io',
-  base: '/dscheck',
+  base: BASE,
+  markdown: { remarkPlugins: [[remarkBaseLinks, { base: BASE }]] },
   // Q6: inbound links never break — moved pages get a redirect here, forever.
   redirects: {
     '/guides/getting-started/': '/guides/eslint/',
