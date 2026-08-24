@@ -1,7 +1,7 @@
 {
   "name": "dscheck-cli",
   "version": "0.1.0",
-  "description": "The linter that knows your design system — check, fix, baseline, and report off-system values.",
+  "description": "The linter that knows your design system \u2014 check, fix, baseline, and report off-system values.",
   "license": "MIT",
   "type": "module",
   "bin": {
@@ -16,7 +16,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsdown src/cli.ts src/worker.ts --dts"
+    "build": "tsdown src/cli.ts src/worker.ts --dts && node ../../scripts/copy-rule-docs.mjs"
   },
   "dependencies": {
     "@typescript-eslint/parser": "^8.67.0",

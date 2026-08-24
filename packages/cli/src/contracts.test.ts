@@ -133,3 +133,27 @@ describe('failure modes never look like success (W)', () => {
     expect(out.trim()).toMatch(/^dscheck-cli \d+\.\d+\.\d+$/);
   });
 });
+
+describe('explain matches the published rule pages (Y3)', () => {
+  it('every rule explains itself, offline, from its docs page', async () => {
+    const { RULE_IDS, explainRule } = await import('./explain.js');
+    for (const rule of RULE_IDS) {
+      const text = explainRule(rule);
+      expect(text, rule).toBeDefined();
+      // the contract every rule page states — and the terminal must repeat
+      expect(text, rule).toContain(`dscheck/${rule}`);
+      expect(text?.length ?? 0, rule).toBeGreaterThan(200);
+    }
+    expect(explainRule('no-such-rule')).toBeUndefined();
+  });
+
+  it('completion scripts cover every command for each shell', async () => {
+    const { completionScript } = await import('./explain.js');
+    for (const shell of ['fish', 'zsh', 'bash'] as const) {
+      const script = completionScript(shell);
+      for (const command of ['check', 'fix', 'baseline', 'explain']) {
+        expect(script, `${shell}:${command}`).toContain(command);
+      }
+    }
+  });
+});

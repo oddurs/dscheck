@@ -20,9 +20,16 @@ Usage
   dscheck report [paths...]    Debt overview: counts by rule and worst files, vs baseline
   dscheck tokens [query]       Print the allowed set (--json, --category, --doctor)
   dscheck roles --suggest      Propose a roles.json from token names (review, then commit)
+  dscheck explain <rule>       What a rule flags, what it never flags, how to disable
+  dscheck completions <shell>  Completion script for fish, zsh, or bash
 
 Options
   -v, --version                       Print the version
+  --only <rule>                       Only this rule (repeatable by comma)
+  --severity <error|warning>          Only findings at this severity
+  --max-warnings <n>                  Fail when warnings exceed n
+  --quiet                             Findings only, machine-friendly lines
+  --ascii                             ASCII marks instead of ✔ ⚠ ✖
   --format <pretty|json|agent|sarif>  Output format (default: pretty)
   --since <ref>                       Only lint files changed since a git ref
   --update                            (baseline) prune paid-down entries, never raise counts
@@ -51,6 +58,11 @@ const OPTIONS = {
   'no-baseline': { type: 'boolean', default: false },
   help: { type: 'boolean', short: 'h' },
   version: { type: 'boolean', short: 'v' },
+  quiet: { type: 'boolean', default: false },
+  ascii: { type: 'boolean', default: false },
+  only: { type: 'string' },
+  severity: { type: 'string' },
+  'max-warnings': { type: 'string' },
 } as const;
 
 let values: Record<string, string | boolean | undefined>;
@@ -116,6 +128,32 @@ if (values.help || command === 'help') {
 if (command === 'init') {
   const { runInit } = await import('./init.js');
   process.exit(runInit(resolve('.'), values.write === true));
+}
+
+if (command === 'explain') {
+  const rule = paths[0]?.replace(/^dscheck\//, '');
+  const { explainRule, RULE_IDS } = await import('./explain.js');
+  if (!rule) {
+    console.log(`Usage: dscheck explain <rule>\n\nRules: ${RULE_IDS.join(', ')}`);
+    process.exit(0);
+  }
+  const text = explainRule(rule);
+  if (!text) {
+    const near = nearest(rule, [...RULE_IDS]);
+    fail(`unknown rule ${pc.bold(rule)}${near ? ` — did you mean ${pc.bold(near)}?` : ''}`);
+  }
+  console.log(text);
+  process.exit(0);
+}
+
+if (command === 'completions') {
+  const { completionScript } = await import('./explain.js');
+  const shell = paths[0];
+  if (!shell || !['fish', 'zsh', 'bash'].includes(shell)) {
+    fail('Usage: dscheck completions <fish|zsh|bash>');
+  }
+  console.log(completionScript(shell as 'fish' | 'zsh' | 'bash'));
+  process.exit(0);
 }
 
 if (command === 'roles') {
@@ -187,7 +225,18 @@ if (command === 'tokens') {
   process.exit(0);
 }
 
-const COMMANDS = ['check', 'fix', 'baseline', 'report', 'tokens', 'roles', 'init', 'help'];
+const COMMANDS = [
+  'check',
+  'fix',
+  'baseline',
+  'report',
+  'tokens',
+  'roles',
+  'init',
+  'explain',
+  'completions',
+  'help',
+];
 if (!['check', 'fix', 'baseline', 'report'].includes(command)) {
   const near = nearest(command, COMMANDS);
   fail(
@@ -224,6 +273,17 @@ const findings = fixing
   ? await (await import('./run.js')).lintFiles(files, { fix: true })
   : await lintFilesParallel(files);
 const root = process.cwd();
+
+// Y2 filters: narrow what is reported without changing what was checked.
+const onlyRules =
+  typeof values.only === 'string'
+    ? new Set(values.only.split(',').map((r) => `dscheck/${r.replace(/^dscheck\//, '')}`))
+    : undefined;
+const filtered = findings.filter(
+  (f) =>
+    (!onlyRules || onlyRules.has(f.rule)) &&
+    (typeof values.severity !== 'string' || f.severity === values.severity),
+);
 
 if (fixing) {
   await render(findings, values.format as string);
@@ -368,9 +428,9 @@ async function runCheckOrBaselineOrReport(): Promise<void> {
 
   const { readBaseline, applyBaseline } = await import('./baseline.js');
   const baseline = values['no-baseline'] ? undefined : readBaseline(root);
-  let reportable = findings;
+  let reportable = filtered;
   if (baseline) {
-    const { fresh, absorbed, stale } = applyBaseline(findings, baseline, root);
+    const { fresh, absorbed, stale } = applyBaseline(filtered, baseline, root);
     reportable = fresh;
     if (values.format === 'pretty' && (absorbed > 0 || stale > 0)) {
       console.log(
@@ -384,7 +444,16 @@ async function runCheckOrBaselineOrReport(): Promise<void> {
     }
   }
   await render(reportable, values.format as string);
-  process.exitCode = reportable.some((f) => f.severity === 'error') ? 1 : 0;
+  const warnings = reportable.filter((f) => f.severity !== 'error').length;
+  const maxWarnings =
+    typeof values['max-warnings'] === 'string' ? Number(values['max-warnings']) : undefined;
+  const overBudget = maxWarnings !== undefined && warnings > maxWarnings;
+  if (overBudget) {
+    console.error(
+      pc.yellow(`\n${warnings} warnings exceeds the --max-warnings budget of ${maxWarnings}`),
+    );
+  }
+  process.exitCode = reportable.some((f) => f.severity === 'error') || overBudget ? 1 : 0;
 }
 
 function expand(inputs: string[]): string[] {
@@ -456,23 +525,14 @@ async function render(all: Finding[], format: string): Promise<void> {
     }
     return;
   }
-  let lastFile = '';
-  for (const f of all) {
-    if (f.file !== lastFile) {
-      const rel = relative(process.cwd(), f.file);
-      console.log(`\n${pc.underline(rel.startsWith('..') ? f.file : rel)}`);
-      lastFile = f.file;
-    }
-    const badge = f.severity === 'error' ? pc.red('✖') : pc.yellow('⚠');
-    console.log(`  ${badge} ${pc.dim(`${f.line}:${f.col}`)}  ${f.message}  ${pc.dim(f.rule)}`);
-  }
-  const errors = all.filter((f) => f.severity === 'error').length;
-  const warnings = all.length - errors;
-  console.log(
-    all.length === 0
-      ? pc.green('\n✔ on-system: no findings')
-      : `\n${pc.red(`${errors} errors`)}, ${pc.yellow(`${warnings} warnings`)}`,
-  );
+  const { renderOptions, renderFindings, renderSummary } = await import('./render.js');
+  const options = renderOptions({
+    quiet: values.quiet === true,
+    ...(values.ascii === true ? { ascii: true } : {}),
+  });
+  if (!options.quiet) for (const line of renderFindings(all, options)) console.log(line);
+  else for (const f of all) console.log(`${f.file}:${f.line}:${f.col} ${f.message}`);
+  if (!options.quiet) for (const line of renderSummary(all, options)) console.log(line);
 }
 
 /** Closest candidate by edit distance, when it is close enough to suggest. */
