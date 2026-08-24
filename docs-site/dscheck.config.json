@@ -1,0 +1,5 @@
+{
+  "$schema": "https://dscheck.dev/config.schema.json",
+  "tokens": ["src/styles/tokens.css"],
+  "allow": ["--sl-*", "--astro-*", "--ec-*", "--pagefind-*"]
+}

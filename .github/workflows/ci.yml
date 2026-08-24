@@ -33,6 +33,10 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with: { node-version: 22, cache: pnpm }
       - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      # The docs site's own design system is enforced by dscheck itself —
+      # an off-system value in the site's stylesheets fails this build.
+      - run: node packages/cli/dist/cli.js check docs-site/src --no-baseline
       - run: pnpm --filter @dscheck/docs build
   test:
     strategy:

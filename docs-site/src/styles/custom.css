@@ -1,0 +1,189 @@
+/**
+ * Starlight themed entirely through the dscheck design system: every value
+ * here is a token reference — dscheck lints this file in CI and any raw
+ * value fails the build. Practice what the linter preaches.
+ */
+
+/* ── map Starlight's variables onto the system ──────────────────────── */
+:root,
+[data-theme='light'],
+[data-theme='dark'] {
+  --sl-font: var(--font-sans);
+  --sl-font-mono: var(--font-mono);
+
+  --sl-color-accent-low: var(--color-primary-soft);
+  --sl-color-accent: var(--color-primary);
+  --sl-color-accent-high: var(--color-primary-strong);
+
+  --sl-color-white: var(--color-ink);
+  --sl-color-gray-1: var(--color-ink);
+  --sl-color-gray-2: var(--color-ink-soft);
+  --sl-color-gray-3: var(--color-ink-faint);
+  --sl-color-gray-4: var(--color-border-strong);
+  --sl-color-gray-5: var(--color-border);
+  --sl-color-gray-6: var(--color-surface-sunken);
+  --sl-color-gray-7: var(--color-surface-sunken);
+  --sl-color-black: var(--color-surface);
+
+  --sl-color-bg: var(--color-surface);
+  --sl-color-bg-nav: var(--color-surface);
+  --sl-color-bg-sidebar: var(--color-surface);
+  --sl-color-bg-inline-code: var(--color-surface-sunken);
+  --sl-color-hairline: var(--color-border);
+  --sl-color-hairline-light: var(--color-border);
+  --sl-color-hairline-shade: var(--color-border);
+
+  --sl-color-text: var(--color-ink-soft);
+  --sl-color-text-accent: var(--color-primary);
+
+  /* the roomy scale */
+  --sl-text-xs: var(--text-xs);
+  --sl-text-sm: var(--text-sm);
+  --sl-text-base: var(--text-base);
+  --sl-text-body: var(--text-base);
+  --sl-text-body-sm: var(--text-sm);
+  --sl-text-code: var(--text-sm);
+  --sl-text-code-sm: var(--text-xs);
+  --sl-text-lg: var(--text-lg);
+  --sl-text-xl: var(--text-xl);
+  --sl-text-2xl: var(--text-2xl);
+  --sl-text-3xl: var(--text-3xl);
+  --sl-text-4xl: var(--text-3xl);
+  --sl-text-5xl: var(--text-3xl);
+  --sl-line-height: var(--text-base--line-height);
+  --sl-line-height-headings: var(--text-2xl--line-height);
+
+  --sl-shadow-sm: var(--shadow-sm);
+  --sl-shadow-md: var(--shadow-md);
+  --sl-shadow-lg: var(--shadow-lg);
+}
+
+/* ── plain, roomy, accessible ───────────────────────────────────────── */
+
+.sl-markdown-content {
+  font-size: var(--text-base);
+  line-height: var(--text-base--line-height);
+  color: var(--color-ink-soft);
+}
+
+.sl-markdown-content h1,
+.sl-markdown-content h2,
+.sl-markdown-content h3,
+.sl-markdown-content h4 {
+  color: var(--color-ink);
+  font-weight: var(--font-weight-semibold);
+}
+
+.sl-markdown-content h2 {
+  margin-top: var(--spacing-12);
+}
+
+.sl-markdown-content code {
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+}
+
+.sl-markdown-content pre {
+  border-radius: var(--radius-md);
+  border-color: var(--color-border);
+}
+
+.sl-markdown-content a {
+  color: var(--color-primary);
+  text-underline-offset: var(--spacing-1);
+}
+
+.sl-markdown-content a:hover {
+  color: var(--color-primary-strong);
+}
+
+/* tables: airy rows, quiet chrome */
+.sl-markdown-content table {
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.sl-markdown-content td,
+.sl-markdown-content th {
+  padding: var(--spacing-3) var(--spacing-4);
+  border-color: var(--color-border);
+}
+
+.sl-markdown-content th {
+  color: var(--color-ink);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* asides pick up the marks */
+.starlight-aside--tip {
+  border-color: var(--color-success);
+  background-color: var(--color-success-soft);
+}
+
+.starlight-aside--caution {
+  border-color: var(--color-warning);
+  background-color: var(--color-warning-soft);
+}
+
+.starlight-aside--danger {
+  border-color: var(--color-danger);
+  background-color: var(--color-danger-soft);
+}
+
+/* cards: raised surfaces, soft corners, room to breathe */
+.card {
+  border-radius: var(--radius-lg);
+  border-color: var(--color-border);
+  background-color: var(--color-surface-raised);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-6);
+}
+
+.card .title {
+  color: var(--color-ink);
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* hero: plain and confident */
+[data-has-hero] .hero {
+  padding-block: var(--spacing-16);
+}
+
+[data-has-hero] .hero .tagline {
+  color: var(--color-ink-soft);
+  font-size: var(--text-xl);
+  line-height: var(--text-xl--line-height);
+}
+
+[data-has-hero] .action.primary {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  border-radius: var(--radius-full);
+  font-weight: var(--font-weight-medium);
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+[data-has-hero] .action.primary:hover {
+  background-color: var(--color-primary-strong);
+}
+
+/* sidebar: calm, larger targets */
+nav.sidebar .top-level a {
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  border-radius: var(--radius-sm);
+  padding-block: var(--spacing-2);
+}
+
+nav.sidebar .top-level a[aria-current='page'] {
+  background-color: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+  font-weight: var(--font-weight-medium);
+}
+
+/* focus: unmissable, on-system */
+:focus-visible {
+  outline: var(--spacing-1) solid var(--color-primary);
+  outline-offset: var(--spacing-1);
+}
