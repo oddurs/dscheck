@@ -237,7 +237,7 @@ function immediateAlias(raw: string): string | undefined {
 const NAMESPACES: ReadonlyArray<readonly [RegExp, Category]> = [
   [/^--color-/, 'color'],
   [/^--spacing(-|$)/, 'length'],
-  [/^--radius(-|$)|-radius(es)?$/, 'radius'],
+  [/^--radius(-|$)|-radius(es)?(-|$)/, 'radius'],
   [/^--text-[\w-]+--line-height$/, 'line-height'],
   [/^--text-/, 'font-size'],
   [/^--font-weight-/, 'font-weight'],

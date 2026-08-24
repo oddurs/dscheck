@@ -414,9 +414,10 @@ export function formatViolation(v: Violation): string {
   if (v.suggestion) return `${v.message} — did you mean ${v.suggestion}?`;
   if (!best)
     return `${v.message} — no ${v.rule === 'no-unknown-token' ? 'similar token' : 'token'} found`;
+  const modeNote = best.matchedValue ? ` — matches its themed value ${best.matchedValue}` : '';
   const hint =
     v.rule === 'no-raw-color'
-      ? `use var(${best.token.name}) (ΔEOK ${best.distance.toFixed(3)})`
+      ? `use var(${best.token.name}) (ΔEOK ${best.distance.toFixed(3)})${modeNote}`
       : v.rule === 'no-raw-length'
         ? `use var(${best.token.name}) (${best.token.value}${best.distance === 0 ? '' : `, Δ${best.distance}px`})`
         : v.rule === 'no-unknown-token'

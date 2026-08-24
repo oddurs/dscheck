@@ -88,7 +88,7 @@
       ],
       "expected": {
         "errors": 28,
-        "warnings": 38
+        "warnings": 40
       }
     },
     {

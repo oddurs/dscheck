@@ -172,3 +172,12 @@ describe('non-spacing length namespaces', () => {
     expect(index.byCategory('length').map((t) => t.name)).toEqual(['--spacing-3']);
   });
 });
+
+describe('radius infix names', () => {
+  it('classifies --border-radius-lg as radius, not spacing', () => {
+    const file = fixture(':root { --border-radius-lg: 0.5rem; --spacing-2: 8px; }');
+    const index = loadCssTokens([file]);
+    expect(index.tokens.get('--border-radius-lg')?.category).toBe('radius');
+    expect(index.byCategory('length').map((t) => t.name)).toEqual(['--spacing-2']);
+  });
+});

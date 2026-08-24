@@ -17,6 +17,8 @@ export interface Match {
   distance: number;
   /** exact: safe to autofix. close: suggest confidently. nearest: informational. */
   kind: 'exact' | 'close' | 'nearest';
+  /** The token value that actually matched, when it was a mode value. */
+  matchedValue?: string;
 }
 
 export interface Tolerance {
@@ -51,16 +53,25 @@ export function nearestColor(
   const matches: Match[] = [];
   for (const token of index.byCategory('color')) {
     let best: number | undefined;
+    let bestValue: string | undefined;
     for (const tokenValue of [token.value, ...(token.modeValues ?? [])]) {
       const candidate = safeParseColor(tokenValue);
       if (!candidate) continue;
       const distance = deltaEOK(target, candidate);
-      if (best === undefined || distance < best) best = distance;
+      if (best === undefined || distance < best) {
+        best = distance;
+        bestValue = tokenValue;
+      }
     }
     if (best === undefined) continue;
     const kind =
       best <= tolerance.colorExact ? 'exact' : best <= tolerance.colorClose ? 'close' : 'nearest';
-    matches.push({ token, distance: best, kind });
+    matches.push({
+      token,
+      distance: best,
+      kind,
+      ...(bestValue !== undefined && bestValue !== token.value ? { matchedValue: bestValue } : {}),
+    });
   }
   // Role-aware ranking: right-role tokens outrank closer wrong-role ones,
   // but only within suggestion range — an exact hit always surfaces.

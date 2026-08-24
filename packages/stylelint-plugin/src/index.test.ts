@@ -67,3 +67,22 @@ describe('autofix', () => {
     expect(readFileSync(file, 'utf8')).toBe('.a { color: var(--color-primary); padding: 14px; }');
   });
 });
+
+describe('multi-fix per declaration (I3 regression)', () => {
+  it('fixes every occurrence across passes without offset corruption', async () => {
+    const file = join(dir, 'multifix.css');
+    writeFileSync(file, '.a { padding: 12px 12px 0 12px; }');
+    await stylelint.lint({
+      files: file,
+      fix: true,
+      config: {
+        plugins: [join(import.meta.dirname, '..', 'dist', 'index.js')],
+        rules: { 'dscheck/no-raw-length': true },
+      },
+    });
+    const { readFileSync } = await import('node:fs');
+    expect(readFileSync(file, 'utf8')).toBe(
+      '.a { padding: var(--spacing-3) var(--spacing-3) 0 var(--spacing-3); }',
+    );
+  });
+});

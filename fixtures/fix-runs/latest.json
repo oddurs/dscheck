@@ -1,0 +1,47 @@
+[
+  {
+    "repo": "tailwindcss.com@bd868a3",
+    "before": 101,
+    "after": 87,
+    "fixed": 14,
+    "filesChanged": 2,
+    "newFindings": 0,
+    "parseDamage": 0
+  },
+  {
+    "repo": "ai-chatbot@c2f8235",
+    "before": 68,
+    "after": 61,
+    "fixed": 7,
+    "filesChanged": 7,
+    "newFindings": 0,
+    "parseDamage": 0
+  },
+  {
+    "repo": "shadcn-ui/apps/v4@ac60ef5",
+    "before": 201,
+    "after": 162,
+    "fixed": 39,
+    "filesChanged": 12,
+    "newFindings": 0,
+    "parseDamage": 0
+  },
+  {
+    "repo": "excalidraw@e160ff7",
+    "before": 68,
+    "after": 55,
+    "fixed": 13,
+    "filesChanged": 3,
+    "newFindings": 0,
+    "parseDamage": 0
+  },
+  {
+    "repo": "openstatus/web@22df52e",
+    "before": 17,
+    "after": 16,
+    "fixed": 1,
+    "filesChanged": 1,
+    "newFindings": 0,
+    "parseDamage": 0
+  }
+]

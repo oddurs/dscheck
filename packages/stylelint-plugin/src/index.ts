@@ -54,10 +54,11 @@ function createRule(ruleId: RuleId): Rule {
       };
 
       root.walkDecls((decl: Declaration) => {
+        // Offsets are relative to the declaration value at report time: after
+        // one fix mutates it, every later offset is stale. One fix per
         for (const violation of checkDeclaration(decl.prop, decl.value, ctx)) {
           if (violation.rule !== ruleId) continue;
           const best = violation.matches[0];
-          const fixable = best?.kind === 'exact';
           stylelint.utils.report({
             message: messages.rejected(formatViolation(violation)),
             node: decl,
@@ -65,13 +66,23 @@ function createRule(ruleId: RuleId): Rule {
             endIndex: declarationValueIndex(decl) + violation.index + violation.value.length,
             result,
             ruleName,
-            ...(fixable && best
+            ...(best?.kind === 'exact'
               ? {
+                  // Offsets captured at report time go stale once any fix has
+                  // mutated the value — so each fix RECOMPUTES against the
+                  // current value and applies the leftmost remaining exact
+                  // match. k reported violations → k callbacks → k fixes,
+                  // always at fresh offsets, idempotent by construction.
                   fix: () => {
+                    const fresh = checkDeclaration(decl.prop, decl.value, ctx).find(
+                      (v) => v.rule === ruleId && v.matches[0]?.kind === 'exact',
+                    );
+                    const freshBest = fresh?.matches[0];
+                    if (!fresh || !freshBest) return;
                     decl.value =
-                      decl.value.slice(0, violation.index) +
-                      `var(${best.token.name})` +
-                      decl.value.slice(violation.index + violation.value.length);
+                      decl.value.slice(0, fresh.index) +
+                      `var(${freshBest.token.name})` +
+                      decl.value.slice(fresh.index + fresh.value.length);
                   },
                 }
               : {}),

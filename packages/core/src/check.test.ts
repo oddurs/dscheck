@@ -164,3 +164,13 @@ describe('shorthand colors (A5)', () => {
     expect(checkDeclaration('border', '1px solid var(--color-primary)', ctx)).toHaveLength(0);
   });
 });
+
+describe('mode-honest messages (I5)', () => {
+  it('names the themed value when that is what matched', () => {
+    const dirI = mkdtempSync(join(tmpdir(), 'dscheck-i5-'));
+    const fI = join(dirI, 'tokens.css');
+    writeFileSync(fI, ':root { --color-surface: #ffffff; } .dark { --color-surface: #111113; }');
+    const [v] = checkDeclaration('background', '#111113', { index: loadCssTokens([fI]) });
+    expect(formatViolation(v as never)).toContain('matches its themed value #111113');
+  });
+});
