@@ -1,6 +1,10 @@
-# Deploys the docs site to GitHub Pages. Manual until the repo goes public.
+# Deploys the docs site to GitHub Pages.
 name: docs-deploy
-on: workflow_dispatch
+on:
+  push:
+    branches: [main]
+    paths: ['docs-site/**', 'packages/*/CHANGELOG.md', 'scripts/build-changelog.mjs']
+  workflow_dispatch
 permissions:
   contents: read
   pages: write
