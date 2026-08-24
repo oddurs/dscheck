@@ -9,6 +9,9 @@ If you find yourself doing something not in here twice, add it.
    [versioning policy](docs-site/src/content/docs/reference/versioning.md)).
 2. The `release` workflow keeps a "Version Packages" PR open; merging it tags and
    publishes every package via OIDC trusted publishing — **no local credentials exist**.
+   Publishing is armed by the repo variable `RELEASES_ENABLED=true`
+   (`gh variable set RELEASES_ENABLED -b true`) — set it once, at the first deliberate
+   release, after npm trusted publishing is configured for this repo+workflow.
 3. After publish: update `RELEASES.md` (scoreboard row), verify the npm provenance badge.
 4. Dry-run at any time: `pnpm changeset status` and `pnpm changeset version` on a branch.
 
