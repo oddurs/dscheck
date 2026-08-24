@@ -3,6 +3,23 @@ on:
   push: { branches: [main] }
   pull_request:
 jobs:
+  # L1: newest majors are the dev default (main matrix); this job pins the
+  # OLDEST supported peers so the floor can't silently rot.
+  oldest-peers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with: { node-version: 22, cache: pnpm }
+      - run: |
+          node -e '
+            const f = "pnpm-workspace.yaml", fs = require("fs");
+            fs.appendFileSync(f, "\noverrides:\n  eslint: 9.39.0\n  stylelint: 16.25.0\n  tailwindcss: 4.2.0\n  \"@tailwindcss/node\": 4.2.0\n");
+          '
+      - run: pnpm install --no-frozen-lockfile
+      - run: pnpm build
+      - run: pnpm test
   docs:
     runs-on: ubuntu-latest
     steps:
@@ -32,4 +49,6 @@ jobs:
       - run: pnpm lint
         if: matrix.os == 'ubuntu-latest' && matrix.node == 22
       - run: pnpm audit --prod --audit-level high
+        if: matrix.os == 'ubuntu-latest' && matrix.node == 22
+      - run: node scripts/check-theme-freshness.mjs
         if: matrix.os == 'ubuntu-latest' && matrix.node == 22

@@ -15,7 +15,7 @@
     "build": "tsdown src/index.ts src/stylelint-formatter.ts --dts"
   },
   "devDependencies": {
-    "stylelint": "^16.25.0",
+    "stylelint": "^17.14.1",
     "tsdown": "^0.15.0"
   },
   "engines": {

@@ -19,6 +19,7 @@ describe('public API surface', () => {
         "nearestColor",
         "nearestLength",
         "nearestName",
+        "tailwindDefaultTheme",
         "toPx",
         "tokenFilesFor",
         "toleranceFor",

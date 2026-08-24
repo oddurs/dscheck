@@ -234,3 +234,17 @@ describe('editor suggestions (F2)', () => {
     expect(suggestion?.fix.text).toBe("'var(--spacing-3)'");
   });
 });
+
+describe('engine-loss fallback guarantee (L2)', () => {
+  it('without tailwind installed: static path covers classes, no-unknown-class stays silent', () => {
+    // `dir` fixture has no node_modules — engineFor returns undefined there.
+    const messages = lint(
+      'const a = <div className="p-[13px] bg-[#1d4ed8] bg-brnad totally-custom" />;',
+    );
+    // arbitrary values still caught by the static path
+    expect(messages.some((m) => m.message.includes('13px'))).toBe(true);
+    expect(messages.some((m) => m.message.includes('#1d4ed8'))).toBe(true);
+    // engine-only rule is SILENT, never wrong, when the engine is absent
+    expect(messages.some((m) => m.ruleId === 'dscheck/no-unknown-class')).toBe(false);
+  });
+});

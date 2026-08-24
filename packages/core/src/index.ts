@@ -13,5 +13,6 @@ export {
 export { loadCssTokens } from './css-source.js';
 export type { Match, Tolerance } from './match.js';
 export { defaultTolerance, nearestColor, nearestLength, nearestName, toPx } from './match.js';
+export { tailwindDefaultTheme } from './tailwind-theme.js';
 export type { Category, Token, ValueIndex } from './types.js';
 export { createIndex } from './types.js';

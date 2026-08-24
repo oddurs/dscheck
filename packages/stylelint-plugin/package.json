@@ -14,14 +14,14 @@
     "build": "tsdown src/index.ts --dts"
   },
   "dependencies": {
-    "@dscheck/core": "workspace:*",
-    "postcss": "^8.5.26"
+    "@dscheck/core": "workspace:*"
   },
   "peerDependencies": {
     "stylelint": ">=16"
   },
   "devDependencies": {
-    "stylelint": "^16.25.0",
+    "postcss": "^8.5.26",
+    "stylelint": "^17.14.1",
     "tsdown": "^0.15.0"
   },
   "engines": {
