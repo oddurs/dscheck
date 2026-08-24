@@ -248,3 +248,23 @@ describe('engine-loss fallback guarantee (L2)', () => {
     expect(messages.some((m) => m.ruleId === 'dscheck/no-unknown-class')).toBe(false);
   });
 });
+
+describe('engine failure degrades, never crashes (review hardening)', () => {
+  it('an engine that dies mid-run falls back to the static path', async () => {
+    const { checkClassString } = await import('../dist/index.js');
+    const { indexFor } = await import('@dscheck/core');
+    const index = indexFor(join(dir, 'component.tsx'));
+    if (!index) throw new Error('no index');
+    const ctx = { index };
+
+    // engine retired (returns undefined, as @dscheck/tw does after a throw)
+    const degraded = checkClassString('p-[13px] bg-brnad', ctx, () => undefined);
+    // arbitrary values still caught by the regex path…
+    expect(degraded.some((v) => v.value === '13px')).toBe(true);
+    // …and the engine-only rule stays silent rather than guessing
+    expect(degraded.some((v) => v.rule === 'no-unknown-class')).toBe(false);
+
+    // identical to having no engine at all — one behaviour, two causes
+    expect(degraded).toEqual(checkClassString('p-[13px] bg-brnad', ctx));
+  });
+});

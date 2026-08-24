@@ -15,17 +15,17 @@ export interface ParsedClass {
 
 type WorkerFn = (op: 'init' | 'parse', payload: unknown) => unknown;
 
-const engines = new Map<string, ((classes: string[]) => ParsedClass[]) | null>();
+/** Parse classes, or `undefined` when the engine died — callers fall back. */
+export type EngineParse = (classes: string[]) => ParsedClass[] | undefined;
+
+const engines = new Map<string, EngineParse | null>();
 
 /**
  * A Tailwind-engine-backed class parser for a project root, or undefined when
  * the project doesn't have Tailwind installed. Sync (via a synckit worker) so
  * eslint rules can call it; one engine per root, cached.
  */
-export function engineFor(
-  root: string,
-  tokenFiles: string[],
-): ((classes: string[]) => ParsedClass[]) | undefined {
+export function engineFor(root: string, tokenFiles: string[]): EngineParse | undefined {
   const cached = engines.get(root);
   if (cached !== undefined) return cached ?? undefined;
   try {
@@ -42,7 +42,18 @@ export function engineFor(
       : `@import 'tailwindcss';`;
     const call = createSyncFn(new URL('./worker.js', import.meta.url)) as WorkerFn;
     call('init', { base: root, css });
-    const parse = (classes: string[]) => call('parse', classes) as ParsedClass[];
+    // synckit rethrows worker exceptions synchronously — an engine failure
+    // must never reach the host linter. On a throw the engine is retired for
+    // this root and callers degrade to the static path (the L2 guarantee).
+    const parse: EngineParse = (classes) => {
+      try {
+        return call('parse', classes) as ParsedClass[];
+      } catch (error) {
+        if (process.env.DSCHECK_TW_DEBUG) console.error('[dscheck/tw] parse failed', error);
+        engines.set(root, null);
+        return undefined;
+      }
+    };
     engines.set(root, parse);
     return parse;
   } catch (error) {

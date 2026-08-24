@@ -74,13 +74,15 @@ function utilityFor(root: string, tokenName: string): string | undefined {
 
 const ARBITRARY = /(?:^|[\s"'`])(?:[\w-]+:)*([a-z][\w.-]*)-\[([^\]]+)\]/g;
 
-export type EngineParse = (classes: string[]) => Array<{
-  base: string;
-  root: string;
-  kind: 'named' | 'arbitrary' | 'static' | 'unknown';
-  value?: string;
-  inert: boolean;
-}>;
+export type EngineParse = (classes: string[]) =>
+  | Array<{
+      base: string;
+      root: string;
+      kind: 'named' | 'arbitrary' | 'static' | 'unknown';
+      value?: string;
+      inert: boolean;
+    }>
+  | undefined;
 
 /**
  * Find off-system values inside Tailwind class strings. With a Tailwind engine
@@ -115,6 +117,9 @@ function checkWithEngine(value: string, ctx: CheckContext, engine: EngineParse):
   const classTokens = [...value.matchAll(/\S+/g)].map((m) => ({ text: m[0], start: m.index }));
   if (classTokens.length === 0) return violations;
   const parsed = engine(classTokens.map((t) => t.text));
+  // Engine unavailable mid-run (a target-repo plugin threw): degrade to the
+  // static path rather than reporting nothing — silence would be a lie.
+  if (!parsed) return checkWithRegex(value, ctx);
   classTokens.forEach((classToken, i) => {
     const info = parsed[i];
     if (!info) return;

@@ -20,7 +20,16 @@ runAsWorker(async (op: 'init' | 'parse', payload: unknown) => {
   }
   if (!ds) throw new Error('engine not initialised');
   const classes = payload as string[];
-  const cssOut = ds.candidatesToCss(classes);
+  // A target repo's `@plugin` utility callback can throw during compilation —
+  // Tailwind's internal catch doesn't cover that step. An exception here would
+  // propagate synchronously through synckit and crash the host linter, so we
+  // contain it: unknown inertness means the engine-only rules stay silent.
+  let cssOut: Array<string | null>;
+  try {
+    cssOut = ds.candidatesToCss(classes);
+  } catch {
+    cssOut = classes.map(() => '');
+  }
   return classes.map((cls, i) => {
     let parsed: ReturnType<DesignSystem['parseCandidate']>;
     try {

@@ -182,22 +182,7 @@ const fileListCache = new Map<string, string[]>();
 
 /** Resolve the allowed set for a config, cached by token-file mtimes. */
 export function loadIndex(config: DscheckConfig): ValueIndex {
-  // Config order is meaning: the first source of a token wins the primary
-  // value (light before dark). Sort only within each pattern's expansion.
-  const listKey = `${config.root}|${config.tokens.join(',')}`;
-  let files = fileListCache.get(listKey);
-  if (!files || !files.every((f) => existsSync(f))) {
-    files = [
-      ...new Set(
-        config.tokens.flatMap((pattern) =>
-          globSync(pattern, { cwd: config.root, ignore: ['**/node_modules/**'] })
-            .sort()
-            .map((f) => join(config.root, f)),
-        ),
-      ),
-    ];
-    fileListCache.set(listKey, files);
-  }
+  const files = tokenFilesFor(config);
   const key = files.map((f) => `${f}:${statSync(f).mtimeMs}`).join('|');
   const cached = cache.get(config.root);
   if (cached?.key === key) return cached.index;
@@ -305,11 +290,24 @@ export function isIgnored(filePath: string, config: DscheckConfig): boolean {
 
 /** The resolved token file list for a config (config order, globs expanded). */
 export function tokenFilesFor(config: DscheckConfig): string[] {
-  return config.tokens.flatMap((pattern) =>
-    globSync(pattern, { cwd: config.root, ignore: ['**/node_modules/**'] })
-      .sort()
-      .map((f) => join(config.root, f)),
-  );
+  // Config order is meaning: the first source of a token wins the primary
+  // value (light before dark). Sort only within each pattern's expansion.
+  // Memoized — adapters call this once per rule per file (7 × N globs
+  // otherwise); invalidated when a cached path disappears.
+  const key = `${config.root}|${config.tokens.join(',')}`;
+  const cached = fileListCache.get(key);
+  if (cached && cached.every((f) => existsSync(f))) return cached;
+  const files = [
+    ...new Set(
+      config.tokens.flatMap((pattern) =>
+        globSync(pattern, { cwd: config.root, ignore: ['**/node_modules/**'] })
+          .sort()
+          .map((f) => join(config.root, f)),
+      ),
+    ),
+  ];
+  fileListCache.set(key, files);
+  return files;
 }
 
 /** One-call convenience for adapters: config + index for the file being linted. */
